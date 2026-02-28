@@ -40,7 +40,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/foodorder-backend
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_IMAGE=ghcr.io/${OWNER_LC}/foodorder-backend
           DOCKER_HUB_IMAGE=${{ secrets.DOCKER_USERNAME }}/foodorder-backend
 
           docker build \
