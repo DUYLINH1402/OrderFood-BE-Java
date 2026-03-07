@@ -172,5 +172,9 @@ logging:
   level:
     com.foodorder.backend.coupons: DEBUG
     org.springframework.scheduling: INFO
+    # Tắt log INFO của Redis
+    org.springframework.data.redis: WARN
+    io.lettuce.core: WARN
+    org.springframework.cache: WARN
 
 

@@ -146,8 +146,6 @@ public class OrderController {
             @RequestBody CancelOrderRequest request,
             @Parameter(hidden = true) HttpServletRequest httpRequest) {
 
-        log.info("Cancelling order: {} with reason: {}", orderCode, request.getCancelReason());
-
         Long userId = getUserIdFromToken(httpRequest);
         orderService.cancelOrder(orderCode, userId, request.getCancelReason());
 

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Đơn hàng đã giao thành công</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #16a34a;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .success-icon {
+            text-align: center;
+            font-size: 60px;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .shipping-info {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .price {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .summary-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #16a34a;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .order-detail-table {
+                display: none !important;
+            }
+
+            .order-detail-mobile {
+                display: block !important;
+            }
+
+            .price {
+                text-align: left !important;
+            }
+        }
+
+        .order-detail-mobile {
+            display: none;
+        }
+
+        .mobile-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+        }
+
+        .mobile-item-name {
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .mobile-item-details {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .mobile-item-total {
+            font-size: 13px;
+            color: #1e293b;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h2 style="color: #222; margin-bottom: 10px;">ĐỒNG XANH FOOD</h2>
+
+    <div class="success-icon">✅</div>
+
+    <p style="font-size: 16px; color: #333; text-align: center;">
+        Xin chào <strong th:text="${fullName}"></strong>,
+    </p>
+
+    <p style="font-size: 16px; color: #333; text-align: center;">
+        Đơn hàng <b>#<span th:text="${orderCode}"></span></b> của bạn đã được
+        <span class="status-badge">✔ GIAO THÀNH CÔNG</span>
+    </p>
+
+    <p style="font-size: 15px; color: #555; text-align: center;">
+        Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của Đồng Xanh Food!
+    </p>
+
+    <!-- Chi tiết đơn hàng -->
+    <h3 style="color: #1e293b; margin-top: 30px;">📋 Chi tiết đơn hàng</h3>
+
+    <!-- Desktop Table -->
+    <table class="order-detail-table">
+        <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orderItems}">
+            <td th:text="${item.foodName}"></td>
+            <td style="text-align: center;" th:text="${item.quantity}"></td>
+            <td class="price" th:text="${item.priceFormatted}"></td>
+            <td class="price" th:text="${item.totalFormatted}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Mobile View -->
+    <div class="order-detail-mobile">
+        <div th:each="item : ${orderItems}" class="mobile-item">
+            <div class="mobile-item-name" th:text="${item.foodName}"></div>
+            <div class="mobile-item-details">
+                SL: <span th:text="${item.quantity}"></span> | Đơn giá: <span th:text="${item.priceFormatted}"></span>
+            </div>
+            <div class="mobile-item-total">
+                Thành tiền: <span th:text="${item.totalFormatted}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tổng kết -->
+    <div class="summary-box">
+        <p style="margin: 4px 0; font-size: 15px;">
+            <b>Tổng tiền hàng:</b> <span th:text="${subtotalFormatted}"></span>
+        </p>
+        <p th:if="${shippingFee != null && shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
+            <b>Phí giao hàng:</b> <span th:text="${shippingFeeFormatted}"></span>
+        </p>
+        <p th:if="${discountAmount != null && discountAmount > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
+            <b>Giảm giá:</b> -<span th:text="${discountAmountFormatted}"></span>
+        </p>
+        <hr style="border: none; border-top: 1px solid #bbf7d0; margin: 8px 0;" />
+        <p style="margin: 4px 0; font-size: 17px; font-weight: bold; color: #16a34a;">
+            Thành tiền: <span th:text="${finalAmountFormatted}"></span>
+        </p>
+        <p style="margin: 4px 0; font-size: 14px; color: #555;">
+            <b>Thanh toán:</b> <span th:text="${paymentMethod}"></span>
+        </p>
+    </div>
+
+    <!-- Thông tin giao hàng -->
+    <h3 style="color: #1e293b; margin-top: 30px;">🚚 Thông tin giao hàng</h3>
+    <div class="shipping-info">
+        <p style="margin: 4px 0; font-size: 15px;"><b>Người nhận:</b> <span th:text="${receiverName}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Số điện thoại:</b> <span th:text="${receiverPhone}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Email:</b> <span th:text="${receiverEmail}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
+    </div>
+
+    <!-- Lời cảm ơn -->
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="font-size: 16px; color: #333;">
+            🎉 Chúng tôi hy vọng bạn hài lòng với đơn hàng!
+        </p>
+        <p style="font-size: 15px; color: #555;">
+            Hãy quay lại và đặt thêm những món ngon khác nhé!
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <p style="font-size: 13px; color: #999; text-align: center; margin-top: 30px;">
+        Đây là email thông báo tự động từ hệ thống Đồng Xanh Food.<br />
+        Vui lòng không trả lời email này.<br />
+        Nếu có thắc mắc, vui lòng liên hệ bộ phận CSKH của chúng tôi.
+    </p>
+
+</div>
+</body>
+
+</html>
+

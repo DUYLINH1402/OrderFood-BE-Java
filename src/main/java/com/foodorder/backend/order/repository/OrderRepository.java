@@ -28,6 +28,9 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     // Lấy đơn hàng theo id và userId
     Optional<Order> findByIdAndUserId(Long id, Long userId);
 
+    // Lấy đơn hàng theo orderCode và userId
+    Optional<Order> findByOrderCodeAndUserId(String orderCode, Long userId);
+
     // Đếm số đơn hàng theo userId
     long countByUserId(Long userId);
 

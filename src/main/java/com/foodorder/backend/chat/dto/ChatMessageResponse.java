@@ -32,6 +32,9 @@ public class ChatMessageResponse {
     @Schema(description = "Email người gửi", example = "user@example.com")
     private String senderEmail;
 
+    @Schema(description = "URL avatar người gửi", example = "https://example.com/avatar.jpg")
+    private String senderAvatar;
+
     @Schema(description = "ID của người nhận", example = "2")
     private Long receiverId;
 
@@ -88,6 +91,7 @@ public class ChatMessageResponse {
                 .senderId(chatMessage.getSender().getId())
                 .senderName(chatMessage.getSender().getFullName())
                 .senderEmail(chatMessage.getSender().getEmail())
+                .senderAvatar(chatMessage.getSender().getAvatarUrl())
                 .messageType(chatMessage.getMessageType().name())
                 .status(chatMessage.getStatus().name())
                 .sentAt(chatMessage.getSentAt())

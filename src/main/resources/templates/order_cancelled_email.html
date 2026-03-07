@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Đơn hàng đã bị hủy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #dc2626;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .cancel-icon {
+            text-align: center;
+            font-size: 60px;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .shipping-info {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .price {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .cancel-reason-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .summary-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .order-detail-table {
+                display: none !important;
+            }
+
+            .order-detail-mobile {
+                display: block !important;
+            }
+
+            .price {
+                text-align: left !important;
+            }
+        }
+
+        .order-detail-mobile {
+            display: none;
+        }
+
+        .mobile-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+        }
+
+        .mobile-item-name {
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .mobile-item-details {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .mobile-item-total {
+            font-size: 13px;
+            color: #1e293b;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h2 style="color: #222; margin-bottom: 10px;">ĐỒNG XANH FOOD</h2>
+
+    <div class="cancel-icon">❌</div>
+
+    <p style="font-size: 16px; color: #333; text-align: center;">
+        Xin chào <strong th:text="${fullName}"></strong>,
+    </p>
+
+    <p style="font-size: 16px; color: #333; text-align: center;">
+        Đơn hàng <b>#<span th:text="${orderCode}"></span></b> của bạn đã bị
+        <span class="status-badge">✘ HỦY</span>
+    </p>
+
+    <p style="font-size: 15px; color: #555; text-align: center;">
+        Chúng tôi rất tiếc vì sự bất tiện này. Dưới đây là thông tin chi tiết về đơn hàng đã bị hủy.
+    </p>
+
+    <!-- Lý do hủy -->
+    <div th:if="${cancelReason != null and !cancelReason.isEmpty()}" class="cancel-reason-box">
+        <p style="margin: 0; font-size: 15px; font-weight: bold; color: #dc2626;">📌 Lý do hủy đơn:</p>
+        <p style="margin: 8px 0 0 0; font-size: 15px; color: #333;" th:text="${cancelReason}"></p>
+    </div>
+
+    <!-- Chi tiết đơn hàng -->
+    <h3 style="color: #1e293b; margin-top: 30px;">📋 Chi tiết đơn hàng đã hủy</h3>
+
+    <!-- Desktop Table -->
+    <table class="order-detail-table">
+        <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orderItems}">
+            <td th:text="${item.foodName}"></td>
+            <td style="text-align: center;" th:text="${item.quantity}"></td>
+            <td class="price" th:text="${item.priceFormatted}"></td>
+            <td class="price" th:text="${item.totalFormatted}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Mobile View -->
+    <div class="order-detail-mobile">
+        <div th:each="item : ${orderItems}" class="mobile-item">
+            <div class="mobile-item-name" th:text="${item.foodName}"></div>
+            <div class="mobile-item-details">
+                SL: <span th:text="${item.quantity}"></span> | Đơn giá: <span th:text="${item.priceFormatted}"></span>
+            </div>
+            <div class="mobile-item-total">
+                Thành tiền: <span th:text="${item.totalFormatted}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tổng kết -->
+    <div class="summary-box">
+        <p style="margin: 4px 0; font-size: 15px;">
+            <b>Tổng tiền hàng:</b> <span th:text="${subtotalFormatted}"></span>
+        </p>
+        <p th:if="${shippingFee != null && shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
+            <b>Phí giao hàng:</b> <span th:text="${shippingFeeFormatted}"></span>
+        </p>
+        <p th:if="${discountAmount != null && discountAmount > 0}" style="margin: 4px 0; font-size: 15px;">
+            <b>Giảm giá:</b> -<span th:text="${discountAmountFormatted}"></span>
+        </p>
+        <hr style="border: none; border-top: 1px solid #fecaca; margin: 8px 0;" />
+        <p style="margin: 4px 0; font-size: 17px; font-weight: bold; color: #dc2626; text-decoration: line-through;">
+            Thành tiền: <span th:text="${finalAmountFormatted}"></span>
+        </p>
+        <p style="margin: 4px 0; font-size: 14px; color: #555;">
+            <b>Thanh toán:</b> <span th:text="${paymentMethod}"></span>
+        </p>
+    </div>
+
+    <!-- Thông tin giao hàng -->
+    <h3 style="color: #1e293b; margin-top: 30px;">🚚 Thông tin giao hàng</h3>
+    <div class="shipping-info">
+        <p style="margin: 4px 0; font-size: 15px;"><b>Người nhận:</b> <span th:text="${receiverName}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Số điện thoại:</b> <span th:text="${receiverPhone}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Email:</b> <span th:text="${receiverEmail}"></span></p>
+        <p style="margin: 4px 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
+    </div>
+
+    <!-- Thông báo hoàn tiền nếu đã thanh toán -->
+    <div th:if="${isPaid}" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-top: 20px;">
+        <p style="margin: 0; font-size: 15px; color: #92400e;">
+            💰 <b>Về việc hoàn tiền:</b> Đơn hàng của bạn đã được thanh toán trước đó.
+            Vui lòng liên hệ bộ phận CSKH của Đồng Xanh Food để được hỗ trợ hoàn tiền.
+        </p>
+    </div>
+
+    <!-- Lời xin lỗi -->
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="font-size: 16px; color: #333;">
+            😔 Chúng tôi xin lỗi vì sự bất tiện này.
+        </p>
+        <p style="font-size: 15px; color: #555;">
+            Hy vọng bạn sẽ quay lại và đặt hàng trong lần tới!<br/>
+            Đội ngũ Đồng Xanh Food luôn sẵn sàng phục vụ bạn.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <p style="font-size: 13px; color: #999; text-align: center; margin-top: 30px;">
+        Đây là email thông báo tự động từ hệ thống Đồng Xanh Food.<br />
+        Vui lòng không trả lời email này.<br />
+        Nếu có thắc mắc, vui lòng liên hệ bộ phận CSKH của chúng tôi.
+    </p>
+
+</div>
+</body>
+
+</html>
+

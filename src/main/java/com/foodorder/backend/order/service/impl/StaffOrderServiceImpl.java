@@ -5,14 +5,19 @@ import com.foodorder.backend.order.dto.response.OrderResponse;
 import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.dto.OrderWebSocketMessage;
 import com.foodorder.backend.order.entity.Order;
+import com.foodorder.backend.order.entity.OrderItem;
 import com.foodorder.backend.order.entity.OrderStatus;
+import com.foodorder.backend.order.entity.PaymentStatus;
+import com.foodorder.backend.order.repository.OrderItemRepository;
 import com.foodorder.backend.order.service.OrderCoreService;
 import com.foodorder.backend.order.service.StaffOrderService;
 import com.foodorder.backend.order.util.OrderMapper;
+import com.foodorder.backend.service.BrevoEmailService;
 import com.foodorder.backend.service.WebSocketService;
 import com.foodorder.backend.notifications.service.NotificationHelper;
 import com.foodorder.backend.user.repository.UserRepository;
 import com.foodorder.backend.user.entity.User;
+import com.foodorder.backend.util.VnCurrencyFormatter;
 import com.foodorder.backend.zone.repository.WardRepository;
 import com.foodorder.backend.zone.repository.DistrictRepository;
 import com.foodorder.backend.zone.entity.Ward;
@@ -21,12 +26,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;;
 
 /**
  * Staff Order Service Implementation
@@ -44,6 +52,9 @@ public class StaffOrderServiceImpl implements StaffOrderService {
     private final DistrictRepository districtRepository;
     private final NotificationHelper notificationHelper;
     private final UserRepository userRepository;
+    private final BrevoEmailService brevoEmailService;
+    private final TemplateEngine templateEngine;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public PageResponse<OrderResponse> getOrdersNeedConfirmation(PageRequest pageRequest) {
@@ -100,6 +111,12 @@ public class StaffOrderServiceImpl implements StaffOrderService {
 
                     // Lưu thông báo vào database cho customer
                     createOrderStatusNotificationForUser(updatedOrder, oldStatus);
+
+                    // Gửi email thông báo khi đơn hàng COMPLETED hoặc CANCELLED
+                    if (updatedOrder.getStatus() == OrderStatus.COMPLETED
+                            || updatedOrder.getStatus() == OrderStatus.CANCELLED) {
+                        sendOrderStatusEmail(updatedOrder);
+                    }
 
                 } catch (Exception userNotificationEx) {
                     log.error("Lỗi khi gửi thông báo cho user {} về đơn hàng {}: {}",
@@ -186,6 +203,131 @@ public class StaffOrderServiceImpl implements StaffOrderService {
     }
 
     // ============ PRIVATE HELPER METHODS FOR NOTIFICATIONS ============
+
+    /**
+     * Gửi email thông báo trạng thái đơn hàng (COMPLETED hoặc CANCELLED)
+     * Chạy bất đồng bộ để không block luồng chính
+     */
+    @Async("taskExecutor")
+    public void sendOrderStatusEmail(Order order) {
+        try {
+            // Lấy email người nhận từ đơn hàng hoặc từ user
+            String recipientEmail = order.getReceiverEmail();
+            String recipientName = order.getReceiverName();
+
+            // Nếu không có email người nhận, thử lấy từ user
+            if (recipientEmail == null || recipientEmail.isEmpty()) {
+                if (order.getUserId() != null) {
+                    User user = userRepository.findById(order.getUserId()).orElse(null);
+                    if (user != null && user.getEmail() != null) {
+                        recipientEmail = user.getEmail();
+                        recipientName = user.getFullName() != null ? user.getFullName() : user.getEmail();
+                    }
+                }
+            }
+
+            if (recipientEmail == null || recipientEmail.isEmpty()) {
+                log.warn("Không tìm thấy email để gửi thông báo cho đơn hàng {}", order.getOrderCode());
+                return;
+            }
+
+            // Tạo context chung cho Thymeleaf
+            Context context = buildOrderEmailContext(order, recipientName);
+
+            String subject;
+            String templateName;
+
+            if (order.getStatus() == OrderStatus.COMPLETED) {
+                subject = String.format(" Đơn hàng #%s đã giao thành công!", order.getOrderCode());
+                templateName = "order_completed_email";
+            } else if (order.getStatus() == OrderStatus.CANCELLED) {
+                subject = String.format(" Đơn hàng #%s đã bị hủy", order.getOrderCode());
+                templateName = "order_cancelled_email";
+
+                // Thêm thông tin riêng cho đơn hủy
+                context.setVariable("cancelReason",
+                        order.getCancelReason() != null ? order.getCancelReason() : "");
+                context.setVariable("isPaid",
+                        order.getPaymentStatus() == PaymentStatus.PAID);
+            } else {
+                return;
+            }
+
+            String htmlContent = templateEngine.process(templateName, context);
+            brevoEmailService.sendEmail(recipientEmail, subject, htmlContent);
+
+            log.info("Đã gửi email thông báo {} cho {} về đơn hàng {}",
+                    order.getStatus(), recipientEmail, order.getOrderCode());
+
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email thông báo trạng thái đơn hàng {}: {}",
+                    order.getOrderCode(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Tạo Thymeleaf Context chung cho email đơn hàng (COMPLETED / CANCELLED)
+     */
+    private Context buildOrderEmailContext(Order order, String recipientName) {
+        Context context = new Context();
+
+        // Thông tin cơ bản
+        context.setVariable("fullName", recipientName != null ? recipientName : "Quý khách");
+        context.setVariable("orderCode", order.getOrderCode());
+
+        // Danh sách sản phẩm
+        List<Map<String, Object>> orderItemsList = new ArrayList<>();
+        List<OrderItem> items = orderItemRepository.findByOrderIdWithFood(order.getId());
+        for (OrderItem item : items) {
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("foodName", item.getFoodName() != null ? item.getFoodName() :
+                    (item.getFood() != null ? item.getFood().getName() : ""));
+            itemMap.put("quantity", item.getQuantity() != null ? item.getQuantity() : 0);
+
+            long price = item.getPrice() != null ? item.getPrice().longValue() : 0;
+            int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
+            long total = price * quantity;
+
+            itemMap.put("priceFormatted", VnCurrencyFormatter.format(price));
+            itemMap.put("totalFormatted", VnCurrencyFormatter.format(total));
+
+            orderItemsList.add(itemMap);
+        }
+        context.setVariable("orderItems", orderItemsList);
+
+        // Tổng tiền - sử dụng field mới
+        long subtotal = order.getSubtotalAmount() != null ? order.getSubtotalAmount().longValue() : 0;
+        long shippingFee = order.getShippingFee() != null ? order.getShippingFee().longValue() : 0;
+        long finalAmount = order.getFinalAmount() != null ? order.getFinalAmount().longValue() : 0;
+
+        // Tính tổng giảm giá (điểm + coupon)
+        long pointsDiscount = order.getPointsDiscountAmount() != null ? order.getPointsDiscountAmount().longValue() : 0;
+        long couponDiscount = order.getCouponDiscountAmount() != null ? order.getCouponDiscountAmount().longValue() : 0;
+        long totalDiscount = pointsDiscount + couponDiscount;
+
+        context.setVariable("subtotalFormatted", VnCurrencyFormatter.format(subtotal));
+        context.setVariable("shippingFee", shippingFee);
+        context.setVariable("shippingFeeFormatted", VnCurrencyFormatter.format(shippingFee));
+        context.setVariable("discountAmount", totalDiscount);
+        context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(totalDiscount));
+        context.setVariable("finalAmountFormatted", VnCurrencyFormatter.format(finalAmount));
+
+        // Thông tin thanh toán
+        context.setVariable("paymentMethod",
+                order.getPaymentMethod() != null ? order.getPaymentMethod().name() : "");
+
+        // Thông tin giao hàng
+        context.setVariable("receiverName",
+                order.getReceiverName() != null ? order.getReceiverName() : "");
+        context.setVariable("receiverPhone",
+                order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
+        context.setVariable("receiverEmail",
+                order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
+        context.setVariable("deliveryAddress",
+                order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
+
+        return context;
+    }
 
     /**
      * Tạo thông báo cập nhật trạng thái đơn hàng cho User

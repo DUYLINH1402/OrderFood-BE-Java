@@ -1,7 +1,9 @@
 package com.foodorder.backend.chat.controller;
 
 import com.foodorder.backend.chat.dto.ChatMessageResponse;
+import com.foodorder.backend.chat.entity.Conversation;
 import com.foodorder.backend.chat.service.ChatService;
+import com.foodorder.backend.chat.service.ConversationService;
 import com.foodorder.backend.security.JwtUtil;
 import com.foodorder.backend.user.entity.User;
 import com.foodorder.backend.user.service.UserService;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +42,7 @@ import java.util.stream.Collectors;
 public class ChatController {
 
     private final ChatService chatService;
+    private final ConversationService conversationService;
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
@@ -186,57 +190,43 @@ public class ChatController {
                 ));
             }
 
-            // Sử dụng conversation ID thay vì user để lấy tin nhắn cho staff
-            // Tìm conversation của user này trước
-            try {
-                // Giả sử có ConversationService để lấy conversation
-                // Page<ChatMessageResponse> messages = chatService.getChatHistoryForStaffInConversationPageable(conversationId, pageable);
+            Pageable pageable = PageRequest.of(page, size);
 
-                // Tạm thời sử dụng method cũ cho đến khi implement đầy đủ ConversationService
-                Pageable pageable = PageRequest.of(page, size);
-                List<ChatMessageResponse> allMessages = chatService.getChatHistoryForUser(user);
+            // Tìm conversation của user - sử dụng Optional để tránh exception
+            Optional<Conversation> conversationOpt = conversationService.findConversationByUser(user);
 
-                // Convert List to Page manually (temporary solution)
-                int start = (int) pageable.getOffset();
-                int end = Math.min((start + pageable.getPageSize()), allMessages.size());
-                List<ChatMessageResponse> pageContent = allMessages.subList(start, end);
+            Map<String, Object> response = new HashMap<>();
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("messages", pageContent);
-                response.put("currentPage", page);
-                response.put("totalPages", (int) Math.ceil((double) allMessages.size() / size));
-                response.put("totalElements", allMessages.size());
-                response.put("hasNext", end < allMessages.size());
-                response.put("hasPrevious", start > 0);
-                response.put("user", Map.of(
-                    "id", user.getId(),
-                    "name", user.getFullName(),
-                    "email", user.getEmail(),
-                    "phone", user.getPhoneNumber()
-                ));
+            if (conversationOpt.isPresent()) {
+                // Có conversation -> lấy tin nhắn cho staff
+                Long conversationId = conversationOpt.get().getId();
+                Page<ChatMessageResponse> messages = chatService.getChatHistoryForStaffInConversationPageable(conversationId, pageable);
 
-                return ResponseEntity.ok(response);
-
-            } catch (Exception conversationError) {
-                log.warn("Không thể lấy tin nhắn qua conversation, sử dụng phương pháp fallback: {}", conversationError.getMessage());
-
-                // Fallback: trả về empty result
-                Map<String, Object> response = new HashMap<>();
+                response.put("messages", messages.getContent());
+                response.put("currentPage", messages.getNumber());
+                response.put("totalPages", messages.getTotalPages());
+                response.put("totalElements", messages.getTotalElements());
+                response.put("hasNext", messages.hasNext());
+                response.put("hasPrevious", messages.hasPrevious());
+            } else {
+                // User chưa có conversation -> trả về kết quả rỗng
                 response.put("messages", List.of());
                 response.put("currentPage", 0);
                 response.put("totalPages", 0);
                 response.put("totalElements", 0);
                 response.put("hasNext", false);
                 response.put("hasPrevious", false);
-                response.put("user", Map.of(
-                    "id", user.getId(),
-                    "name", user.getFullName(),
-                    "email", user.getEmail(),
-                    "phone", user.getPhoneNumber()
-                ));
-
-                return ResponseEntity.ok(response);
             }
+
+            response.put("user", Map.of(
+                "id", user.getId(),
+                "name", user.getFullName(),
+                "email", user.getEmail(),
+                "phone", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                "avatarUrl", user.getAvatarUrl() != null ? user.getAvatarUrl() : ""
+            ));
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("Lỗi khi lấy tin nhắn của user {}: {}", userId, e.getMessage());
@@ -337,6 +327,7 @@ public class ChatController {
                 userInfo.put("fullName", user.getFullName());
                 userInfo.put("email", user.getEmail());
                 userInfo.put("phoneNumber", user.getPhoneNumber());
+                userInfo.put("avatarUrl", user.getAvatarUrl());
                 userInfo.put("unreadCount", unreadCount);
                 userInfo.put("hasUnreadMessages", unreadCount > 0);
 

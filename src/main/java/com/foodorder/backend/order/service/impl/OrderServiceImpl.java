@@ -301,8 +301,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponse getOrderDetail(String orderCode, Long userId) {
-        Order order = orderRepository.findByIdAndUserId(Long.parseLong(orderCode), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Order order = orderRepository.findByOrderCodeAndUserId(orderCode, userId)
+                .orElseThrow(() -> new BadRequestException("Không tìm thấy đơn hàng", "ORDER_NOT_FOUND"));
 
         return mapToOrderResponse(order);
     }
@@ -310,8 +310,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void updateOrderStatus(String orderCode, Long userId, UpdateOrderStatusRequest request) {
-        Order order = orderRepository.findByIdAndUserId(Long.parseLong(orderCode), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Order order = orderRepository.findByOrderCodeAndUserId(orderCode, userId)
+                .orElseThrow(() -> new BadRequestException("Không tìm thấy đơn hàng", "ORDER_NOT_FOUND"));
 
         try {
             // Lưu trạng thái cũ để gửi notification
@@ -356,14 +356,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancelOrder(String orderCode, Long userId, String cancelReason) {
-        Order order = orderRepository.findByIdAndUserId(Long.parseLong(orderCode), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Order order = orderRepository.findByOrderCodeAndUserId(orderCode, userId)
+                .orElseThrow(() -> new BadRequestException("Không tìm thấy đơn hàng", "ORDER_NOT_FOUND"));
 
-        if (order.getStatus() == OrderStatus.COMPLETED) {
-            throw new IllegalArgumentException("Cannot cancel completed order");
+        // Chỉ cho phép hủy đơn khi trạng thái là PENDING hoặc PROCESSING
+        // Sau khi Staff xác nhận (CONFIRMED - đang chế biến) thì không thể hủy
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.PROCESSING) {
+            throw new BadRequestException(
+                    "Không thể hủy đơn hàng. Món ăn đang được chế biến. Vui lòng liên hệ nhân viên",
+                    "ORDER_CANCEL_NOT_ALLOWED"
+            );
         }
 
         order.setStatus(OrderStatus.CANCELLED);
+        order.setCancelReason(cancelReason); // Lưu lý do hủy đơn
         orderRepository.save(order);
 
         // Cập nhật order tracking

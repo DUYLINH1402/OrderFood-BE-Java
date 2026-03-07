@@ -322,10 +322,6 @@ public class ChatWebSocketController {
             staffOnlineNotification.put("timestamp", LocalDateTime.now().toString());
 
             messagingTemplate.convertAndSend("/topic/staff-chat", staffOnlineNotification);
-
-            log.info("Staff {} đã online và đăng ký chat thành công. Tổng staff online: {}", staffId,
-                    onlineStaff.size());
-
         } catch (Exception e) {
             log.error("Lỗi khi đăng ký staff chat: {}", e.getMessage());
             sendErrorToStaff("REGISTRATION_ERROR", "Lỗi đăng ký chat: " + e.getMessage(),
@@ -549,7 +545,6 @@ public class ChatWebSocketController {
                 unreadNotification.put("timestamp", LocalDateTime.now().toString());
 
                 messagingTemplate.convertAndSendToUser(staffId, "/queue/staff-chat", unreadNotification);
-                log.info("Đã thông báo {} tin nhắn chưa đọc cho staff {}", unreadCount, staffId);
             }
         } catch (Exception e) {
             log.error("Lỗi khi load tin nhắn chưa đọc cho staff {}: {}", staffId, e.getMessage());
