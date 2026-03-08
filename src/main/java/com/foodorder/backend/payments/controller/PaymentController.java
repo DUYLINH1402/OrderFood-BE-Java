@@ -3,6 +3,7 @@ package com.foodorder.backend.payments.controller;
 import com.foodorder.backend.payments.dto.request.PaymentRequest;
 import com.foodorder.backend.payments.dto.request.ZaloPayCallbackRequest;
 import com.foodorder.backend.payments.dto.response.PaymentResponse;
+import com.foodorder.backend.payments.dto.response.PaymentStatusResponse;
 import com.foodorder.backend.payments.service.impl.MomoPaymentService;
 import com.foodorder.backend.payments.service.impl.ZaloPayPaymentService;
 import com.foodorder.backend.coupons.service.CouponService;
@@ -219,21 +220,16 @@ public class PaymentController {
         }
     }
 
-    @Operation(summary = "Kiểm tra trạng thái thanh toán", description = "Kiểm tra trạng thái thanh toán ZaloPay theo app_trans_id.")
+    @Operation(summary = "Kiểm tra trạng thái thanh toán", description = "Kiểm tra trạng thái thanh toán ZaloPay theo app_trans_id. Nếu ZaloPay đã xác nhận thành công nhưng callback chưa tới, API sẽ tự động xử lý cập nhật đơn hàng.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy giao dịch")
+            @ApiResponse(responseCode = "400", description = "Lỗi kiểm tra trạng thái")
     })
     @GetMapping("/zalopay/check-status/{appTransId}")
-    public String checkPaymentStatus(
+    public ResponseEntity<PaymentStatusResponse> checkPaymentStatus(
             @Parameter(description = "App Trans ID của giao dịch") @PathVariable String appTransId) {
-        try {
-            // Query từ ZaloPay API
-            zaloPayService.queryPaymentStatus(appTransId);
-            return "Payment status check completed for: " + appTransId;
-        } catch (Exception e) {
-            return "Error checking payment status: " + e.getMessage();
-        }
+        PaymentStatusResponse response = zaloPayService.queryPaymentStatus(appTransId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Cập nhật trạng thái thanh toán", description = "Frontend gọi endpoint này để cập nhật trạng thái thanh toán (thất bại/thành công).")

@@ -235,8 +235,11 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
 
     public String handleCallback(ZaloPayCallbackRequest callback) {
         try {
+            logger.info("=== ZaloPay Callback Received ===");
+
             // Kiểm tra các field bắt buộc
             if (callback.getData() == null || callback.getMac() == null) {
+                logger.warn("ZaloPay callback missing required fields");
                 return "OK";
             }
 
@@ -246,7 +249,7 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
             String expectedMac = hmacUtils.hmacHex(dataStr);
 
             if (!expectedMac.equals(callback.getMac())) {
-                System.err.println("Invalid MAC signature. Expected: " + expectedMac + ", Got: " + callback.getMac());
+                logger.error("Invalid MAC signature. Expected: {}, Got: {}", expectedMac, callback.getMac());
                 return "OK";
             }
 
@@ -259,263 +262,23 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
             String zpTransId = zpTransIdObj != null ? String.valueOf(zpTransIdObj) : null;
 
             if (appTransId == null) {
-                System.err.println("Missing app_trans_id in callback data");
+                logger.error("Missing app_trans_id in callback data");
                 return "OK";
             }
 
             // Parse orderId từ app_trans_id (format: yymmdd_orderId)
             String[] parts = appTransId.split("_");
             if (parts.length != 2) {
-                System.err.println("Invalid app_trans_id format: " + appTransId);
+                logger.error("Invalid app_trans_id format: {}", appTransId);
                 return "OK";
             }
             Long orderId = Long.parseLong(parts[1]);
 
-            // Lấy Order từ DB
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
-
-            // Lấy discountAmount từ embed_data - Đổi tên biến để tránh conflict
-            Integer embedDiscountAmount = null;
-            if (callbackData.containsKey("embed_data")) {
-                String embedDataStr = (String) callbackData.get("embed_data");
-                try {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> embedDataMap = objectMapper.readValue(embedDataStr, Map.class);
-                    if (embedDataMap.containsKey("discountAmount")) {
-                        embedDiscountAmount = (Integer) embedDataMap.get("discountAmount");
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to parse embed_data in callback: " + e.getMessage());
-                }
-            }
-
-            // Trừ điểm và lưu log nếu embedDiscountAmount > 0
-            if (embedDiscountAmount != null && embedDiscountAmount > 0) {
-                if (order.getUserId() != null) {
-                    try {
-                        // **KIỂM TRA ĐIỂM TRƯỚC KHI TRỪ ĐIỂM TRONG CALLBACK**
-                        User username = userRepository.findById(order.getUserId())
-                            .orElse(null);
-                        if (username != null) {
-                            PointsResponseDTO pointsDTO = pointsService.getCurrentPointsByUsername(username.getUsername());
-                            int currentPoints = pointsDTO != null ? pointsDTO.getAvailablePoints() : 0;
-                            int pointsNeeded = embedDiscountAmount / 1000; // 1 điểm = 1000 VND
-
-                            if (currentPoints >= pointsNeeded) {
-                                // Đủ điểm mới trừ
-                                pointsService.usePointsOnOrder(order.getUserId(), orderId, embedDiscountAmount,
-                                        "Dùng điểm thanh toán đơn hàng #" + orderId);
-                                System.out.println("Successfully deducted " + pointsNeeded + " points from user " + order.getUserId());
-                            } else {
-                                // Không đủ điểm - log warning nhưng vẫn cho thanh toán thành công
-                                System.err.println("INSUFFICIENT_POINTS in callback: User " + order.getUserId() +
-                                    " has " + currentPoints + " points but needs " + pointsNeeded + " points");
-                                // Reset discount amount về 0 để tránh inconsistency
-                                order.setDiscountAmount(0);
-                                orderRepository.save(order);
-                            }
-                        }
-                    } catch (Exception pointsEx) {
-                        // Log lỗi điểm thưởng nhưng không throw exception để không ảnh hưởng callback
-                        System.err.println("Error processing points in callback: " + pointsEx.getMessage());
-                        // Reset discount amount về 0 để tránh inconsistency
-                        order.setDiscountAmount(0);
-                        orderRepository.save(order);
-                    }
-                }
-            }
-
-            // Cộng điểm thưởng 2% giá trị đơn hàng nếu thanh toán thành công
-            int rewardAmount = 0;
-            if (order.getUserId() != null && order.getTotalPrice() != null) {
-                rewardAmount = (int) Math.round(order.getTotalPrice().doubleValue() * 0.02);
-                if (rewardAmount > 0) {
-                    pointsService.addPointsOnOrder(order.getUserId(), orderId, rewardAmount,
-                            "Cộng điểm thanh toán đơn hàng #" + orderId);
-                }
-            }
-
-            // Gửi email thông báo đơn hàng thành công
-            try {
-                User user = userRepository.findById(order.getUserId()).orElse(null);
-                if (user != null && user.getEmail() != null) {
-                    String subject = "Đơn hàng của bạn đã thanh toán thành công";
-                    Context context = new Context();
-                    context.setVariable("fullName", user.getFullName() != null ? user.getFullName() : user.getEmail());
-                    context.setVariable("orderCode", order.getOrderCode()); // Sử dụng orderCode thay vì orderId
-
-                    // Truyền danh sách sản phẩm với format đúng
-                    List<Map<String, Object>> orderItems = new ArrayList<>();
-                    List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
-                    for (OrderItem item : items) {
-                        Map<String, Object> itemMap = new HashMap<>();
-                        itemMap.put("foodName", item.getFood() != null ? item.getFood().getName() : "");
-                        itemMap.put("quantity", item.getQuantity() != null ? item.getQuantity() : 0);
-
-                        // Format giá tiền đúng cách - kiểm tra null trước
-                        long price = item.getPrice() != null ? item.getPrice().longValue() : 0;
-                        int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
-                        long total = price * quantity;
-
-                        itemMap.put("price", item.getPrice()); // Giữ nguyên cho tính toán
-                        itemMap.put("priceFormatted", VnCurrencyFormatter.format(price));
-                        itemMap.put("totalFormatted", VnCurrencyFormatter.format(total));
-
-                        orderItems.add(itemMap);
-                    }
-                    context.setVariable("orderItems", orderItems);
-
-                    // Các giá trị tổng - kiểm tra null và đổi tên biến
-                    long orderTotalPrice = order.getTotalPrice() != null ? order.getTotalPrice().longValue() : 0;
-                    long orderDiscountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount().longValue() : 0;
-
-                    context.setVariable("totalPriceFormatted", VnCurrencyFormatter.format(orderTotalPrice));
-                    context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(orderDiscountAmount));
-
-                    // Thêm các giá trị không format cho điều kiện check
-                    context.setVariable("discountAmount", order.getDiscountAmount());
-                    context.setVariable("totalPrice", order.getTotalPrice());
-                    context.setVariable("orderStatus", order.getStatus() != null ? order.getStatus().name() : "UNKNOWN");
-
-                    // Thông tin giao hàng - kiểm tra null
-                    context.setVariable("receiverName", order.getReceiverName() != null ? order.getReceiverName() : "");
-                    context.setVariable("receiverPhone", order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
-                    context.setVariable("receiverEmail", order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
-                    context.setVariable("deliveryAddress", order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
-                    context.setVariable("deliveryType", order.getDeliveryType() != null ? order.getDeliveryType() : "");
-                    context.setVariable("paymentMethod", order.getPaymentMethod() != null ? order.getPaymentMethod() : "");
-
-                    String htmlContent = templateEngine.process("order_success_email.html", context);
-//                    logger.info("Nội dung email gửi cho khách hàng: \n" + htmlContent);
-                    brevoEmailService.sendEmail(user.getEmail(), subject, htmlContent);
-                }
-            } catch (Exception emailEx) {
-                // Log lỗi gửi email, không throw exception để không ảnh hưởng callback
-                logger.error("Gửi email thông báo đơn hàng thất bại: " + emailEx.getMessage(), emailEx);
-            }
+            logger.info("ZaloPay callback for order {}, zpTransId: {}", orderId, zpTransId);
 
             // ZaloPay chỉ gửi callback khi thanh toán THÀNH CÔNG
-            updateOrderPaymentStatus(orderId, zpTransId, "PAID");
-
-            // ** CẬP NHẬT LOGIC WEBSOCKET VÀ DATABASE NOTIFICATIONS **
-            try {
-                // Lấy lại order đã được cập nhật với đầy đủ thông tin
-                Order updatedOrder = orderRepository.findById(orderId).orElse(null);
-                if (updatedOrder != null) {
-                    // Lấy thông tin Ward và District từ DB
-                    String wardName = null;
-                    String districtName = null;
-                    Long wardId = updatedOrder.getWardId();
-                    Long districtId = updatedOrder.getDistrictId();
-
-                    // Lấy thông tin Ward nếu có wardId
-                    if (wardId != null) {
-                        Ward ward = wardRepository.findById(wardId).orElse(null);
-                        if (ward != null) {
-                            wardName = ward.getName();
-                        }
-                    }
-
-                    // Lấy thông tin District nếu có districtId
-                    if (districtId != null) {
-                        District district = districtRepository.findById(districtId).orElse(null);
-                        if (district != null) {
-                            districtName = district.getName();
-                        }
-                    }
-
-                    // 1. GỬI THÔNG BÁO CHO USER - Thanh toán thành công
-                    if (updatedOrder.getUserId() != null) {
-                        try {
-                            // Lưu thông báo vào database cho user
-                            String totalPriceFormatted = VnCurrencyFormatter.format(
-                                updatedOrder.getTotalPrice() != null ? updatedOrder.getTotalPrice().longValue() : 0
-                            );
-
-                            notificationHelper.createPaymentSuccessNotificationForUser(
-                                updatedOrder.getUserId(),
-                                updatedOrder.getId(),
-                                updatedOrder.getOrderCode(),
-                                totalPriceFormatted
-                            );
-
-                            // Gửi WebSocket notification cho customer về thanh toán thành công
-                            OrderWebSocketMessage customerMessage = OrderWebSocketMessage.customerNotification(
-                                updatedOrder.getId(),
-                                updatedOrder.getOrderCode(),
-                                "PROCESSING", // Trạng thái mới sau thanh toán
-                                "PENDING",    // Trạng thái cũ trước thanh toán
-                                updatedOrder.getUserId()
-                            );
-
-                            webSocketService.sendNotificationToUser(updatedOrder.getUserId(), customerMessage);
-                        } catch (Exception userNotificationEx) {
-                            logger.error("Lỗi khi gửi thông báo cho user {}: {}",
-                                    updatedOrder.getUserId(), userNotificationEx.getMessage());
-                        }
-                    }
-
-                    // 2. GỬI THÔNG BÁO CHO STAFF - Đơn hàng mới cần xử lý
-                    try {
-                        // Lấy danh sách staff đang hoạt động để gửi thông báo
-                        List<User> staffUsers = userRepository.findActiveStaffUsers();
-
-                        // Nếu không có staff hoạt động, lấy admin làm dự phòng
-                        if (staffUsers.isEmpty()) {
-                            logger.warn("Không có staff hoạt động nào, đang thử lấy admin...");
-                            staffUsers = userRepository.findActiveAdminUsers();
-                        }
-                        if (staffUsers.isEmpty()) {
-                            logger.warn("Không có nhân viên hoặc admin nào hoạt động trong hệ thống để gửi thông báo đơn hàng mới");
-                            return "OK"; // Vẫn trả về OK để không ảnh hưởng callback
-                        }
-
-                        String customerName = updatedOrder.getReceiverName() != null
-                            ? updatedOrder.getReceiverName()
-                            : "Khách hàng";
-
-                        // Gửi thông báo cho tất cả staff/admin hoạt động
-                        for (User staff : staffUsers) {
-                            try {
-                                notificationHelper.createNewOrderNotificationForStaff(
-                                    staff.getId(), // Sử dụng userId của staff
-                                    updatedOrder.getId(),
-                                    updatedOrder.getOrderCode(),
-                                    customerName
-                                );
-
-                            } catch (Exception staffNotificationEx) {
-                                logger.error("Lỗi khi tạo thông báo cho nhân viên {}: {}",
-                                        staff.getId(), staffNotificationEx.getMessage(), staffNotificationEx);
-                            }
-                        }
-
-                        // Tạo WebSocket message cho đơn hàng mới với thông tin khu vực đầy đủ - broadcast cho tất cả staff
-                        OrderWebSocketMessage staffMessage = OrderWebSocketMessage.newOrder(
-                            updatedOrder.getId(),
-                            updatedOrder.getOrderCode(),
-                            customerName,
-                            updatedOrder.getReceiverPhone() != null ? updatedOrder.getReceiverPhone() : "",
-                            updatedOrder.getTotalPrice() != null ? updatedOrder.getTotalPrice().doubleValue() : 0.0,
-                            wardId,
-                            wardName,
-                            districtId,
-                            districtName
-                        );
-
-                        // Gửi thông báo WebSocket đến tất cả staff về đơn hàng mới
-                        webSocketService.sendNewOrderNotification(staffMessage);
-                    } catch (Exception staffNotificationEx) {
-                        logger.error("Lỗi khi gửi thông báo cho staff về đơn hàng {}: {}",
-                                updatedOrder.getOrderCode(), staffNotificationEx.getMessage());
-                    }
-
-                }
-            } catch (Exception wsEx) {
-                // Log lỗi WebSocket và Database notification nhưng không throw exception để không ảnh hưởng callback
-                logger.error("Lỗi khi gửi notification cho đơn hàng {}: {}", orderId, wsEx.getMessage());
-            }
+            // Sử dụng method dùng chung để xử lý
+            processSuccessfulPayment(orderId, zpTransId);
 
             return "OK";
 
@@ -580,6 +343,8 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
 
     /**
      * Query payment status from ZaloPay API
+     * Nếu ZaloPay trả thanh toán thành công (return_code=1) nhưng callback chưa tới,
+     * method này sẽ tự động xử lý cập nhật order như callback.
      */
     public PaymentStatusResponse queryPaymentStatus(String appTransId) {
         try {
@@ -593,7 +358,7 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
             queryParams.put("app_trans_id", appTransId);
             queryParams.put("mac", mac);
 
-            // Call ZaloPay query API (thường là endpoint khác)
+            // Call ZaloPay query API
             String queryEndpoint = endpoint.replace("/create", "/query");
 
             RestTemplate restTemplate = new RestTemplate();
@@ -603,19 +368,282 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
             String queryJson = objectMapper.writeValueAsString(queryParams);
             HttpEntity<String> httpEntity = new HttpEntity<>(queryJson, headers);
 
+            logger.info("Querying ZaloPay payment status for appTransId: {}", appTransId);
+
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> resp = restTemplate.postForEntity(queryEndpoint, httpEntity, Map.class);
 
-            if (resp.getBody() != null) {
-                // Parse result và return PaymentStatusResponse
-                PaymentStatusResponse response = new PaymentStatusResponse();
-                // TODO: Implement logic dựa trên response từ ZaloPay
-                return response;
+            if (resp.getBody() == null) {
+                throw new BadRequestException("Empty response from ZaloPay query API", "ZALOPAY_QUERY_ERROR");
             }
 
-            throw new BadRequestException("Failed to query payment status from ZaloPay", "ZALOPAY_QUERY_ERROR");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> respBody = resp.getBody();
+            logger.info("ZaloPay query response: {}", respBody);
+
+            // Parse return_code từ ZaloPay
+            // return_code: 1 = thành công, 2 = thất bại, 3 = đang xử lý
+            Integer returnCode = (Integer) respBody.get("return_code");
+            String returnMessage = (String) respBody.get("return_message");
+            Object zpTransIdObj = respBody.get("zp_trans_id");
+            String zpTransId = zpTransIdObj != null ? String.valueOf(zpTransIdObj) : null;
+
+            // Parse orderId từ appTransId (format: yymmdd_orderId)
+            String[] parts = appTransId.split("_");
+            Long orderId = null;
+            if (parts.length == 2) {
+                orderId = Long.parseLong(parts[1]);
+            }
+
+            PaymentStatusResponse response = new PaymentStatusResponse();
+            response.setPaymentTransactionId(zpTransId);
+
+            if (orderId != null) {
+                Order order = orderRepository.findById(orderId).orElse(null);
+                if (order != null) {
+                    response.setOrderId(orderId);
+                    response.setOrderStatus(order.getStatus() != null ? order.getStatus().name() : null);
+                    response.setPaymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null);
+                    response.setPaymentTime(order.getPaymentTime());
+                }
+            }
+
+            if (returnCode != null && returnCode == 1) {
+                // Thanh toán THÀNH CÔNG trên ZaloPay
+                // Kiểm tra xem callback đã xử lý chưa (order đã PAID chưa)
+                if (orderId != null) {
+                    Order order = orderRepository.findById(orderId).orElse(null);
+                    if (order != null && order.getPaymentStatus() != PaymentStatus.PAID) {
+                        // Callback chưa tới hoặc chưa xử lý → Tự xử lý như callback
+                        logger.info("ZaloPay query: Payment SUCCESS but callback not processed yet for order {}. Processing now...", orderId);
+                        processSuccessfulPayment(orderId, zpTransId);
+
+                        // Cập nhật lại response sau khi xử lý
+                        Order updatedOrder = orderRepository.findById(orderId).orElse(null);
+                        if (updatedOrder != null) {
+                            response.setPaymentStatus(updatedOrder.getPaymentStatus().name());
+                            response.setOrderStatus(updatedOrder.getStatus().name());
+                            response.setPaymentTime(updatedOrder.getPaymentTime());
+                        }
+                    }
+                }
+                response.setPaymentStatus("PAID");
+            } else if (returnCode != null && returnCode == 2) {
+                // Thanh toán THẤT BẠI
+                response.setPaymentStatus("FAILED");
+                logger.warn("ZaloPay query: Payment FAILED for appTransId: {}. Message: {}", appTransId, returnMessage);
+            } else {
+                // Đang xử lý (return_code = 3 hoặc khác)
+                response.setPaymentStatus("PENDING");
+                logger.info("ZaloPay query: Payment PENDING for appTransId: {}. ReturnCode: {}", appTransId, returnCode);
+            }
+
+            return response;
+
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
+            logger.error("Error querying payment status for appTransId {}: {}", appTransId, e.getMessage(), e);
             throw new BadRequestException("Error querying payment status: " + e.getMessage(), "ZALOPAY_QUERY_ERROR");
+        }
+    }
+
+    /**
+     * Xử lý thanh toán thành công - dùng chung cho cả callback và query polling.
+     * Method này chứa logic: trừ điểm, cộng điểm, gửi email, cập nhật order, gửi WebSocket.
+     */
+    private void processSuccessfulPayment(Long orderId, String zpTransId) {
+        try {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
+            // Nếu order đã PAID rồi thì skip (tránh xử lý trùng)
+            if (order.getPaymentStatus() == PaymentStatus.PAID) {
+                logger.info("Order {} already PAID, skipping processSuccessfulPayment", orderId);
+                return;
+            }
+
+            // Trừ điểm nếu có sử dụng
+            if (order.getDiscountAmount() != null && order.getDiscountAmount() > 0 && order.getUserId() != null) {
+                try {
+                    User user = userRepository.findById(order.getUserId()).orElse(null);
+                    if (user != null) {
+                        PointsResponseDTO pointsDTO = pointsService.getCurrentPointsByUsername(user.getUsername());
+                        int currentPoints = pointsDTO != null ? pointsDTO.getAvailablePoints() : 0;
+                        int pointsNeeded = order.getDiscountAmount() / 1000;
+
+                        if (currentPoints >= pointsNeeded) {
+                            pointsService.usePointsOnOrder(order.getUserId(), orderId, order.getDiscountAmount(),
+                                    "Dùng điểm thanh toán đơn hàng #" + orderId);
+                            logger.info("Deducted {} points from user {}", pointsNeeded, order.getUserId());
+                        } else {
+                            logger.warn("INSUFFICIENT_POINTS: User {} has {} but needs {}", order.getUserId(), currentPoints, pointsNeeded);
+                            order.setDiscountAmount(0);
+                            orderRepository.save(order);
+                        }
+                    }
+                } catch (Exception pointsEx) {
+                    logger.error("Error processing points for order {}: {}", orderId, pointsEx.getMessage());
+                    order.setDiscountAmount(0);
+                    orderRepository.save(order);
+                }
+            }
+
+            // Cộng điểm thưởng 2%
+            if (order.getUserId() != null && order.getTotalPrice() != null) {
+                int rewardAmount = (int) Math.round(order.getTotalPrice().doubleValue() * 0.02);
+                if (rewardAmount > 0) {
+                    pointsService.addPointsOnOrder(order.getUserId(), orderId, rewardAmount,
+                            "Cộng điểm thanh toán đơn hàng #" + orderId);
+                }
+            }
+
+            // Gửi email thông báo
+            try {
+                User user = userRepository.findById(order.getUserId()).orElse(null);
+                if (user != null && user.getEmail() != null) {
+                    sendOrderSuccessEmail(user, order, orderId);
+                }
+            } catch (Exception emailEx) {
+                logger.error("Gửi email thất bại cho order {}: {}", orderId, emailEx.getMessage());
+            }
+
+            // Cập nhật payment status
+            updateOrderPaymentStatus(orderId, zpTransId, "PAID");
+
+            // Gửi WebSocket notifications
+            sendPaymentNotifications(orderId);
+
+            logger.info("Successfully processed payment for order {}", orderId);
+
+        } catch (Exception e) {
+            logger.error("Error in processSuccessfulPayment for order {}: {}", orderId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Gửi email thông báo đơn hàng thành công
+     */
+    private void sendOrderSuccessEmail(User user, Order order, Long orderId) {
+        String subject = "Đơn hàng của bạn đã thanh toán thành công";
+        Context context = new Context();
+        context.setVariable("fullName", user.getFullName() != null ? user.getFullName() : user.getEmail());
+        context.setVariable("orderCode", order.getOrderCode());
+
+        List<Map<String, Object>> orderItems = new ArrayList<>();
+        List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
+        for (OrderItem item : items) {
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("foodName", item.getFood() != null ? item.getFood().getName() : "");
+            itemMap.put("quantity", item.getQuantity() != null ? item.getQuantity() : 0);
+            long price = item.getPrice() != null ? item.getPrice().longValue() : 0;
+            int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
+            long total = price * quantity;
+            itemMap.put("price", item.getPrice());
+            itemMap.put("priceFormatted", VnCurrencyFormatter.format(price));
+            itemMap.put("totalFormatted", VnCurrencyFormatter.format(total));
+            orderItems.add(itemMap);
+        }
+        context.setVariable("orderItems", orderItems);
+
+        long orderTotalPrice = order.getTotalPrice() != null ? order.getTotalPrice().longValue() : 0;
+        long orderDiscountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount().longValue() : 0;
+        context.setVariable("totalPriceFormatted", VnCurrencyFormatter.format(orderTotalPrice));
+        context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(orderDiscountAmount));
+        context.setVariable("discountAmount", order.getDiscountAmount());
+        context.setVariable("totalPrice", order.getTotalPrice());
+        context.setVariable("orderStatus", order.getStatus() != null ? order.getStatus().name() : "UNKNOWN");
+        context.setVariable("receiverName", order.getReceiverName() != null ? order.getReceiverName() : "");
+        context.setVariable("receiverPhone", order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
+        context.setVariable("receiverEmail", order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
+        context.setVariable("deliveryAddress", order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
+        context.setVariable("deliveryType", order.getDeliveryType() != null ? order.getDeliveryType() : "");
+        context.setVariable("paymentMethod", order.getPaymentMethod() != null ? order.getPaymentMethod() : "");
+
+        String htmlContent = templateEngine.process("order_success_email.html", context);
+        brevoEmailService.sendEmail(user.getEmail(), subject, htmlContent);
+    }
+
+    /**
+     * Gửi WebSocket & Database notifications cho cả user và staff
+     */
+    private void sendPaymentNotifications(Long orderId) {
+        try {
+            Order updatedOrder = orderRepository.findById(orderId).orElse(null);
+            if (updatedOrder == null) return;
+
+            // Lấy thông tin Ward và District
+            String wardName = null;
+            String districtName = null;
+            Long wardId = updatedOrder.getWardId();
+            Long districtId = updatedOrder.getDistrictId();
+
+            if (wardId != null) {
+                Ward ward = wardRepository.findById(wardId).orElse(null);
+                if (ward != null) wardName = ward.getName();
+            }
+            if (districtId != null) {
+                District district = districtRepository.findById(districtId).orElse(null);
+                if (district != null) districtName = district.getName();
+            }
+
+            // 1. Thông báo cho USER
+            if (updatedOrder.getUserId() != null) {
+                try {
+                    String totalPriceFormatted = VnCurrencyFormatter.format(
+                        updatedOrder.getTotalPrice() != null ? updatedOrder.getTotalPrice().longValue() : 0
+                    );
+                    notificationHelper.createPaymentSuccessNotificationForUser(
+                        updatedOrder.getUserId(), updatedOrder.getId(),
+                        updatedOrder.getOrderCode(), totalPriceFormatted
+                    );
+                    OrderWebSocketMessage customerMessage = OrderWebSocketMessage.customerNotification(
+                        updatedOrder.getId(), updatedOrder.getOrderCode(),
+                        "PROCESSING", "PENDING", updatedOrder.getUserId()
+                    );
+                    webSocketService.sendNotificationToUser(updatedOrder.getUserId(), customerMessage);
+                } catch (Exception ex) {
+                    logger.error("Lỗi gửi thông báo user {}: {}", updatedOrder.getUserId(), ex.getMessage());
+                }
+            }
+
+            // 2. Thông báo cho STAFF
+            try {
+                List<User> staffUsers = userRepository.findActiveStaffUsers();
+                if (staffUsers.isEmpty()) {
+                    staffUsers = userRepository.findActiveAdminUsers();
+                }
+                if (staffUsers.isEmpty()) {
+                    logger.warn("Không có staff/admin hoạt động để gửi thông báo đơn hàng mới");
+                    return;
+                }
+
+                String customerName = updatedOrder.getReceiverName() != null
+                    ? updatedOrder.getReceiverName() : "Khách hàng";
+
+                for (User staff : staffUsers) {
+                    try {
+                        notificationHelper.createNewOrderNotificationForStaff(
+                            staff.getId(), updatedOrder.getId(),
+                            updatedOrder.getOrderCode(), customerName
+                        );
+                    } catch (Exception ex) {
+                        logger.error("Lỗi tạo thông báo staff {}: {}", staff.getId(), ex.getMessage());
+                    }
+                }
+
+                OrderWebSocketMessage staffMessage = OrderWebSocketMessage.newOrder(
+                    updatedOrder.getId(), updatedOrder.getOrderCode(), customerName,
+                    updatedOrder.getReceiverPhone() != null ? updatedOrder.getReceiverPhone() : "",
+                    updatedOrder.getTotalPrice() != null ? updatedOrder.getTotalPrice().doubleValue() : 0.0,
+                    wardId, wardName, districtId, districtName
+                );
+                webSocketService.sendNewOrderNotification(staffMessage);
+            } catch (Exception ex) {
+                logger.error("Lỗi gửi thông báo staff cho đơn {}: {}", updatedOrder.getOrderCode(), ex.getMessage());
+            }
+        } catch (Exception wsEx) {
+            logger.error("Lỗi notification cho đơn {}: {}", orderId, wsEx.getMessage());
         }
     }
 }
