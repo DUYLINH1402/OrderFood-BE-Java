@@ -344,17 +344,30 @@ public class CouponServiceImpl implements CouponService {
                 .filter(coupon -> coupon.getStatus() == CouponStatus.ACTIVE && coupon.getEndDate().isBefore(now))
                 .collect(Collectors.toList());
 
-        expiredCoupons.forEach(coupon -> coupon.setStatus(CouponStatus.EXPIRED));
+        expiredCoupons.forEach(coupon -> {
+            coupon.setStatus(CouponStatus.EXPIRED);
+            // Đảm bảo createdAt không null (fix bug dữ liệu cũ thiếu created_at)
+            if (coupon.getCreatedAt() == null) {
+                coupon.setCreatedAt(coupon.getStartDate() != null ? coupon.getStartDate() : now);
+            }
+        });
         couponRepository.saveAll(expiredCoupons);
     }
 
     @Override
     public void updateUsedOutCoupons() {
+        LocalDateTime now = LocalDateTime.now();
         List<Coupon> usedOutCoupons = couponRepository.findUsedOutCoupons().stream()
                 .filter(coupon -> coupon.getStatus() == CouponStatus.ACTIVE)
                 .collect(Collectors.toList());
 
-        usedOutCoupons.forEach(coupon -> coupon.setStatus(CouponStatus.USED_OUT));
+        usedOutCoupons.forEach(coupon -> {
+            coupon.setStatus(CouponStatus.USED_OUT);
+            // Đảm bảo createdAt không null (fix bug dữ liệu cũ thiếu created_at)
+            if (coupon.getCreatedAt() == null) {
+                coupon.setCreatedAt(coupon.getStartDate() != null ? coupon.getStartDate() : now);
+            }
+        });
         couponRepository.saveAll(usedOutCoupons);
     }
 
