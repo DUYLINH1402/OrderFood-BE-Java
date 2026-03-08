@@ -379,14 +379,24 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
 
             @SuppressWarnings("unchecked")
             Map<String, Object> respBody = resp.getBody();
-            logger.info("ZaloPay query response: {}", respBody);
+            logger.info("ZaloPay query response for {}: {}", appTransId, respBody);
 
             // Parse return_code từ ZaloPay
             // return_code: 1 = thành công, 2 = thất bại, 3 = đang xử lý
-            Integer returnCode = (Integer) respBody.get("return_code");
+            // Có thể là Integer hoặc String tùy response
+            Object returnCodeObj = respBody.get("return_code");
+            Integer returnCode = null;
+            if (returnCodeObj instanceof Integer) {
+                returnCode = (Integer) returnCodeObj;
+            } else if (returnCodeObj != null) {
+                returnCode = Integer.parseInt(String.valueOf(returnCodeObj));
+            }
             String returnMessage = (String) respBody.get("return_message");
             Object zpTransIdObj = respBody.get("zp_trans_id");
             String zpTransId = zpTransIdObj != null ? String.valueOf(zpTransIdObj) : null;
+
+            logger.info("ZaloPay query result - appTransId: {}, return_code: {}, return_message: {}, zp_trans_id: {}",
+                appTransId, returnCode, returnMessage, zpTransId);
 
             // Parse orderId từ appTransId (format: yymmdd_orderId)
             String[] parts = appTransId.split("_");

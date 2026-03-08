@@ -5,8 +5,8 @@ import com.foodorder.backend.food.entity.Food;
 import com.foodorder.backend.food.repository.FoodRepository;
 import com.foodorder.backend.order.dto.request.*;
 import com.foodorder.backend.order.dto.response.OrderResponse;
-import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.dto.response.OrderStatisticsResponse;
+import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.entity.*;
 import com.foodorder.backend.order.repository.*;
 import com.foodorder.backend.order.service.OrderService;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.stream.Collectors;
 import java.util.List;
 import com.foodorder.backend.zone.repository.WardRepository;
@@ -48,9 +50,22 @@ public class OrderServiceImpl implements OrderService {
     private final DistrictRepository districtRepository;
     private final WebSocketService webSocketService;
 
+    private static final LocalTime OPENING_TIME = LocalTime.of(7, 0);   // 7:00 sáng
+    private static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);  // 22:00 tối
+    private static final ZoneId VIETNAM_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
+        // === KIỂM TRA GIỜ HOẠT ĐỘNG (7:00 - 22:00) ===
+        LocalTime currentTime = LocalTime.now(VIETNAM_ZONE);
+        if (currentTime.isBefore(OPENING_TIME) || currentTime.isAfter(CLOSING_TIME) || currentTime.equals(CLOSING_TIME)) {
+            throw new BadRequestException(
+                    "Nhà hàng chỉ hoạt động từ 07:00 đến 22:00. Vui lòng quay lại sau",
+                    "OUTSIDE_BUSINESS_HOURS"
+            );
+        }
+
         // === BƯỚC 1: VALIDATE CƠ BẢN ===
         if (orderRequest.getItems() == null || orderRequest.getItems().isEmpty()) {
             throw new IllegalArgumentException("Order items cannot be null or empty");

@@ -95,6 +95,7 @@ public class SecurityConfig {
 
                         // Cho phép static resources và test pages
                         .requestMatchers("/static/**").permitAll()
+                        .requestMatchers("/error").permitAll() // Cho phép Tomcat error page
 
 
                         // Public endpoints
