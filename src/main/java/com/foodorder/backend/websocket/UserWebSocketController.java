@@ -3,7 +3,6 @@ package com.foodorder.backend.websocket;
 import com.foodorder.backend.order.dto.OrderWebSocketMessage;
 import com.foodorder.backend.security.JwtUtil;
 import com.foodorder.backend.service.WebSocketService;
-import com.foodorder.backend.user.entity.User;
 import com.foodorder.backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,18 +48,7 @@ public class UserWebSocketController {
                 sessionAttrs.put("userId", userId);
             }
             String normalizedUserId = userId.trim();
-
-            Map<String, Object> welcomeMessage = new HashMap<>();
-            welcomeMessage.put("type", "WELCOME");
-            welcomeMessage.put("message", "Bạn đã kết nối thành công! Sẵn sàng nhận thông báo đơn hàng.");
-            welcomeMessage.put("userId", normalizedUserId);
-            welcomeMessage.put("timestamp", LocalDateTime.now().toString());
-
-            messagingTemplate.convertAndSendToUser(
-                normalizedUserId,
-                "/queue/order-updates",
-                welcomeMessage
-            );
+            log.info("User {} đã đăng ký nhận order-updates", normalizedUserId);
 
         } catch (Exception e) {
             log.error("Lỗi khi đăng ký order-updates cho user {}: {}", userId, e.getMessage());
@@ -82,19 +70,7 @@ public class UserWebSocketController {
                 sessionAttrs.put("userId", userId);
             }
             String normalizedUserId = userId.trim();
-
-            Map<String, Object> welcomeMessage = new HashMap<>();
-            welcomeMessage.put("type", "WELCOME");
-            welcomeMessage.put("message", "Bạn đã kết nối thành công! Sẵn sàng nhận thông báo đơn hàng.");
-            welcomeMessage.put("userId", normalizedUserId);
-            welcomeMessage.put("timestamp", LocalDateTime.now().toString());
-            welcomeMessage.put("channel", "/user/" + normalizedUserId + "/queue/order-updates");
-
-            messagingTemplate.convertAndSendToUser(
-                normalizedUserId,
-                "/queue/order-updates",
-                welcomeMessage
-            );
+            log.info("User {} đã đăng ký WebSocket", normalizedUserId);
 
         } catch (Exception e) {
             log.error("Lỗi khi đăng ký user {}: {}", userId, e.getMessage());

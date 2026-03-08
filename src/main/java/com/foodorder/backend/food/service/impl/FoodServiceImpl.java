@@ -462,7 +462,7 @@ public class FoodServiceImpl implements FoodService {
                 .orElseThrow(() -> new ResourceNotFoundException("FOOD_NOT_FOUND"));
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(food.getIsProtected(), "cập nhật trạng thái");
+//        checkProtectedDataPermission(food.getIsProtected(), "cập nhật trạng thái");
 
         // Cập nhật status nếu có
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
