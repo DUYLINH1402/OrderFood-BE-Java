@@ -33,10 +33,12 @@ import java.util.stream.Collectors;
 
 /**
  * Controller xử lý các nghiệp vụ thanh toán
+ *
+ * Đã migrate từ /api/payments → /api/v1/public/payments (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/payments")
-@Tag(name = "Payments", description = "API xử lý thanh toán - ZaloPay, Momo, COD")
+@RequestMapping("/api/v1/public/payments")
+@Tag(name = "Payments - Public", description = "API xử lý thanh toán - ZaloPay, Momo, COD")
 public class PaymentController {
 
     @Autowired

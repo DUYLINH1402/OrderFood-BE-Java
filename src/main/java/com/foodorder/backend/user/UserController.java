@@ -24,11 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Controller quản lý thông tin người dùng
+ * Yêu cầu đăng nhập
+ *
+ * Đã migrate từ /api/users → /api/v1/client/users (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/client/users")
 @RequiredArgsConstructor
-@Tag(name = "Users", description = "API quản lý thông tin người dùng - Yêu cầu đăng nhập")
+@Tag(name = "Users - Client", description = "API quản lý thông tin người dùng - Yêu cầu đăng nhập")
 public class UserController {
 
     private final UserService userService;

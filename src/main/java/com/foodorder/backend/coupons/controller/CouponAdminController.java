@@ -36,12 +36,12 @@ import java.util.Map;
  * Các chức năng dành riêng cho admin/manager
  */
 @RestController
-@RequestMapping("/api/admin/coupons")
+@RequestMapping("/api/v1/admin/coupons")
 @RequiredArgsConstructor
 @Validated
 @Slf4j
 @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-@Tag(name = "Admin Coupons", description = "API quản lý mã giảm giá dành cho Admin")
+@Tag(name = "Coupons - Admin", description = "API quản lý mã giảm giá dành cho Admin")
 public class CouponAdminController {
 
     private final CouponService couponService;

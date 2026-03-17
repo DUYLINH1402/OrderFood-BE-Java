@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -17,7 +19,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Response chứa thống kê nâng cao cho Dashboard")
-public class AdvancedStatisticsResponse {
+public class AdvancedStatisticsResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Average Order Value - Giá trị đơn hàng trung bình (VND)", example = "85000")
     private BigDecimal aov;
@@ -55,4 +60,3 @@ public class AdvancedStatisticsResponse {
     @Schema(description = "Khoảng thời gian thống kê (7, 30, 90 ngày)", example = "30")
     private Integer periodDays;
 }
-

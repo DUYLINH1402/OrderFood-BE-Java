@@ -13,7 +13,7 @@ public class ThymeleafTemplateService {
     private TemplateEngine templateEngine;
 
     public String buildVerificationEmail(String fullName, String token) {
-        String verificationLink = "http://dongxanhfoodorder.shop/api/auth/verify?token=" + token;
+        String verificationLink = "http://dongxanhfoodorder.shop/api/v1/public/auth/verify?token=" + token;
 
         Context context = new Context();
         context.setVariable("fullName", fullName);

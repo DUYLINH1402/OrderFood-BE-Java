@@ -37,9 +37,9 @@ public class FoodSlugMigrationRunner implements CommandLineRunner {
 
         if (count > 0) {
             foodRepository.saveAll(foods);
-            System.out.println("✅ Đã cập nhật slug cho " + count + " món ăn.");
+            System.out.println("Đã cập nhật slug cho " + count + " món ăn.");
         } else {
-            System.out.println("✅ Tất cả món ăn đã có slug.");
+            System.out.println("Tất cả món ăn đã có slug.");
         }
     }
 

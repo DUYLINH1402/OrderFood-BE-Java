@@ -24,7 +24,7 @@ import java.util.Map;
  * Controller xử lý API cho Chatbot AI
  */
 @RestController
-@RequestMapping("/api/chatbot")
+@RequestMapping("/api/v1/public/chatbot")
 @RequiredArgsConstructor
 
 @Slf4j

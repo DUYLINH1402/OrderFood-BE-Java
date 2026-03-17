@@ -4,13 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 
 @Getter
 @Setter
 @Schema(description = "Response chứa thông tin media đính kèm feedback")
-public class FeedbackMediaResponse {
+public class FeedbackMediaResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "ID của media", example = "1")
     private Long id;

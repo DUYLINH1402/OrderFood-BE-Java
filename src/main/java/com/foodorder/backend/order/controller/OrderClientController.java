@@ -1,6 +1,5 @@
 package com.foodorder.backend.order.controller;
 
-import com.foodorder.backend.order.dto.request.OrderRequest;
 import com.foodorder.backend.order.dto.request.UpdateOrderStatusRequest;
 import com.foodorder.backend.order.dto.request.CancelOrderRequest;
 import com.foodorder.backend.order.dto.response.OrderResponse;
@@ -8,11 +7,6 @@ import com.foodorder.backend.order.dto.response.OrderStatisticsResponse;
 import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.dto.response.ApiResponse;
 import com.foodorder.backend.order.service.OrderService;
-import com.foodorder.backend.order.config.PaymentConfig;
-import com.foodorder.backend.order.exception.UnauthorizedException;
-import com.foodorder.backend.payments.dto.request.PaymentRequest;
-import com.foodorder.backend.payments.dto.response.PaymentResponse;
-import com.foodorder.backend.payments.controller.PaymentController;
 import com.foodorder.backend.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,50 +23,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Controller xử lý các nghiệp vụ liên quan đến đơn hàng của người dùng
+ * Controller quản lý đơn hàng cho người dùng đã đăng nhập
+ * Xem danh sách, chi tiết, cập nhật trạng thái, hủy đơn hàng
+ *
+ * Đã migrate từ /api/orders → /api/v1/client/orders (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/client/orders")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Orders", description = "API quản lý đơn hàng của người dùng")
-public class OrderController {
+@Tag(name = "Orders - Client", description = "API quản lý đơn hàng - Yêu cầu đăng nhập")
+public class OrderClientController {
 
     private final OrderService orderService;
-    private final PaymentController paymentController;
-
-    @Operation(summary = "Tạo đơn hàng và thanh toán",
-            description = "Tạo đơn hàng mới và khởi tạo link thanh toán dựa trên phương thức được chọn.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tạo đơn hàng thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
-    })
-    @PostMapping
-    public ResponseEntity<PaymentResponse> createOrderAndPay(@RequestBody OrderRequest orderRequest) {
-
-        // Bước 1: Tạo đơn hàng trước
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
-
-        // Bước 2: Lấy payment config dựa trên payment method
-        PaymentConfig paymentConfig = PaymentConfig.getPaymentConfig(orderRequest.getPaymentMethod());
-
-        // Bước 3: Tạo payment request với bankCode và embedData đúng
-        PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setOrderId(orderResponse.getId());
-        paymentRequest.setPaymentMethod(orderRequest.getPaymentMethod().name());
-        paymentRequest.setBankCode(paymentConfig.getBankCode());
-
-        // Thêm embedData nếu có (dành cho ATM)
-        if (!paymentConfig.getEmbedData().isEmpty()) {
-            paymentRequest.setEmbedData(paymentConfig.getEmbedData());
-        }
-
-        // Bước 4: Gọi PaymentController để tạo link thanh toán
-        PaymentResponse paymentResponse = paymentController.createPayment(paymentRequest);
-
-        return ResponseEntity.ok(paymentResponse);
-    }
 
     @Operation(summary = "Lấy danh sách đơn hàng", description = "Lấy danh sách đơn hàng của người dùng hiện tại với phân trang và lọc theo trạng thái.")
     @ApiResponses(value = {
@@ -89,7 +52,6 @@ public class OrderController {
             @Parameter(description = "ID người dùng (dùng để test)") @RequestParam(required = false) Long userId,
             @Parameter(hidden = true) HttpServletRequest request) {
 
-        // Lấy userId từ token hoặc từ param (để test)
         Long actualUserId = userId != null ? userId : getUserIdFromToken(request);
 
         PageRequest pageRequest = PageRequest.of(page, size,
@@ -161,8 +123,6 @@ public class OrderController {
     public ResponseEntity<OrderStatisticsResponse> getOrderStatistics(
             @Parameter(hidden = true) HttpServletRequest request) {
 
-        log.info("Getting order statistics");
-
         Long userId = getUserIdFromToken(request);
         OrderStatisticsResponse stats = orderService.getOrderStatistics(userId);
 
@@ -172,7 +132,6 @@ public class OrderController {
     // Helper method để lấy userId từ Spring Security Context
     private Long getUserIdFromToken(HttpServletRequest request) {
         try {
-            // Lấy authentication từ SecurityContextHolder
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication != null && authentication.isAuthenticated()) {
@@ -180,8 +139,7 @@ public class OrderController {
 
                 if (principal instanceof CustomUserDetails) {
                     CustomUserDetails userDetails = (CustomUserDetails) principal;
-                    Long userId = userDetails.getId();
-                    return userId;
+                    return userDetails.getId();
                 } else {
                     log.warn("Principal is not CustomUserDetails, type: {}",
                             principal != null ? principal.getClass().getSimpleName() : "null");
@@ -190,16 +148,14 @@ public class OrderController {
                 log.warn("Authentication is null or not authenticated");
             }
 
-            // Fallback: Nếu không có authentication context, return userId default cho
-            // development/testing
             log.warn("No valid authentication context found, using default userId for testing");
             return 1L; // TODO: Remove this in production
 
         } catch (Exception e) {
             log.error("Error extracting userId from security context: {}", e.getMessage(), e);
-            // Thay vì throw exception, return default userId cho testing
             log.warn("Using fallback userId due to error");
             return 1L;
         }
     }
 }
+

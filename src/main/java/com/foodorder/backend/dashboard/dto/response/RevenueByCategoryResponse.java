@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,7 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Response chứa cơ cấu doanh thu theo danh mục món ăn")
-public class RevenueByCategoryResponse {
+public class RevenueByCategoryResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Danh sách cơ cấu doanh thu (3 nhóm chính + 1 nhóm Khác)")
     private List<CategoryRevenue> categories;
@@ -37,7 +42,10 @@ public class RevenueByCategoryResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "Doanh thu theo danh mục")
-    public static class CategoryRevenue {
+    public static class CategoryRevenue implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Schema(description = "ID danh mục (null nếu là nhóm 'Khác')", example = "1")
         private Long categoryId;
 

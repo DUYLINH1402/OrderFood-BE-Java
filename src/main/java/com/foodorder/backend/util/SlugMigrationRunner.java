@@ -38,9 +38,9 @@ public class SlugMigrationRunner implements CommandLineRunner {
 
         if (count > 0) {
             categoryRepository.saveAll(categories);
-            System.out.println("✅ Đã cập nhật slug cho " + count + " danh mục.");
+            System.out.println("Đã cập nhật slug cho " + count + " danh mục.");
         } else {
-            System.out.println("✅ Tất cả danh mục đã có slug.");
+            System.out.println("Tất cả danh mục đã có slug.");
         }
     }
 

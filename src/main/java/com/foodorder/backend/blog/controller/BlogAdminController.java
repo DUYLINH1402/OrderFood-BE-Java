@@ -34,7 +34,7 @@ import java.util.List;
  * Yêu cầu quyền ADMIN để truy cập
  */
 @RestController
-@RequestMapping("/api/admin/blogs")
+@RequestMapping("/api/v1/admin/blogs")
 
 @RequiredArgsConstructor
 @RequireAdmin

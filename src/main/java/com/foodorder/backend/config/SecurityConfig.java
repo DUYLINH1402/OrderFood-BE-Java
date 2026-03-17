@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -47,6 +46,7 @@ public class SecurityConfig {
         http
                 .securityMatcher(
                         "/swagger-ui/**",       // Quan trọng: Phải có /**
+                        "/swagger-ui.html",     // Swagger UI HTML page
                         "/v3/api-docs/**",      // Khớp với springdoc.api-docs.path
                         "/v3/api-docs",
                         "/swagger-resources/**",
@@ -74,101 +74,26 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+                        // ===== WebSocket endpoints =====
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/app/**").permitAll()     // STOMP destination prefix
                         .requestMatchers("/topic/**").permitAll()   // Message broker topics
                         .requestMatchers("/queue/**").permitAll()
                         .requestMatchers("/ws/staff-orders/**").permitAll()
 
-                        // Chat API endpoints - Phân quyền chi tiết
-                        .requestMatchers(HttpMethod.GET, "/api/chat/history").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/unread").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/chat/mark-read/**").hasAnyRole("USER", "STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/staff/all-messages").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/staff/user/*/messages").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/staff/users").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/staff/unread-count").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/chat/admin/statistics").hasRole("ADMIN")
-
-                        // Chatbot AI
-                        .requestMatchers("/api/chatbot/**").permitAll()
-
-                        // Cho phép static resources và test pages
+                        // ===== Static resources & error page =====
                         .requestMatchers("/static/**").permitAll()
-                        .requestMatchers("/error").permitAll() // Cho phép Tomcat error page
+                        .requestMatchers("/error").permitAll()
 
-
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // OAuth2 Login endpoints (Google Authorization Code Flow)
+                        // ===== OAuth2 Login endpoints =====
                         .requestMatchers("/oauth2/authorization/**").permitAll()
                         .requestMatchers("/login/oauth2/code/**").permitAll()
 
-                        // FOODS - Phân quyền chi tiết
-                        .requestMatchers(HttpMethod.GET, "/api/foods/management").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/foods/*/status").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/foods").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/foods/upload").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/foods/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/foods/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/foods/**").permitAll() // Public GET cho các API còn lại
-                        
-                        .requestMatchers("/api/categories/**").permitAll()
-                        .requestMatchers("/api/combos/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/districts/**", "/api/wards/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
-                        .requestMatchers("/api/payments/**").permitAll()
-
-                        // Protected endpoints (yêu cầu JWT)
-                        .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/cart/**").authenticated()
-                        .requestMatchers("/api/points/**").authenticated()
-                        .requestMatchers("/api/favorites/**").authenticated() // Thêm bảo vệ cho favorites
-                        .requestMatchers("/api/notifications/**").authenticated() // Bảo vệ cho notifications (tất cả endpoints)
-                        .requestMatchers("/api/notifications/user/**").authenticated() // Notifications cho User
-                        .requestMatchers("/api/notifications/staff/**").hasAnyRole("STAFF", "ADMIN") // Notifications cho Staff
-
-                        // FEEDBACKS
-                        .requestMatchers(HttpMethod.GET, "/api/feedback-media/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/feedback-media/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/feedback-media/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/feedback-media/**").hasRole("ADMIN")
-
-                        // COUPONS
-                        .requestMatchers(HttpMethod.GET, "/api/coupons/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/coupons/code/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/coupons").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/coupons/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/coupons/**").hasRole("ADMIN")
-
-                        // LIKES - Toggle like yêu cầu đăng nhập, xem thông tin like cho phép public
-                        .requestMatchers(HttpMethod.POST, "/api/likes/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/likes/check/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/likes/**").permitAll()
-
-                        // SHARES - Ghi nhận share cho phép cả khách vãng lai, xem số share public
-                        .requestMatchers("/api/shares/**").permitAll()
-
-                        // COMMENTS - Phân quyền chi tiết cho User và Admin
-                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll() // Xem comment public
-                        .requestMatchers(HttpMethod.POST, "/api/comments").authenticated() // Tạo comment yêu cầu đăng nhập
-                        .requestMatchers(HttpMethod.PUT, "/api/comments/**").authenticated() // Sửa comment yêu cầu đăng nhập
-                        .requestMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated() // Xóa comment yêu cầu đăng nhập
-                        .requestMatchers("/api/admin/comments/**").hasRole("ADMIN") // Admin quản lý comment
-
-                        // BLOGS - Phân quyền chi tiết
-                        .requestMatchers(HttpMethod.GET, "/api/blogs/**").permitAll() // Public: xem danh sách, chi tiết, tìm kiếm
-                        .requestMatchers("/api/admin/blogs/**").hasRole("ADMIN") // Admin: CRUD bài viết và danh mục
-
-                        // CONTACT - Tin nhắn liên hệ từ khách hàng
-                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll() // Public: gửi tin nhắn liên hệ
-                        .requestMatchers("/api/admin/contacts/**").hasAnyRole("STAFF", "ADMIN") // Admin/Staff: quản lý tin nhắn
-
-                        // RESTAURANT - Thông tin nhà hàng
-                        .requestMatchers(HttpMethod.GET, "/api/v1/public/restaurant").permitAll() // Public: xem thông tin nhà hàng
-                        .requestMatchers("/api/admin/restaurant/**").hasRole("ADMIN") // Admin: quản lý thông tin nhà hàng
+                        // ===== CONVENTION: /api/v1/{role}/** =====
+                        .requestMatchers("/api/v1/public/**").permitAll()          // Public: không cần đăng nhập
+                        .requestMatchers("/api/v1/client/**").authenticated()      // Client: người dùng đã đăng nhập
+                        .requestMatchers("/api/v1/staff/**").hasAnyRole("STAFF", "ADMIN") // Staff: nhân viên
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")      // Admin: quản trị viên
 
                         // Các request khác cần authentication
                         .anyRequest().authenticated()

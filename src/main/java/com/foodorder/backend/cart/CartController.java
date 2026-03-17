@@ -20,7 +20,7 @@ import java.util.List;
  * Controller quản lý giỏ hàng của người dùng
  */
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/v1/client/cart")
 @RequiredArgsConstructor
 @Tag(name = "Cart", description = "API quản lý giỏ hàng - Yêu cầu đăng nhập")
 public class CartController {

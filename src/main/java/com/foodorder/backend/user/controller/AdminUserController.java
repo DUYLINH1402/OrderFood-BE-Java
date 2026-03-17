@@ -5,6 +5,7 @@ import com.foodorder.backend.user.dto.request.AdminUpdateUserRequest;
 import com.foodorder.backend.user.dto.request.AdminUpdateUserStatusRequest;
 import com.foodorder.backend.user.dto.response.AdminUserResponse;
 import com.foodorder.backend.user.service.AdminUserService;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,20 +20,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller cho admin quản lý người dùng (khách hàng)
- * Base URL: /api/admin/users
  * Chỉ quản lý user có role ROLE_USER
+ *
+ * Đã migrate từ /api/admin/users → /api/v1/admin/users (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@RequireAdmin
 @Slf4j
-@Tag(name = "Admin Users", description = "API quản lý khách hàng dành cho Admin")
+@Tag(name = "Users - Admin", description = "API quản lý khách hàng dành cho Admin")
 public class AdminUserController {
 
     private static final String USER_ROLE_CODE = "ROLE_USER";

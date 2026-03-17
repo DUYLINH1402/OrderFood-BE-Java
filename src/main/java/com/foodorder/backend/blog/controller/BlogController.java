@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * Các API này không cần đăng nhập
  */
 @RestController
-@RequestMapping("/api/blogs")
+@RequestMapping("/api/v1/public/blogs")
 
 @RequiredArgsConstructor
 @Tag(name = "Blogs - Public", description = "API công khai cho bài viết/tin tức")

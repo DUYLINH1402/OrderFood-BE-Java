@@ -22,13 +22,15 @@ import java.util.Map;
 
 /**
  * Controller xử lý các API thông báo cho User (khách hàng)
- * Endpoints: /api/notifications/user/*
+ * Yêu cầu đăng nhập
+ *
+ * Đã migrate từ /api/notifications/user → /api/v1/client/notifications (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/notifications/user")
+@RequestMapping("/api/v1/client/notifications")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "User Notifications", description = "API thông báo dành cho khách hàng")
+@Tag(name = "Notifications - Client", description = "API thông báo dành cho khách hàng - Yêu cầu đăng nhập")
 public class UserNotificationController {
 
     private final NotificationService notificationService;

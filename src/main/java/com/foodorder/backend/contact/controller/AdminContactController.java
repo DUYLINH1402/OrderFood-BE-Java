@@ -29,11 +29,11 @@ import java.util.Map;
  * Yêu cầu quyền ADMIN hoặc STAFF
  */
 @RestController
-@RequestMapping("/api/admin/contacts")
+@RequestMapping("/api/v1/staff/contacts")
 @RequiredArgsConstructor
 
 @Slf4j
-@Tag(name = "Admin Contact", description = "API quản lý tin nhắn liên hệ (Admin/Staff)")
+@Tag(name = "Contact - Staff", description = "API quản lý tin nhắn liên hệ (Staff/Admin)")
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 public class AdminContactController {
 

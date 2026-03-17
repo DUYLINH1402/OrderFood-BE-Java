@@ -9,6 +9,7 @@ import com.foodorder.backend.order.dto.response.OrderStatisticsResponse;
 import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.dto.response.ApiResponse;
 import com.foodorder.backend.order.service.AdminOrderService;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,20 +20,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 /**
  * Controller dành riêng cho ADMIN quản lý đơn hàng
  * Tập trung vào quản lý tổng thể, thống kê và giám sát
+ *
+ * Đã migrate từ /api/admin/orders → /api/v1/admin/orders (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/admin/orders")
+@RequestMapping("/api/v1/admin/orders")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-@Tag(name = "Admin Orders", description = "API quản lý đơn hàng dành cho Admin - Quyền cao nhất")
+@RequireAdmin
+@Tag(name = "Orders - Admin", description = "API quản lý đơn hàng dành cho Admin - Quyền cao nhất")
 public class AdminOrderController {
 
     private final AdminOrderService adminOrderService;

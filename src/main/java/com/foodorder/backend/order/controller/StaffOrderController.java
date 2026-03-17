@@ -5,6 +5,7 @@ import com.foodorder.backend.order.dto.response.OrderResponse;
 import com.foodorder.backend.order.dto.response.PageResponse;
 import com.foodorder.backend.order.dto.response.ApiResponse;
 import com.foodorder.backend.order.service.StaffOrderService;
+import com.foodorder.backend.security.annotation.RequireStaff;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -15,20 +16,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 /**
  * Controller dành riêng cho STAFF quản lý đơn hàng
  * Tập trung vào các thao tác xử lý đơn hàng hàng ngày
+ *
+ * Đã migrate từ /api/staff/orders → /api/v1/staff/orders (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/staff/orders")
+@RequestMapping("/api/v1/staff/orders")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasAuthority('ROLE_STAFF') or hasAuthority('ROLE_ADMIN')")
-@Tag(name = "Staff Orders", description = "API quản lý đơn hàng dành cho Staff")
+@RequireStaff
+@Tag(name = "Orders - Staff", description = "API quản lý đơn hàng dành cho Staff")
 public class StaffOrderController {
 
     private final StaffOrderService staffOrderService;

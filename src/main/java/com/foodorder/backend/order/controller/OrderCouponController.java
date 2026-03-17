@@ -21,11 +21,13 @@ import java.util.stream.Collectors;
 /**
  * Controller cho việc áp dụng Coupon trong Order
  * Cung cấp API để validate và preview coupon discount trước khi tạo order
+ *
+ * Đã migrate từ /api/v1/orders/coupon → /api/v1/public/orders/coupon (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/v1/orders/coupon")
+@RequestMapping("/api/v1/public/orders/coupon")
 @Slf4j
-@Tag(name = "Order Coupons", description = "API áp dụng mã giảm giá cho đơn hàng")
+@Tag(name = "Order Coupons - Public", description = "API áp dụng mã giảm giá cho đơn hàng - Công khai")
 public class OrderCouponController {
 
     @Autowired

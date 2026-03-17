@@ -22,11 +22,11 @@ import java.util.Map;
  * Không yêu cầu đăng nhập để khách hàng có thể liên hệ dễ dàng
  */
 @RestController
-@RequestMapping("/api/contact")
+@RequestMapping("/api/v1/public/contact")
 @RequiredArgsConstructor
 
 @Slf4j
-@Tag(name = "Contact", description = "API gửi tin nhắn liên hệ")
+@Tag(name = "Contact - Public", description = "API gửi tin nhắn liên hệ")
 public class ContactController {
 
     private final ContactService contactService;

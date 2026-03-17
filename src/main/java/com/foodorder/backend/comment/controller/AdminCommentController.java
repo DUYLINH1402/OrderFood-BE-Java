@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.*;
  * Controller xử lý các API quản lý bình luận (dành cho Admin)
  */
 @RestController
-@RequestMapping("/api/admin/comments")
+@RequestMapping("/api/v1/admin/comments")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-@Tag(name = "Admin Comment API", description = "API quản lý bình luận dành cho Admin")
+@Tag(name = "Comments - Admin", description = "API quản lý bình luận dành cho Admin")
 public class AdminCommentController {
 
     private final CommentService commentService;

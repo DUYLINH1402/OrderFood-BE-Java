@@ -14,11 +14,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller xử lý các API Dashboard cho Admin
+ * Controller xử lý các API Dashboard cho Admin/Staff
  * Cung cấp các endpoint thống kê và báo cáo tổng quan
+ *
+ * Đã migrate từ /api/admin/dashboard → /api/v1/staff/dashboard (2026-03-17)
+ * Dùng prefix /api/v1/staff/** vì cả Staff và Admin đều có quyền truy cập
  */
 @RestController
-@RequestMapping("/api/admin/dashboard")
+@RequestMapping("/api/v1/staff/dashboard")
 @RequiredArgsConstructor
 @Slf4j
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")

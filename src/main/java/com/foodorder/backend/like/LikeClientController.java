@@ -10,24 +10,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller client cho Like - Toggle like và kiểm tra trạng thái
+ * Yêu cầu đăng nhập
+ *
+ * Đã migrate từ POST /api/likes/toggle, GET /api/likes/check → /api/v1/client/likes (2026-03-17)
+ */
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/api/v1/client/likes")
 @RequiredArgsConstructor
-@Tag(name = "Like API", description = "API quản lý lượt thích")
-public class LikeController {
+@Tag(name = "Like - Client", description = "API thao tác lượt thích - Yêu cầu đăng nhập")
+public class LikeClientController {
 
     private final LikeService likeService;
 
-    /**
-     * Toggle like/unlike cho một đối tượng
-     * Yêu cầu đăng nhập
-     */
     @PostMapping("/toggle")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Toggle like/unlike", description = "Like nếu chưa like, unlike nếu đã like")
     public ResponseEntity<LikeResponse> toggleLike(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -38,29 +38,7 @@ public class LikeController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Lấy thông tin like của một đối tượng
-     * Không yêu cầu đăng nhập, nhưng nếu đã đăng nhập sẽ trả về trạng thái "đã like" của user
-     */
-    @GetMapping("/{targetType}/{targetId}")
-    @Operation(summary = "Lấy thông tin like", description = "Lấy số lượt like và trạng thái đã like của user")
-    public ResponseEntity<LikeResponse> getLikeInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable String targetType,
-            @PathVariable Long targetId
-    ) {
-        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-        TargetType type = TargetType.valueOf(targetType.toUpperCase());
-        LikeResponse response = likeService.getLikeInfo(userId, type, targetId);
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Kiểm tra user đã like chưa
-     * Yêu cầu đăng nhập
-     */
     @GetMapping("/check/{targetType}/{targetId}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Kiểm tra đã like", description = "Kiểm tra user hiện tại đã like đối tượng chưa")
     public ResponseEntity<Boolean> checkLiked(
             @AuthenticationPrincipal CustomUserDetails userDetails,

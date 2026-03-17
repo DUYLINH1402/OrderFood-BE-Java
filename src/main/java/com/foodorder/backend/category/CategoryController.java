@@ -1,6 +1,5 @@
 package com.foodorder.backend.category;
 
-import com.foodorder.backend.category.dto.request.CategoryRequest;
 import com.foodorder.backend.category.dto.response.CategoryResponse;
 import com.foodorder.backend.category.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,35 +7,23 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 /**
- * Controller quản lý danh mục món ăn
+ * Controller quản lý danh mục món ăn - API Public
+ * Các API này không cần đăng nhập
  */
 @RestController
-@RequestMapping("/api/categories")
-
-@Tag(name = "Categories", description = "API quản lý danh mục món ăn")
+@RequestMapping("/api/v1/public/categories")
+@RequiredArgsConstructor
+@Tag(name = "Categories - Public", description = "API công khai danh mục món ăn")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
-
-    @Operation(summary = "Tạo danh mục mới", description = "Tạo một danh mục món ăn mới (Admin).")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
-    })
-    @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest request) {
-        CategoryResponse response = categoryService.createCategory(request);
-        return ResponseEntity.created(URI.create("/api/categories/" + response.getId())).body(response);
-    }
+    private final CategoryService categoryService;
 
     @Operation(summary = "Lấy danh mục gốc", description = "Lấy danh sách các danh mục cha (không có parent).")
     @ApiResponse(responseCode = "200", description = "Thành công")
@@ -95,29 +82,5 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> getCategoryBySlug(
             @Parameter(description = "Slug của danh mục") @PathVariable String slug) {
         return ResponseEntity.ok(categoryService.getCategoryBySlug(slug));
-    }
-
-    @Operation(summary = "Cập nhật danh mục", description = "Cập nhật thông tin một danh mục (Admin).")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy danh mục")
-    })
-    @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(
-            @Parameter(description = "ID của danh mục") @PathVariable Long id,
-            @RequestBody CategoryRequest request) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, request));
-    }
-
-    @Operation(summary = "Xóa danh mục", description = "Xóa một danh mục (Admin).")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy danh mục")
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(
-            @Parameter(description = "ID của danh mục") @PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
     }
 }

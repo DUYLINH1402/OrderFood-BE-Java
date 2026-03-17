@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,7 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Response chứa danh sách top món ăn bán chạy")
-public class TopSellingFoodResponse {
+public class TopSellingFoodResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Danh sách top món ăn bán chạy")
     private List<TopFoodItem> topFoods;
@@ -40,7 +45,10 @@ public class TopSellingFoodResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "Thông tin món ăn bán chạy")
-    public static class TopFoodItem {
+    public static class TopFoodItem implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Schema(description = "ID món ăn", example = "1")
         private Long foodId;
 
@@ -66,4 +74,3 @@ public class TopSellingFoodResponse {
         private Double revenuePercentage;
     }
 }
-

@@ -31,12 +31,14 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Controller quản lý món ăn dành cho Admin
  * Admin có đầy đủ quyền của Staff và thêm các quyền CRUD món ăn
+ *
+ * Đã migrate từ /api/admin/foods → /api/v1/admin/foods (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/admin/foods")
+@RequestMapping("/api/v1/admin/foods")
 
 @RequireAdmin
-@Tag(name = "Foods Admin", description = "API quản lý món ăn dành cho Admin - CRUD đầy đủ")
+@Tag(name = "Foods - Admin", description = "API quản lý món ăn dành cho Admin - CRUD đầy đủ")
 public class FoodAdminController {
 
     @Autowired

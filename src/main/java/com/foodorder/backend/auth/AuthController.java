@@ -36,7 +36,7 @@ import java.util.Optional;
  * Controller xử lý các nghiệp vụ xác thực người dùng
  */
 @Controller
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/public/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "API xác thực và quản lý tài khoản người dùng")
 public class AuthController {

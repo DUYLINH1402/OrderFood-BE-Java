@@ -21,11 +21,13 @@ import java.util.List;
 /**
  * Controller xử lý API Admin cho quản lý thông tin nhà hàng
  * Yêu cầu quyền ADMIN
+ *
+ * Đã migrate từ /api/admin/restaurant → /api/v1/admin/restaurant (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/admin/restaurant")
+@RequestMapping("/api/v1/admin/restaurant")
 @RequiredArgsConstructor
-@Tag(name = "Restaurant Admin", description = "API quản lý thông tin nhà hàng dành cho Admin")
+@Tag(name = "Restaurant - Admin", description = "API quản lý thông tin nhà hàng dành cho Admin")
 public class RestaurantAdminController {
 
     private final RestaurantService restaurantService;

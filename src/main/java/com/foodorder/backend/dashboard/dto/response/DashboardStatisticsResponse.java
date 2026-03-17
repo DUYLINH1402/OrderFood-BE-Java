@@ -3,6 +3,8 @@ package com.foodorder.backend.dashboard.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -15,7 +17,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Response chứa thống kê tổng quan cho Dashboard Admin")
-public class DashboardStatisticsResponse {
+public class DashboardStatisticsResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Tổng số khách hàng (ROLE_USER)", example = "1500")
     private Long totalCustomers;

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,7 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Response chứa chi tiết hiệu quả từng món ăn")
-public class FoodPerformanceResponse {
+public class FoodPerformanceResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Danh sách hiệu quả từng món ăn")
     private List<FoodPerformanceItem> foods;
@@ -43,7 +48,10 @@ public class FoodPerformanceResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "Thông tin hiệu quả một món ăn")
-    public static class FoodPerformanceItem {
+    public static class FoodPerformanceItem implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Schema(description = "ID món ăn", example = "1")
         private Long foodId;
 

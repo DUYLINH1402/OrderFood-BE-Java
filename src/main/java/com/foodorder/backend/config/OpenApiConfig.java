@@ -74,25 +74,30 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
                                         .description("Nhập JWT token để xác thực. " +
-                                                "Token được lấy từ API /api/auth/login")));
+                                                "Token được lấy từ API /api/v1/public/auth/login")));
     }
 
     /**
      * Nhóm API Public - Các API công khai không cần xác thực
-     * Bao gồm: Auth (đăng nhập, đăng ký), Foods (xem danh sách), Categories, Districts, Wards
+     * Bao gồm: Auth, Foods, Categories, Search, Likes, Shares, Districts, Wards, Feedback, Payments
      */
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("1. Public APIs")
-                .displayName("🌐 Public - Công khai")
+                .displayName("Public")
                 .pathsToMatch(
+                        "/api/v1/public/**",
                         "/api/auth/**",
                         "/api/foods/**",
                         "/api/categories/**",
                         "/api/districts/**",
                         "/api/wards/**",
-                        "/api/chatbot/**"
+                        "/api/chatbot/**",
+                        "/api/feedback-media/**",
+                        "/api/likes/**",
+                        "/api/shares/**",
+                        "/api/payments/**"
                 )
                 .pathsToExclude(
                         "/api/admin/**",
@@ -103,17 +108,17 @@ public class OpenApiConfig {
 
     /**
      * Nhóm API User - Các API dành cho người dùng đã đăng nhập
-     * Bao gồm: Cart, Orders, Points, Coupons, Favorites, Notifications, Payments, Chat, Feedback
+     * Bao gồm: Cart, Orders, Points, Coupons, Favorites, Notifications, Payments, Chat
      */
     @Bean
     public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
                 .group("2. User APIs")
-                .displayName("👤 User - Người dùng")
+                .displayName("User")
                 .pathsToMatch(
+                        "/api/v1/client/**",
                         "/api/cart/**",
                         "/api/orders/**",
-                        "/api/v1/orders/**",
                         "/api/points/**",
                         "/api/coupons/**",
                         "/api/favorites/**",
@@ -121,13 +126,13 @@ public class OpenApiConfig {
                         "/api/notifications/user/**",
                         "/api/payments/**",
                         "/api/chat/**",
-                        "/api/feedback-media/**",
                         "/api/users/**"
                 )
                 .pathsToExclude(
                         "/api/admin/**",
                         "/api/staff/**",
                         "/api/v1/admin/**",
+                        "/api/v1/staff/**",
                         "/api/notifications/staff/**"
                 )
                 .build();
@@ -135,17 +140,20 @@ public class OpenApiConfig {
 
     /**
      * Nhóm API Staff - Các API dành cho nhân viên
-     * Bao gồm: Quản lý đơn hàng của nhân viên, Notifications cho staff, Chat
+     * Bao gồm: Dashboard, Quản lý đơn hàng, Notifications cho staff, Chat, Foods management
      */
     @Bean
     public GroupedOpenApi staffApi() {
         return GroupedOpenApi.builder()
                 .group("3. Staff APIs")
-                .displayName("👷 Staff - Nhân viên")
+                .displayName("Staff")
                 .pathsToMatch(
+                        "/api/v1/staff/**",
                         "/api/staff/**",
+                        "/api/admin/dashboard/**",
                         "/api/notifications/staff/**",
-                        "/api/chat/**"
+                        "/api/chat/**",
+                        "/api/staff/orders/**"
                 )
                 .build();
     }
@@ -158,7 +166,7 @@ public class OpenApiConfig {
     public GroupedOpenApi adminApi() {
         return GroupedOpenApi.builder()
                 .group("4. Admin APIs")
-                .displayName("🔑 Admin - Quản trị")
+                .displayName("Admin")
                 .pathsToMatch(
                         "/api/admin/**",
                         "/api/v1/admin/**"
@@ -173,7 +181,7 @@ public class OpenApiConfig {
     public GroupedOpenApi allApi() {
         return GroupedOpenApi.builder()
                 .group("5. All APIs")
-                .displayName("📋 Tất cả APIs")
+                .displayName("All APIs")
                 .pathsToMatch("/api/**")
                 .build();
     }

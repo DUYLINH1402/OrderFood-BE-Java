@@ -70,7 +70,7 @@ public class WebSocketService {
             );
 
         } catch (Exception e) {
-            log.error("❌ Lỗi khi gửi thông báo cho user {}: {}", userId, e.getMessage(), e);
+            log.error(" Lỗi khi gửi thông báo cho user {}: {}", userId, e.getMessage(), e);
         }
     }
 

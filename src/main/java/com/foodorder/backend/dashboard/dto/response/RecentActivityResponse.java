@@ -3,6 +3,8 @@ package com.foodorder.backend.dashboard.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Response chứa danh sách hoạt động gần đây")
-public class RecentActivityResponse {
+public class RecentActivityResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Danh sách hoạt động gần đây")
     private List<Activity> activities;
@@ -33,7 +38,10 @@ public class RecentActivityResponse {
     @AllArgsConstructor
     @Builder
     @Schema(description = "Thông tin một hoạt động")
-    public static class Activity {
+    public static class Activity implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Schema(description = "Loại hoạt động", example = "ORDER", allowableValues = {"ORDER", "USER_REGISTER", "ORDER_COMPLETED", "ORDER_CANCELLED"})
         private String type;
 

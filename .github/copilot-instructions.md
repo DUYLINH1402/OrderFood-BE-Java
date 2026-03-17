@@ -26,9 +26,55 @@
 
 ## Quy tắc code
 
+### 🔵 Endpoint Convention (Bắt buộc)
+
+Tất cả API **phải** tuân theo convention URL prefix theo vai trò:
+
+| Prefix | Vai trò | Mô tả | Ví dụ |
+|--------|---------|-------|-------|
+| `/api/v1/public/**` | Khách vãng lai | Không cần đăng nhập - Xem sản phẩm, bài viết, đăng ký, đăng nhập | `/api/v1/public/auth/login`, `/api/v1/public/blogs` |
+| `/api/v1/client/**` | Người dùng đã login | Quản lý profile, đặt hàng, xem lịch sử cá nhân | `/api/v1/client/orders`, `/api/v1/client/profile` |
+| `/api/v1/staff/**` | Nhân viên | Xác nhận đơn hàng, cập nhật trạng thái | `/api/v1/staff/orders`, `/api/v1/staff/foods/status` |
+| `/api/v1/admin/**` | Quản trị viên | Quản lý nhân sự, cấu hình hệ thống, thống kê | `/api/v1/admin/blogs`, `/api/v1/admin/users` |
+
+**Phân quyền tự động trong SecurityConfig:**
+- `/api/v1/public/**` → `permitAll()`
+- `/api/v1/client/**` → `authenticated()`
+- `/api/v1/staff/**` → `hasAnyRole("STAFF", "ADMIN")`
+- `/api/v1/admin/**` → `hasRole("ADMIN")`
+
+**Trạng thái migration:**
+| Module | Cũ | Mới | Trạng thái |
+|--------|----|-----|------------|
+| Auth | `/api/auth/**` | `/api/v1/public/auth/**` | ✅ Done |
+| Blog Public | `/api/blogs/**` | `/api/v1/public/blogs/**` | ✅ Done |
+| Blog Admin | `/api/admin/blogs/**` | `/api/v1/admin/blogs/**` | ✅ Done |
+| Cart | `/api/cart/**` | `/api/v1/client/cart/**` | ✅ Done |
+| Category Public | `/api/categories/**` (GET) | `/api/v1/public/categories/**` | ✅ Done |
+| Category Admin | `/api/categories/**` (CUD) | `/api/v1/admin/categories/**` | ✅ Done |
+| Food | `/api/foods/**` | `/api/v1/public/foods/**`, `/api/v1/staff/foods/**`, `/api/v1/admin/foods/**` | ✅ Done |
+| Order | `/api/orders/**`, `/api/staff/orders/**`, `/api/admin/orders/**` | `/api/v1/public/orders/**`, `/api/v1/client/orders/**`, `/api/v1/staff/orders/**`, `/api/v1/admin/orders/**` | ✅ Done |
+| User | `/api/users/**`, `/api/admin/users/**` | `/api/v1/client/users/**`, `/api/v1/admin/users/**` | ✅ Done |
+| Comment | `/api/comments/**`, `/api/admin/comments/**` | `/api/v1/public/comments/**`, `/api/v1/client/comments/**`, `/api/v1/admin/comments/**` | ✅ Done |
+| Contact | `/api/contact/**`, `/api/admin/contacts/**` | `/api/v1/public/contact`, `/api/v1/staff/contacts/**` | ✅ Done |
+| Coupon | `/api/coupons/**`, `/api/admin/coupons/**` | `/api/v1/public/coupons/**`, `/api/v1/client/coupons/**`, `/api/v1/admin/coupons/**` | ✅ Done |
+| Chat | `/api/chat/**` | `/api/v1/client/chat/**`, `/api/v1/staff/chat/**`, `/api/v1/admin/chat/**` | ✅ Done |
+| Chatbot | `/api/chatbot/**` | `/api/v1/public/chatbot/**` | ✅ Done |
+| Dashboard | `/api/admin/dashboard/**` | `/api/v1/staff/dashboard/**` | ✅ Done |
+| Favorite | `/api/favorites/**` | `/api/v1/client/favorites/**` | ✅ Done |
+| Feedback | `/api/feedback-media/**` | `/api/v1/public/feedback-media/**`, `/api/v1/admin/feedback-media/**` | ✅ Done |
+| Like | `/api/likes/**` | `/api/v1/public/likes/**`, `/api/v1/client/likes/**` | ✅ Done |
+| Notification | `/api/notifications/**` | `/api/v1/client/notifications/**`, `/api/v1/staff/notifications/**` | ✅ Done |
+| Points | `/api/points/**` | `/api/v1/client/points/**` | ✅ Done |
+| Restaurant | `/api/admin/restaurant/**` | `/api/v1/admin/restaurant/**` | ✅ Done |
+| Payments | `/api/payments/**` | `/api/v1/public/payments/**` | ✅ Done |
+| Search | `/api/v1/search` | `/api/v1/public/search`, `/api/v1/admin/search/**` | ✅ Done |
+| Share | `/api/shares/**` | `/api/v1/public/shares/**` | ✅ Done |
+| Zone | `/api/districts/**`, `/api/wards/**` | `/api/v1/public/districts/**`, `/api/v1/public/wards/**` | ✅ Done |
+
 ### Cấu trúc & Convention
 - Import đặt ở **đầu file**
-- Endpoint RESTful: `/api/foods`, `/api/cart`, `/api/orders`
+- Endpoint RESTful theo convention: `/api/v1/{role}/{resource}`
 - Sử dụng `@Valid` cho validation DTO
 - Comment rõ ràng cho logic phức tạp
 - Phân quyền: `@PreAuthorize`, `@RequireStaff`, `@RequireAdmin`

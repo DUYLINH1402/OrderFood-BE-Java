@@ -3,6 +3,7 @@ package com.foodorder.backend.notifications.controller;
 import com.foodorder.backend.notifications.dto.NotificationResponseDTO;
 import com.foodorder.backend.notifications.service.NotificationService;
 import com.foodorder.backend.security.CustomUserDetails;
+import com.foodorder.backend.security.annotation.RequireStaff;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,15 +23,16 @@ import java.util.Map;
 
 /**
  * Controller xử lý các API thông báo cho Staff (nhân viên)
- * Endpoints: /api/notifications/staff/*
  * Chỉ Staff và Admin mới có thể truy cập
+ *
+ * Đã migrate từ /api/notifications/staff → /api/v1/staff/notifications (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/notifications/staff")
+@RequestMapping("/api/v1/staff/notifications")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
-@Tag(name = "Staff Notifications", description = "API thông báo dành cho Staff/Admin")
+@RequireStaff
+@Tag(name = "Notifications - Staff", description = "API thông báo dành cho Staff/Admin")
 public class StaffNotificationController {
 
     private final NotificationService notificationService;

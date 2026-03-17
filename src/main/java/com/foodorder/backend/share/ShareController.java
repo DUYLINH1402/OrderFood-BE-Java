@@ -13,10 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller public cho Share - Ghi nhận và xem lượt chia sẻ
+ * Không bắt buộc đăng nhập (cho phép khách vãng lai share)
+ *
+ * Đã migrate từ /api/shares → /api/v1/public/shares (2026-03-17)
+ */
 @RestController
-@RequestMapping("/api/shares")
+@RequestMapping("/api/v1/public/shares")
 @RequiredArgsConstructor
-@Tag(name = "Share API", description = "API quản lý lượt chia sẻ")
+@Tag(name = "Share - Public", description = "API quản lý lượt chia sẻ - Công khai")
 public class ShareController {
 
     private final ShareService shareService;

@@ -3,6 +3,8 @@ package com.foodorder.backend.dashboard.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Response chứa dữ liệu doanh thu theo ngày")
-public class RevenueDataResponse {
+public class RevenueDataResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Danh sách dữ liệu doanh thu theo từng ngày")
     private List<DailyRevenue> dailyRevenues;
@@ -39,7 +44,10 @@ public class RevenueDataResponse {
     @AllArgsConstructor
     @Builder
     @Schema(description = "Doanh thu của 1 ngày")
-    public static class DailyRevenue {
+    public static class DailyRevenue implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         @Schema(description = "Ngày", example = "2025-01-20")
         private LocalDate date;
 

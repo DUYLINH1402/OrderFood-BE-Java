@@ -22,11 +22,14 @@ import org.springframework.data.web.PageableDefault;
 
 /**
  * Controller quản lý điểm thưởng của người dùng
+ * Yêu cầu đăng nhập
+ *
+ * Đã migrate từ /api/points → /api/v1/client/points (2026-03-17)
  */
 @RestController
-@RequestMapping("/api/points")
+@RequestMapping("/api/v1/client/points")
 @RequiredArgsConstructor
-@Tag(name = "Points", description = "API quản lý điểm thưởng - Yêu cầu đăng nhập")
+@Tag(name = "Points - Client", description = "API quản lý điểm thưởng - Yêu cầu đăng nhập")
 public class PointsController {
     private final PointsService pointsService;
 

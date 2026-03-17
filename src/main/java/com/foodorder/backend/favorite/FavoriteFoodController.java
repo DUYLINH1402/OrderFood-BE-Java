@@ -4,14 +4,13 @@ import com.foodorder.backend.exception.ResourceNotFoundException;
 import com.foodorder.backend.favorite.dto.request.FavoriteRequest;
 import com.foodorder.backend.favorite.dto.response.FavoriteFoodResponse;
 import com.foodorder.backend.favorite.service.FavoriteFoodService;
-import com.foodorder.backend.order.exception.UnauthorizedException;
 import com.foodorder.backend.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +21,13 @@ import java.util.List;
  * Controller quản lý danh sách món ăn yêu thích của người dùng
  */
 @RestController
-@RequestMapping("/api/favorites")
+@RequestMapping("/api/v1/client/favorites")
+@RequiredArgsConstructor
 @Tag(name = "Favorites", description = "API quản lý danh sách món ăn yêu thích - Yêu cầu đăng nhập")
 public class FavoriteFoodController {
 
     private final FavoriteFoodService favoriteFoodService;
 
-    @Autowired
-    public FavoriteFoodController(FavoriteFoodService favoriteFoodService) {
-        this.favoriteFoodService = favoriteFoodService;
-    }
 
     @Operation(summary = "Lấy danh sách yêu thích", description = "Lấy danh sách các món ăn yêu thích của người dùng đang đăng nhập.")
     @ApiResponses(value = {

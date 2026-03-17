@@ -172,6 +172,14 @@ public class CacheConfig {
     public static final String RESTAURANT_INFO_CACHE = "restaurantInfo";
 
     // =============================================
+    // FEEDBACK MEDIA CACHES
+    // =============================================
+    /** Cache danh sách feedback media - TTL: 30 phút (ít thay đổi) */
+    public static final String FEEDBACK_MEDIA_LIST_CACHE = "feedbackMediaList";
+    /** Cache chi tiết feedback media - TTL: 30 phút */
+    public static final String FEEDBACK_MEDIA_DETAIL_CACHE = "feedbackMediaDetail";
+
+    // =============================================
     // TTL DURATIONS (Thời gian hết hạn cache)
     // =============================================
     /** TTL ngắn: 3 phút - Dữ liệu thay đổi thường xuyên (comments) */
@@ -303,6 +311,10 @@ public class CacheConfig {
 
         // RESTAURANT CACHES
         cacheConfigurations.put(RESTAURANT_INFO_CACHE, defaultConfig.entryTtl(TTL_VERY_LONG));
+
+        // FEEDBACK MEDIA CACHES
+        cacheConfigurations.put(FEEDBACK_MEDIA_LIST_CACHE, defaultConfig.entryTtl(TTL_VERY_LONG));
+        cacheConfigurations.put(FEEDBACK_MEDIA_DETAIL_CACHE, defaultConfig.entryTtl(TTL_VERY_LONG));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
