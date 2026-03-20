@@ -1,4 +1,4 @@
-package com.foodorder.backend.food;
+package com.foodorder.backend.food.controller;
 
 import com.foodorder.backend.food.dto.response.FoodResponse;
 import com.foodorder.backend.food.service.FoodService;

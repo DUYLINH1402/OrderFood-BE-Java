@@ -48,12 +48,10 @@ public class OpenApiConfig {
                                 "giỏ hàng, đơn hàng, thanh toán, điểm thưởng và nhiều hơn nữa.")
                         .version("1.0.0")
                         .contact(new Contact()
-                                .name("Food Order Team")
+                                .name("Food Order Support")
                                 .email("support@foodorder.com")
                                 .url("https://dongxanhfood.shop"))
-                        .license(new License()
-                                .name("Private License")
-                                .url("https://dongxanhfood.shop")))
+                        )
 
                 // Server endpoints
                 .servers(List.of(
@@ -175,12 +173,27 @@ public class OpenApiConfig {
     }
 
     /**
+     * Nhóm API Super Admin - Các API dành cho Super Admin (quản trị viên cao nhất)
+     * Bao gồm: Quản lý dữ liệu được bảo vệ (isProtected), toggle bảo vệ, Algolia reindex
+     */
+    @Bean
+    public GroupedOpenApi superAdminApi() {
+        return GroupedOpenApi.builder()
+                .group("5. Super Admin APIs")
+                .displayName("Super Admin")
+                .pathsToMatch(
+                        "/api/v1/superadmin/**"
+                )
+                .build();
+    }
+
+    /**
      * Nhóm tất cả API - Hiển thị toàn bộ endpoints
      */
     @Bean
     public GroupedOpenApi allApi() {
         return GroupedOpenApi.builder()
-                .group("5. All APIs")
+                .group("6. All APIs")
                 .displayName("All APIs")
                 .pathsToMatch("/api/**")
                 .build();

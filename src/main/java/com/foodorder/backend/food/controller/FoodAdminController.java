@@ -1,4 +1,4 @@
-package com.foodorder.backend.food;
+package com.foodorder.backend.food.controller;
 
 import com.foodorder.backend.config.CacheConfig;
 import com.foodorder.backend.food.dto.request.FoodFilterRequest;
@@ -10,14 +10,11 @@ import com.foodorder.backend.security.annotation.RequireAdmin;
 import com.foodorder.backend.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,8 +58,6 @@ public class FoodAdminController {
             @ApiResponse(responseCode = "403", description = "Không có quyền Admin")
     })
     @GetMapping("/management")
-    @Cacheable(value = CacheConfig.ADMIN_FOODS_CACHE,
-               key = "'list_' + #name + '_' + #status + '_' + #categoryId + '_' + #isActive + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public ResponseEntity<Page<FoodResponse>> getFoodsForManagement(
             @Parameter(description = "Tên món ăn (tìm kiếm)") @RequestParam(required = false) String name,
             @Parameter(description = "Trạng thái (AVAILABLE/UNAVAILABLE)") @RequestParam(required = false) String status,
@@ -113,7 +108,6 @@ public class FoodAdminController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
     })
     @GetMapping("/{id}")
-    @Cacheable(value = CacheConfig.ADMIN_FOOD_DETAILS_CACHE, key = "#id")
     public ResponseEntity<FoodResponse> getFoodById(
             @Parameter(description = "ID của món ăn") @PathVariable Long id) {
         return ResponseEntity.ok(foodService.getFoodById(id));

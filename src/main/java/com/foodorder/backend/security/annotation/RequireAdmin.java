@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation để kiểm tra quyền Admin
- * Chỉ cho phép user có role ADMIN truy cập
+ * Cho phép user có role ADMIN hoặc SUPER_ADMIN truy cập
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
 public @interface RequireAdmin {
 }

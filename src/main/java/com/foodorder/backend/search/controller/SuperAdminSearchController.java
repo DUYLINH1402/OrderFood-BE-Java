@@ -14,26 +14,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Controller admin cho quản lý Algolia Search index
+ * Controller quản lý Algolia Search index dành cho Super Admin
  * Yêu cầu quyền SUPER_ADMIN
  *
- * ⚠️ DEPRECATED: Sử dụng SuperAdminSearchController (/api/v1/superadmin/search) thay thế
- * Controller này giữ lại để backward compatibility, sẽ bị xóa trong phiên bản sau.
- *
- * Đã migrate từ POST /api/v1/search/reindex, /api/v1/search/init → /api/v1/admin/search (2026-03-17)
- * Đã migrate sang /api/v1/superadmin/search (2026-03-20)
+ * Prefix: /api/v1/superadmin/search
  */
 @RestController
-@RequestMapping("/api/v1/admin/search")
+@RequestMapping("/api/v1/superadmin/search")
 @RequiredArgsConstructor
+@RequireSuperAdmin
 @Slf4j
-@Tag(name = "Search - Admin (Deprecated)", description = "⚠️ Deprecated - Sử dụng Super Admin APIs thay thế")
-public class SearchAdminController {
+@Tag(name = "Search - Super Admin", description = "API quản lý Algolia Search index - Dành cho Super Admin")
+public class SuperAdminSearchController {
 
     private final AlgoliaSearchService algoliaSearchService;
 
     @PostMapping("/reindex")
-    @RequireSuperAdmin
     @Operation(
             summary = "Reindex toàn bộ món ăn",
             description = "Đồng bộ lại toàn bộ dữ liệu món ăn từ MySQL lên Algolia. " +
@@ -50,7 +46,6 @@ public class SearchAdminController {
     }
 
     @PostMapping("/init")
-    @RequireSuperAdmin
     @Operation(
             summary = "Khởi tạo dữ liệu Algolia",
             description = "Đẩy toàn bộ dữ liệu món ăn từ MySQL lên Algolia lần đầu tiên. " +

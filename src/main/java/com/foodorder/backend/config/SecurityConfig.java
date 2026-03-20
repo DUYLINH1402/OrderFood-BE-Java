@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,6 +28,7 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // Kích hoạt @PreAuthorize, @RequireAdmin, @RequireStaff, @RequireSuperAdmin
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -92,8 +94,9 @@ public class SecurityConfig {
                         // ===== CONVENTION: /api/v1/{role}/** =====
                         .requestMatchers("/api/v1/public/**").permitAll()          // Public: không cần đăng nhập
                         .requestMatchers("/api/v1/client/**").authenticated()      // Client: người dùng đã đăng nhập
-                        .requestMatchers("/api/v1/staff/**").hasAnyRole("STAFF", "ADMIN") // Staff: nhân viên
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")      // Admin: quản trị viên
+                        .requestMatchers("/api/v1/staff/**").hasAnyRole("STAFF", "ADMIN", "SUPER_ADMIN") // Staff: nhân viên + admin + super admin
+                        .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")          // Admin: quản trị viên + super admin
+                        .requestMatchers("/api/v1/superadmin/**").hasRole("SUPER_ADMIN")                 // Super Admin: toàn quyền hệ thống
 
                         // Các request khác cần authentication
                         .anyRequest().authenticated()

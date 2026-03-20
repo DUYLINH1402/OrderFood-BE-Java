@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin/promotions/points")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@RequireAdmin
 @Tag(name = "Points Statistics", description = "API thống kê và quản lý điểm thưởng - Dành cho Admin")
 public class PointsStatisticsController {
 
@@ -157,7 +157,6 @@ public class PointsStatisticsController {
             @ApiResponse(responseCode = "403", description = "Không có quyền Admin")
     })
     @PostMapping("/users/{userId}/adjust")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> adjustUserPoints(
             @Parameter(description = "ID của user", required = true, example = "1")
             @PathVariable Long userId,
@@ -184,7 +183,6 @@ public class PointsStatisticsController {
             @ApiResponse(responseCode = "403", description = "Không có quyền Admin")
     })
     @PostMapping("/bulk-add")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> bulkAddPoints(@RequestBody BulkAddPointsRequest request) {
         pointsStatisticsService.bulkAddPoints(request.getUserIds(), request.getAmount(), request.getReason());
 

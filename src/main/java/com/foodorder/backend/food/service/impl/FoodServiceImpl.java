@@ -13,15 +13,13 @@ import com.foodorder.backend.food.dto.response.FoodVariantResponse;
 import com.foodorder.backend.category.entity.Category;
 import com.foodorder.backend.food.entity.Food;
 import com.foodorder.backend.food.entity.FoodImage;
-import com.foodorder.backend.exception.ForbiddenException;
 import com.foodorder.backend.food.repository.FoodImageRepository;
 import com.foodorder.backend.food.repository.FoodRepository;
 import com.foodorder.backend.food.repository.FoodVariantRepository;
 import com.foodorder.backend.search.service.AlgoliaSearchService;
 import com.foodorder.backend.food.service.FoodService;
-import com.foodorder.backend.security.CustomUserDetails;
+import com.foodorder.backend.security.service.ProtectedDataService;
 import com.foodorder.backend.service.S3Service;
-import com.foodorder.backend.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +28,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,40 +62,17 @@ public class FoodServiceImpl implements FoodService {
     @Autowired
     private AlgoliaSearchService algoliaSearchService;
 
+    @Autowired
+    private ProtectedDataService protectedDataService;
+
     // ==================== Helper Methods ====================
 
     /**
-     * Lấy thông tin user hiện tại từ SecurityContext
-     */
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            return userDetails.getUser();
-        }
-        return null;
-    }
-
-    /**
-     * Kiểm tra user hiện tại có phải là SUPER_ADMIN không
-     */
-    private boolean isCurrentUserSuperAdmin() {
-        User currentUser = getCurrentUser();
-        return currentUser != null && currentUser.isSuperAdmin();
-    }
-
-    /**
      * Kiểm tra quyền thao tác trên dữ liệu được bảo vệ
-     * Nếu dữ liệu được bảo vệ (isProtected = true) và user không phải SUPER_ADMIN, throw ForbiddenException
+     * Delegate sang ProtectedDataService để tránh code trùng lặp
      */
     private void checkProtectedDataPermission(Boolean isProtected, String action) {
-        if (Boolean.TRUE.equals(isProtected) && !isCurrentUserSuperAdmin()) {
-            log.warn("User không có quyền {} dữ liệu được bảo vệ", action);
-            throw new ForbiddenException(
-                    "Dữ liệu được bảo vệ, chỉ Super Admin mới có quyền " + action,
-                    "PROTECTED_DATA_ACCESS_DENIED"
-            );
-        }
+        protectedDataService.checkPermission(isProtected, action);
     }
 
     private FoodResponse mapToDto(Food food) {
@@ -462,7 +435,7 @@ public class FoodServiceImpl implements FoodService {
                 .orElseThrow(() -> new ResourceNotFoundException("FOOD_NOT_FOUND"));
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-//        checkProtectedDataPermission(food.getIsProtected(), "cập nhật trạng thái");
+        checkProtectedDataPermission(food.getIsProtected(), "cập nhật trạng thái");
 
         // Cập nhật status nếu có
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {

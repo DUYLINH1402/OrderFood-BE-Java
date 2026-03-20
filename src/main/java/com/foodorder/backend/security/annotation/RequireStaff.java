@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation để kiểm tra quyền Staff
- * Cho phép user có role STAFF hoặc ADMIN truy cập
+ * Cho phép user có role STAFF, ADMIN hoặc SUPER_ADMIN truy cập
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('STAFF') or hasRole('ADMIN')")
+@PreAuthorize("hasRole('STAFF') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
 public @interface RequireStaff {
 }

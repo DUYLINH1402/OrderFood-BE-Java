@@ -5,9 +5,8 @@ import com.foodorder.backend.auth.entity.UserTokenType;
 import com.foodorder.backend.auth.repository.UserTokenRepository;
 import com.foodorder.backend.config.RestPage;
 import com.foodorder.backend.exception.BadRequestException;
-import com.foodorder.backend.exception.ForbiddenException;
 import com.foodorder.backend.exception.ResourceNotFoundException;
-import com.foodorder.backend.security.CustomUserDetails;
+import com.foodorder.backend.security.service.ProtectedDataService;
 import com.foodorder.backend.service.BrevoEmailService;
 import com.foodorder.backend.user.dto.request.AdminCreateUserRequest;
 import com.foodorder.backend.user.dto.request.AdminUpdateUserRequest;
@@ -27,8 +26,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -54,6 +51,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserTokenRepository userTokenRepository;
     private final BrevoEmailService brevoEmailService;
     private final TemplateEngine templateEngine;
+    private final ProtectedDataService protectedDataService;
 
     @Value("${app.frontend.reset-password-url}")
     private String resetPasswordUrl;
@@ -61,37 +59,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     // ==================== Helper Methods ====================
 
     /**
-     * Lấy thông tin user hiện tại từ SecurityContext
-     */
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            return userDetails.getUser();
-        }
-        return null;
-    }
-
-    /**
-     * Kiểm tra user hiện tại có phải là SUPER_ADMIN không
-     */
-    private boolean isCurrentUserSuperAdmin() {
-        User currentUser = getCurrentUser();
-        return currentUser != null && currentUser.isSuperAdmin();
-    }
-
-    /**
      * Kiểm tra quyền thao tác trên dữ liệu được bảo vệ
-     * Nếu dữ liệu được bảo vệ (isProtected = true) và user không phải SUPER_ADMIN, throw ForbiddenException
+     * Delegate sang ProtectedDataService để tránh code trùng lặp
      */
     private void checkProtectedDataPermission(boolean isProtected, String action) {
-        if (isProtected && !isCurrentUserSuperAdmin()) {
-            log.warn("User không có quyền {} dữ liệu được bảo vệ", action);
-            throw new ForbiddenException(
-                    "Dữ liệu được bảo vệ, chỉ Super Admin mới có quyền " + action,
-                    "PROTECTED_DATA_ACCESS_DENIED"
-            );
-        }
+        protectedDataService.checkPermission(isProtected, action);
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.foodorder.backend.comment.dto.response.CommentStatisticsResponse;
 import com.foodorder.backend.comment.entity.CommentStatus;
 import com.foodorder.backend.comment.service.CommentService;
 import com.foodorder.backend.like.entity.TargetType;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/comments")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@RequireAdmin
 @Tag(name = "Comments - Admin", description = "API quản lý bình luận dành cho Admin")
 public class AdminCommentController {
 

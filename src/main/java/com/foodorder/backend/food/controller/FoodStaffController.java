@@ -1,4 +1,4 @@
-package com.foodorder.backend.food;
+package com.foodorder.backend.food.controller;
 
 import com.foodorder.backend.food.dto.request.FoodFilterRequest;
 import com.foodorder.backend.food.dto.request.FoodStatusUpdateRequest;

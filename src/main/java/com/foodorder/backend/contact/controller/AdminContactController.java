@@ -4,6 +4,8 @@ import com.foodorder.backend.contact.dto.*;
 import com.foodorder.backend.contact.entity.ContactStatus;
 import com.foodorder.backend.contact.service.ContactService;
 import com.foodorder.backend.security.CustomUserDetails;
+import com.foodorder.backend.security.annotation.RequireAdmin;
+import com.foodorder.backend.security.annotation.RequireStaff;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ import java.util.Map;
 
 @Slf4j
 @Tag(name = "Contact - Staff", description = "API quản lý tin nhắn liên hệ (Staff/Admin)")
-@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@RequireStaff
 public class AdminContactController {
 
     private final ContactService contactService;
@@ -141,7 +142,7 @@ public class AdminContactController {
         @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @RequireAdmin
     public ResponseEntity<Map<String, Object>> deleteContact(@PathVariable Long id) {
         contactService.deleteContact(id);
         return ResponseEntity.ok(Map.of(

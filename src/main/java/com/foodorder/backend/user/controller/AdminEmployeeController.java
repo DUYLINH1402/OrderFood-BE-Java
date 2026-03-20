@@ -5,6 +5,7 @@ import com.foodorder.backend.user.dto.request.AdminUpdateUserRequest;
 import com.foodorder.backend.user.dto.request.AdminUpdateUserStatusRequest;
 import com.foodorder.backend.user.dto.response.AdminUserResponse;
 import com.foodorder.backend.user.service.AdminUserService;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin/employees")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@RequireAdmin
 @Slf4j
 @Tag(name = "Admin Employees", description = "API quản lý nhân viên dành cho Admin")
 public class AdminEmployeeController {

@@ -6,6 +6,7 @@ import com.foodorder.backend.coupons.entity.CouponStatus;
 import com.foodorder.backend.coupons.entity.CouponType;
 import com.foodorder.backend.coupons.service.CouponService;
 import com.foodorder.backend.coupons.service.CouponStatisticsService;
+import com.foodorder.backend.security.annotation.RequireAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +40,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@RequireAdmin
 @Tag(name = "Coupons - Admin", description = "API quản lý mã giảm giá dành cho Admin")
 public class CouponAdminController {
 

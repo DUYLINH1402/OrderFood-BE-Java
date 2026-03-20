@@ -8,17 +8,13 @@ import com.foodorder.backend.blog.repository.BlogCategoryRepository;
 import com.foodorder.backend.blog.repository.BlogRepository;
 import com.foodorder.backend.blog.service.BlogCategoryService;
 import com.foodorder.backend.exception.BadRequestException;
-import com.foodorder.backend.exception.ForbiddenException;
 import com.foodorder.backend.exception.ResourceNotFoundException;
-import com.foodorder.backend.security.CustomUserDetails;
-import com.foodorder.backend.user.entity.User;
+import com.foodorder.backend.security.service.ProtectedDataService;
 import com.foodorder.backend.util.SlugUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +33,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
 
     private final BlogCategoryRepository blogCategoryRepository;
     private final BlogRepository blogRepository;
+    private final ProtectedDataService protectedDataService;
 
 
     // ==================== PUBLIC APIs ====================
@@ -243,37 +240,11 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     // ==================== Helper Methods ====================
 
     /**
-     * Lấy thông tin user hiện tại từ SecurityContext
-     */
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            return userDetails.getUser();
-        }
-        return null;
-    }
-
-    /**
-     * Kiểm tra user hiện tại có phải là SUPER_ADMIN không
-     */
-    private boolean isCurrentUserSuperAdmin() {
-        User currentUser = getCurrentUser();
-        return currentUser != null && currentUser.isSuperAdmin();
-    }
-
-    /**
      * Kiểm tra quyền thao tác trên dữ liệu được bảo vệ
-     * Nếu dữ liệu được bảo vệ (isProtected = true) và user không phải SUPER_ADMIN, throw ForbiddenException
+     * Delegate sang ProtectedDataService để tránh code trùng lặp
      */
     private void checkProtectedDataPermission(Boolean isProtected, String action) {
-        if (Boolean.TRUE.equals(isProtected) && !isCurrentUserSuperAdmin()) {
-            log.warn("User không có quyền {} dữ liệu được bảo vệ", action);
-            throw new ForbiddenException(
-                    "Dữ liệu được bảo vệ, chỉ Super Admin mới có quyền " + action,
-                    "PROTECTED_DATA_ACCESS_DENIED"
-            );
-        }
+        protectedDataService.checkPermission(isProtected, action);
     }
 
     /**

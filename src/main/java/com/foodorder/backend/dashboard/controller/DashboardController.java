@@ -2,6 +2,7 @@ package com.foodorder.backend.dashboard.controller;
 
 import com.foodorder.backend.dashboard.dto.response.*;
 import com.foodorder.backend.dashboard.service.DashboardService;
+import com.foodorder.backend.security.annotation.RequireStaff;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/staff/dashboard")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+@RequireStaff
 @Tag(name = "Dashboard", description = "API thống kê Dashboard - Admin/Staff")
 public class DashboardController {
 
