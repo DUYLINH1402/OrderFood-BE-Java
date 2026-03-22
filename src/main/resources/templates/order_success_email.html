@@ -160,14 +160,24 @@
         </div>
     </div>
 
-    <div style="margin-bottom: 20px;">
-        <p style="font-size: 15px; color: #222;">
-            <b>Tổng tiền:</b> <span th:text="${totalPriceFormatted}"></span>
+    <div style="margin-bottom: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
+        <p style="font-size: 15px; color: #222; margin: 4px 0;">
+            <b>Tổng tiền hàng:</b> <span th:text="${subtotalFormatted}"></span>
         </p>
-        <p th:if="${discountAmount != null && discountAmount > 0}" style="font-size: 15px; color: #222;">
-            <b>Giảm giá:</b> <span th:text="${discountAmountFormatted}"></span>
+        <p th:if="${shippingFee != null and shippingFee > 0}" style="font-size: 15px; color: #222; margin: 4px 0;">
+            <b>Phí giao hàng:</b> <span th:text="${shippingFeeFormatted}"></span>
         </p>
-        <p style="font-size: 15px; color: #222;">
+        <p th:if="${pointsUsed != null and pointsUsed > 0}" style="font-size: 15px; color: #dc2626; margin: 4px 0;">
+            <b>Điểm đã sử dụng:</b> <span th:text="${pointsUsed}"></span> điểm (-<span th:text="${pointsDiscountFormatted}"></span>)
+        </p>
+        <p th:if="${couponDiscount != null and couponDiscount > 0}" style="font-size: 15px; color: #dc2626; margin: 4px 0;">
+            <b>Giảm giá coupon<span th:if="${couponCode != null and !couponCode.isEmpty()}"> (<span th:text="${couponCode}"></span>)</span>:</b> -<span th:text="${couponDiscountFormatted}"></span>
+        </p>
+        <hr style="border: none; border-top: 1px solid #bbf7d0; margin: 8px 0;" />
+        <p style="font-size: 17px; font-weight: bold; color: #16a34a; margin: 4px 0;">
+            <b>Thành tiền:</b> <span th:text="${finalAmountFormatted}"></span>
+        </p>
+        <p style="font-size: 15px; color: #222; margin: 4px 0;">
             <b>Trạng thái đơn hàng:</b> <span th:text="${orderStatus}"></span>
         </p>
     </div>
@@ -177,7 +187,7 @@
         <p style="margin: 0; font-size: 15px;"><b>Người nhận:</b> <span th:text="${receiverName}"></span></p>
         <p style="margin: 0; font-size: 15px;"><b>Số điện thoại:</b> <span th:text="${receiverPhone}"></span></p>
         <p style="margin: 0; font-size: 15px;"><b>Email:</b> <span th:text="${receiverEmail}"></span></p>
-        <p style="margin: 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
+        <p th:if="${deliveryAddress != null and !deliveryAddress.isEmpty()}" style="margin: 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
         <p style="margin: 0; font-size: 15px;"><b>Hình thức giao hàng:</b> <span th:text="${deliveryType}"></span></p>
         <p style="margin: 0; font-size: 15px;"><b>Hình thức thanh toán:</b> <span th:text="${paymentMethod}"></span></p>
     </div>

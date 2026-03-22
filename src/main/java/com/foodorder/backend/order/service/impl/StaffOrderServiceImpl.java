@@ -312,9 +312,9 @@ public class StaffOrderServiceImpl implements StaffOrderService {
         context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(totalDiscount));
         context.setVariable("finalAmountFormatted", VnCurrencyFormatter.format(finalAmount));
 
-        // Thông tin thanh toán
+        // Thông tin thanh toán - hiển thị tiếng Việt
         context.setVariable("paymentMethod",
-                order.getPaymentMethod() != null ? order.getPaymentMethod().name() : "");
+                order.getPaymentMethod() != null ? order.getPaymentMethod().getDescription() : "");
 
         // Thông tin giao hàng
         context.setVariable("receiverName",
@@ -325,6 +325,8 @@ public class StaffOrderServiceImpl implements StaffOrderService {
                 order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
         context.setVariable("deliveryAddress",
                 order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
+        context.setVariable("deliveryType",
+                order.getDeliveryType() != null ? order.getDeliveryType().getDescription() : "");
 
         return context;
     }

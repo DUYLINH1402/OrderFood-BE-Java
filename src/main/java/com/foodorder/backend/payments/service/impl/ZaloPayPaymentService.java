@@ -508,6 +508,13 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
                 }
             }
 
+            // Cập nhật payment status TRƯỚC khi gửi email (để email lấy đúng trạng thái PROCESSING)
+            updateOrderPaymentStatus(orderId, zpTransId, "PAID");
+
+            // Reload lại order sau khi cập nhật để email lấy đúng trạng thái mới nhất
+            order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
             // Gửi email thông báo
             try {
                 User user = userRepository.findById(order.getUserId()).orElse(null);
@@ -518,8 +525,6 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
                 logger.error("Gửi email thất bại cho order {}: {}", orderId, emailEx.getMessage());
             }
 
-            // Cập nhật payment status
-            updateOrderPaymentStatus(orderId, zpTransId, "PAID");
 
             // Gửi WebSocket notifications
             sendPaymentNotifications(orderId);
@@ -556,19 +561,32 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
         }
         context.setVariable("orderItems", orderItems);
 
-        long orderTotalPrice = order.getTotalPrice() != null ? order.getTotalPrice().longValue() : 0;
-        long orderDiscountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount().longValue() : 0;
-        context.setVariable("totalPriceFormatted", VnCurrencyFormatter.format(orderTotalPrice));
-        context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(orderDiscountAmount));
-        context.setVariable("discountAmount", order.getDiscountAmount());
-        context.setVariable("totalPrice", order.getTotalPrice());
-        context.setVariable("orderStatus", order.getStatus() != null ? order.getStatus().name() : "UNKNOWN");
+        // Sử dụng các field tiền tệ mới
+        long subtotal = order.getSubtotalAmount() != null ? order.getSubtotalAmount().longValue() : 0;
+        long shippingFee = order.getShippingFee() != null ? order.getShippingFee().longValue() : 0;
+        long pointsDiscount = order.getPointsDiscountAmount() != null ? order.getPointsDiscountAmount().longValue() : 0;
+        long couponDiscount = order.getCouponDiscountAmount() != null ? order.getCouponDiscountAmount().longValue() : 0;
+        long finalAmount = order.getFinalAmount() != null ? order.getFinalAmount().longValue() : 0;
+        int pointsUsed = order.getPointsUsed() != null ? order.getPointsUsed() : 0;
+
+        context.setVariable("subtotalFormatted", VnCurrencyFormatter.format(subtotal));
+        context.setVariable("shippingFee", shippingFee);
+        context.setVariable("shippingFeeFormatted", VnCurrencyFormatter.format(shippingFee));
+        context.setVariable("pointsUsed", pointsUsed);
+        context.setVariable("pointsDiscount", pointsDiscount);
+        context.setVariable("pointsDiscountFormatted", VnCurrencyFormatter.format(pointsDiscount));
+        context.setVariable("couponDiscount", couponDiscount);
+        context.setVariable("couponDiscountFormatted", VnCurrencyFormatter.format(couponDiscount));
+        context.setVariable("couponCode", order.getCouponCode() != null ? order.getCouponCode() : "");
+        context.setVariable("finalAmountFormatted", VnCurrencyFormatter.format(finalAmount));
+
+        context.setVariable("orderStatus", order.getStatus() != null ? order.getStatus().getDescription() : "Không xác định");
         context.setVariable("receiverName", order.getReceiverName() != null ? order.getReceiverName() : "");
         context.setVariable("receiverPhone", order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
         context.setVariable("receiverEmail", order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
         context.setVariable("deliveryAddress", order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
-        context.setVariable("deliveryType", order.getDeliveryType() != null ? order.getDeliveryType() : "");
-        context.setVariable("paymentMethod", order.getPaymentMethod() != null ? order.getPaymentMethod() : "");
+        context.setVariable("deliveryType", order.getDeliveryType() != null ? order.getDeliveryType().getDescription() : "");
+        context.setVariable("paymentMethod", order.getPaymentMethod() != null ? order.getPaymentMethod().getDescription() : "");
 
         String htmlContent = templateEngine.process("order_success_email.html", context);
         brevoEmailService.sendEmail(user.getEmail(), subject, htmlContent);

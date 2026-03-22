@@ -131,7 +131,7 @@ public class OAuth2UserServiceImpl implements OAuth2UserService {
             counter++;
         }
 
-        // Lấy role CUSTOMER từ database
+        // Lấy role USER từ database
         Role customerRole = roleRepository.findByCode("ROLE_USER")
                 .orElseThrow(() -> new BadRequestException("Role mặc định không tồn tại", "ROLE_NOT_FOUND"));
 

@@ -28,4 +28,7 @@ public class UpdateOrderStatusRequest {
 
     @Schema(description = "Ghi chú cho thay đổi trạng thái", example = "Đã xác nhận đơn hàng qua điện thoại")
     private String note;
+
+    @Schema(description = "Lý do huỷ đơn (bắt buộc khi status = CANCELLED)", example = "Khách hàng yêu cầu huỷ đơn")
+    private String cancelReason;
 }

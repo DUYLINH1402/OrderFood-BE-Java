@@ -151,7 +151,6 @@
 
     <h2 style="color: #222; margin-bottom: 10px;">ĐỒNG XANH FOOD</h2>
 
-    <div class="success-icon">✅</div>
 
     <p style="font-size: 16px; color: #333; text-align: center;">
         Xin chào <strong th:text="${fullName}"></strong>,
@@ -167,7 +166,7 @@
     </p>
 
     <!-- Chi tiết đơn hàng -->
-    <h3 style="color: #1e293b; margin-top: 30px;">📋 Chi tiết đơn hàng</h3>
+    <h3 style="color: #1e293b; margin-top: 30px;">Chi tiết đơn hàng</h3>
 
     <!-- Desktop Table -->
     <table class="order-detail-table">
@@ -223,21 +222,21 @@
     </div>
 
     <!-- Thông tin giao hàng -->
-    <h3 style="color: #1e293b; margin-top: 30px;">🚚 Thông tin giao hàng</h3>
+    <h3 style="color: #1e293b; margin-top: 30px;">Thông tin giao hàng</h3>
     <div class="shipping-info">
         <p style="margin: 4px 0; font-size: 15px;"><b>Người nhận:</b> <span th:text="${receiverName}"></span></p>
         <p style="margin: 4px 0; font-size: 15px;"><b>Số điện thoại:</b> <span th:text="${receiverPhone}"></span></p>
         <p style="margin: 4px 0; font-size: 15px;"><b>Email:</b> <span th:text="${receiverEmail}"></span></p>
-        <p style="margin: 4px 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
+        <p th:if="${deliveryAddress != null and !deliveryAddress.isEmpty()}" style="margin: 4px 0; font-size: 15px;"><b>Địa chỉ:</b> <span th:text="${deliveryAddress}"></span></p>
     </div>
 
     <!-- Lời cảm ơn -->
     <div style="text-align: center; margin-top: 30px;">
         <p style="font-size: 16px; color: #333;">
-            🎉 Chúng tôi hy vọng bạn hài lòng với đơn hàng!
+            Hy vọng bạn hài lòng với đơn hàng!
         </p>
-        <p style="font-size: 15px; color: #555;">
-            Hãy quay lại và đặt thêm những món ngon khác nhé!
+        <p style="font-size: 16px; color: #555;">
+            Xin cảm ơn và hẹn gặp lại!
         </p>
     </div>
 

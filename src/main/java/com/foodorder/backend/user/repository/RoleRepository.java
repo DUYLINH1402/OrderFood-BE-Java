@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
     /**
-     * Tìm role theo code (CUSTOMER, STAFF, ADMIN)
+     * Tìm role theo code (ROLE_USER, ROLE_STAFF, ROLE_ADMIN, ROLE_SUPER_ADMIN)
      */
     Optional<Role> findByCode(String code);
 

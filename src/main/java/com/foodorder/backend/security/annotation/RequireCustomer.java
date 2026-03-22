@@ -9,11 +9,11 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation để kiểm tra quyền Customer
- * Cho phép user có role CUSTOMER, STAFF, ADMIN hoặc SUPER_ADMIN truy cập
+ * Cho phép user có role USER, STAFF, ADMIN hoặc SUPER_ADMIN truy cập
  * (Tức là tất cả user đã đăng nhập)
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('CUSTOMER') or hasRole('STAFF') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasRole('USER') or hasRole('STAFF') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
 public @interface RequireCustomer {
 }

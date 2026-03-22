@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email already exists", "EMAIL_ALREADY_EXISTS");
         }
 
-        // Lấy role CUSTOMER từ database
+        // Lấy role USER từ database
         Role customerRole = roleRepository.findByCode("ROLE_USER")
                 .orElseThrow(() -> new BadRequestException("Default role not found", "ROLE_NOT_FOUND"));
 

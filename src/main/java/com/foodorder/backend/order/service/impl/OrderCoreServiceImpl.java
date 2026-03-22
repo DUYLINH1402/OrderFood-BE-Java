@@ -156,6 +156,16 @@ public class OrderCoreServiceImpl implements OrderCoreService {
             order.setStaffNote(request.getNote()); // Sử dụng staffNote thay vì note
         }
 
+        // Lưu lý do huỷ đơn nếu trạng thái là CANCELLED
+        if (newStatus == OrderStatus.CANCELLED) {
+            if (request.getCancelReason() != null && !request.getCancelReason().isEmpty()) {
+                order.setCancelReason(request.getCancelReason());
+            } else if (request.getNote() != null && !request.getNote().isEmpty()) {
+                // Fallback: dùng note làm lý do huỷ nếu không có cancelReason
+                order.setCancelReason(request.getNote());
+            }
+        }
+
         Order savedOrder = orderRepository.save(order);
 
         // Cập nhật totalSold cho các món ăn khi đơn hàng hoàn thành

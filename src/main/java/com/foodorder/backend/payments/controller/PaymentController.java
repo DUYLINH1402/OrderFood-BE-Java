@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -187,9 +188,11 @@ public class PaymentController {
     @Operation(summary = "ZaloPay Callback", description = "Endpoint nhận callback từ ZaloPay khi thanh toán hoàn thành. Không gọi trực tiếp.")
     @ApiResponse(responseCode = "200", description = "Xử lý callback thành công")
     @PostMapping("/zalopay/callback-flexible")
-    public String handleZaloPayCallbackFlexible(@RequestBody Map<String, Object> payload) {
-        // System.out.println("=== Received ZaloPay Callback ===");
-        // System.out.println("Raw payload: " + payload);
+    public Map<String, Object> handleZaloPayCallbackFlexible(@RequestBody Map<String, Object> payload) {
+         System.out.println("=== Received ZaloPay Callback ===");
+         System.out.println("Raw payload: " + payload);
+
+        Map<String, Object> result = new HashMap<>();
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -210,16 +213,24 @@ public class PaymentController {
                 callback.setType((Integer) payload.get("type"));
             }
             if (callback.getData() != null && callback.getMac() != null) {
-                return zaloPayService.handleCallback(callback);
+                zaloPayService.handleCallback(callback);
+                // ZaloPay yêu cầu trả về JSON: {"return_code": 1, "return_message": "success"}
+                result.put("return_code", 1);
+                result.put("return_message", "success");
             } else {
                 System.err.println("Missing required fields: data or mac");
-                return "OK"; // Vẫn return OK để tránh retry
+                result.put("return_code", 0);
+                result.put("return_message", "Missing required fields");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "OK"; // Return OK để tránh ZaloPay retry
+            // Trả về lỗi để ZaloPay biết callback thất bại
+            result.put("return_code", 0);
+            result.put("return_message", e.getMessage());
         }
+
+        return result;
     }
 
     @Operation(summary = "Kiểm tra trạng thái thanh toán", description = "Kiểm tra trạng thái thanh toán ZaloPay theo app_trans_id. Nếu ZaloPay đã xác nhận thành công nhưng callback chưa tới, API sẽ tự động xử lý cập nhật đơn hàng.")
