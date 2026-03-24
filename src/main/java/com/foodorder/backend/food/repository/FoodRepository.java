@@ -76,4 +76,19 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
      */
     @Query("SELECT f FROM Food f LEFT JOIN FETCH f.category WHERE f.isActive = true")
     List<Food> findAllByIsActiveTrue();
+
+    /**
+     * Tìm kiếm món ăn theo tên (dùng cho chatbot) - chỉ lấy món đang active
+     */
+    @Query("SELECT f FROM Food f LEFT JOIN FETCH f.category LEFT JOIN FETCH f.variants " +
+            "WHERE f.isActive = true " +
+            "AND LOWER(f.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Food> searchByNameForChatbot(@Param("keyword") String keyword);
+
+    /**
+     * Lấy tất cả món ăn active kèm category + variants (dùng cho chatbot context)
+     */
+    @Query("SELECT DISTINCT f FROM Food f LEFT JOIN FETCH f.category LEFT JOIN FETCH f.variants " +
+            "WHERE f.isActive = true ORDER BY f.category.id, f.name")
+    List<Food> findAllActiveWithCategoryAndVariants();
 }

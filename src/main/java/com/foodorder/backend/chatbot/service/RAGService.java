@@ -12,7 +12,10 @@ import java.util.stream.Collectors;
 
 /**
  * Service xử lý hệ thống RAG (Retrieval-Augmented Generation)
- * Tìm kiếm và truy xuất thông tin từ knowledge base, Data Base để cung cấp context cho chatbot
+ * Tìm kiếm và truy xuất thông tin từ knowledge base, Database để cung cấp context cho chatbot.
+ *
+ * Chiến lược: Luôn kèm full menu vào context để GPT có thể trả lời mọi câu hỏi về món ăn,
+ * kể cả câu hỏi follow-up ngắn gọn như "Thế còn Khoai tây chiên".
  */
 @Service
 @RequiredArgsConstructor
@@ -20,37 +23,60 @@ import java.util.stream.Collectors;
 public class RAGService {
 
     private final KnowledgeBaseRepository knowledgeBaseRepository;
-    private final MenuInfoService menuInfoService; // Thêm dependency
+    private final MenuInfoService menuInfoService;
 
     @Value("${chatbot.context.similarity-threshold:0.7}")
     private Double similarityThreshold;
 
     /**
-     * Tìm kiếm context phù hợp từ knowledge base cho câu hỏi của user
+     * Tìm kiếm context phù hợp từ knowledge base cho câu hỏi của user.
+     * Chiến lược mới: LUÔN kèm full menu context để chatbot biết mọi món ăn + giá,
+     * đồng thời bổ sung kết quả tìm kiếm cụ thể nếu nhận diện được tên món.
      */
     public String retrieveRelevantContext(String userMessage) {
-
         try {
-            // Kiểm tra xem có phải câu hỏi về thực đơn không
-            if (isMenuRelatedQuery(userMessage)) {
-                return getMenuContext(userMessage);
+            StringBuilder contextBuilder = new StringBuilder();
+
+            // Bước 1: Thử trích xuất tên món ăn từ câu hỏi (nếu hỏi về món cụ thể)
+            String foodName = extractFoodNameFromMessage(userMessage);
+            if (foodName != null && !foodName.isEmpty()) {
+                // Tìm kiếm cụ thể trong DB
+                String searchResult = menuInfoService.searchFoodsByKeyword(foodName);
+                contextBuilder.append("THÔNG TIN MÓN ĂN ĐƯỢC HỎI:\n\n").append(searchResult).append("\n\n");
             }
 
-            // Trích xuất từ khóa từ tin nhắn user
-            List<String> keywords = extractKeywords(userMessage);
+            // Bước 2: Kiểm tra nếu là câu hỏi liên quan đến món ăn/thực đơn/giá cả
+            // → Kèm FULL MENU để chatbot có toàn bộ dữ liệu
+            if (isFoodRelatedQuery(userMessage) || foodName != null) {
+                String fullMenu = menuInfoService.getFullMenuWithPrices();
+                contextBuilder.append(fullMenu).append("\n");
+                contextBuilder.append("---\n");
+                contextBuilder.append("QUAN TRỌNG: Hãy tìm trong DANH SÁCH ĐẦY ĐỦ ở trên để trả lời. ");
+                contextBuilder.append("Nếu món ăn có biến thể (size, topping), thông báo giá gốc + phụ thu. ");
+                contextBuilder.append("Nếu không tìm thấy chính xác tên món khách hỏi, hãy gợi ý các món có tên gần giống.\n");
+                return contextBuilder.toString();
+            }
 
-            // Tìm kiếm knowledge base với từ khóa
+            // Bước 3: Không liên quan đến món ăn → tìm trong knowledge base
+            List<String> keywords = extractKeywords(userMessage);
             List<KnowledgeBase> relevantKnowledge = searchKnowledgeBase(keywords);
 
-            if (relevantKnowledge.isEmpty()) {
-                return "";
+            if (!relevantKnowledge.isEmpty()) {
+                contextBuilder.append(buildContextFromKnowledge(relevantKnowledge));
             }
 
-            // Xây dựng context từ kết quả tìm kiếm
-            String context = buildContextFromKnowledge(relevantKnowledge);
-//            log.info("Đã tìm thấy {} mục knowledge phù hợp", relevantKnowledge.size());
+            // Bước 4: FALLBACK — Nếu không tìm được gì từ knowledge base,
+            // vẫn kèm full menu vì có thể là câu hỏi follow-up về món ăn
+            // mà ta không nhận diện được (ví dụ: "Thế còn Khoai tây chiên")
+            if (contextBuilder.isEmpty()) {
+                String fullMenu = menuInfoService.getFullMenuWithPrices();
+                contextBuilder.append(fullMenu).append("\n");
+                contextBuilder.append("---\n");
+                contextBuilder.append("Đây là toàn bộ thực đơn nhà hàng. Nếu khách hỏi về món ăn, hãy tìm trong danh sách trên. ");
+                contextBuilder.append("Nếu câu hỏi không liên quan đến món ăn, hãy trả lời tự nhiên.\n");
+            }
 
-            return context;
+            return contextBuilder.toString();
 
         } catch (Exception e) {
             log.error("Lỗi khi tìm kiếm context: {}", e.getMessage());
@@ -59,25 +85,54 @@ public class RAGService {
     }
 
     /**
-     * Kiểm tra xem có phải câu hỏi về thực đơn không
+     * Kiểm tra xem câu hỏi có liên quan đến món ăn, thực đơn, giá cả không.
+     * Bao gồm: hỏi giá, hỏi có món X không, hỏi thực đơn, hỏi đặt món, câu hỏi follow-up...
      */
-    private boolean isMenuRelatedQuery(String message) {
+    private boolean isFoodRelatedQuery(String message) {
         if (message == null || message.trim().isEmpty()) {
             return false;
         }
 
         String lowerMessage = message.toLowerCase();
 
-        // Các từ khóa liên quan đến thực đơn
-        String[] menuKeywords = {
-            "thực đơn", "menu", "món ăn", "món", "đồ ăn", "food",
-            "có món gì", "món nào", "ăn gì", "tìm món", "xem món",
-            "bán gì", "phục vụ gì", "có bán", "danh sách món"
+        // Nhóm 1: Từ khóa liên quan đến giá cả
+        String[] priceKeywords = {
+            "giá", "bao nhiêu", "bao nhiu", "bnh", "bnhiu", "price",
+            "tiền", "chi phí", "giá cả", "giá bao", "giá bán",
+            "mắc không", "rẻ không", "đắt không", "cost", "how much"
         };
 
-        for (String keyword : menuKeywords) {
-            if (lowerMessage.contains(keyword)) {
-                return true;
+        // Nhóm 2: Từ khóa liên quan đến thực đơn tổng quan
+        String[] menuKeywords = {
+            "thực đơn", "menu", "món ăn", "đồ ăn", "food",
+            "có món gì", "món nào", "ăn gì", "tìm món", "xem món",
+            "bán gì", "phục vụ gì", "danh sách món",
+            "có những món", "các món", "tất cả món"
+        };
+
+        // Nhóm 3: Từ khóa hỏi về món ăn cụ thể hoặc đặt hàng
+        String[] specificFoodKeywords = {
+            "có món", "có bán", "cho tôi", "cho xin", "cho em",
+            "tôi muốn", "muốn ăn", "muốn gọi", "muốn đặt", "muốn order",
+            "order", "nên ăn", "ngon không", "gợi ý", "tư vấn",
+            "thông tin về", "cho biết về", "mô tả",
+            "ở đây có", "nhà hàng có", "quán có", "shop có",
+            "bên mình có", "bên em có", "bên bạn có"
+        };
+
+        // Nhóm 4: Từ khóa follow-up (câu hỏi tiếp nối, thường ngắn gọn)
+        String[] followUpKeywords = {
+            "thế còn", "còn có", "vậy còn", "entao", "thế",
+            "à còn", "ngoài ra", "có thêm", "gì nữa", "gì khác"
+        };
+
+        // Kiểm tra tất cả nhóm
+        String[][] allGroups = {priceKeywords, menuKeywords, specificFoodKeywords, followUpKeywords};
+        for (String[] group : allGroups) {
+            for (String keyword : group) {
+                if (lowerMessage.contains(keyword)) {
+                    return true;
+                }
             }
         }
 
@@ -85,63 +140,86 @@ public class RAGService {
     }
 
     /**
-     * Lấy context về thực đơn từ MenuInfoService
+     * Trích xuất tên món ăn từ câu hỏi của khách hàng.
+     * Loại bỏ noise words (các cụm mào đầu, hỏi giá, dấu câu...) → phần còn lại = tên món.
+     *
+     * Ví dụ:
+     * - "Bên bạn có món Hải Sản Khói Lửa không" → "hải sản khói lửa"
+     * - "giá phở bò bao nhiêu?" → "phở bò"
+     * - "Thế còn Khoai tây chiên" → "khoai tây chiên"
+     * - "cơm tấm sườn bì chả giá sao?" → "cơm tấm sườn bì chả"
      */
-    private String getMenuContext(String userMessage) {
-        try {
-            String menuInfo = menuInfoService.getMenuOverview();
-
-            // Kiểm tra xem có từ khóa tìm kiếm cụ thể không
-            String searchKeyword = extractSearchKeyword(userMessage);
-            if (searchKeyword != null && !searchKeyword.isEmpty()) {
-                String searchResult = menuInfoService.searchFoodsByKeyword(searchKeyword);
-                return "THÔNG TIN THỰC ĐƠN:\n\n" + menuInfo + "\n\n" +
-                       "KẾT QUẢ TÌM KIẾM:\n" + searchResult;
-            }
-
-            return "THÔNG TIN THỰC ĐƠN:\n\n" + menuInfo;
-
-        } catch (Exception e) {
-            log.error("Lỗi khi lấy thông tin thực đơn: {}", e.getMessage());
-            return "THÔNG TIN THỰC ĐƠN:\n\nXin lỗi, hiện tại không thể lấy thông tin thực đơn. Vui lòng liên hệ nhân viên để được hỗ trợ!";
+    private String extractFoodNameFromMessage(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return null;
         }
-    }
 
-    /**
-     * Trích xuất từ khóa tìm kiếm cụ thể từ câu hỏi về thực đơn
-     */
-    private String extractSearchKeyword(String message) {
-        String lowerMessage = message.toLowerCase();
+        String lowerMessage = message.toLowerCase().trim();
 
-        // Tìm các mẫu câu hỏi có chứa từ khóa tìm kiếm
-        String[] searchPatterns = {
-            "tìm món", "có món", "món nào", "bán món",
-            "phở", "pizza", "cơm", "bún", "bánh", "trà", "cà phê"
+        // Loại bỏ các cụm từ dài trước (để tránh xóa từng từ nhỏ trong cụm)
+        // QUAN TRỌNG: sắp xếp từ cụm DÀI → NGẮN để tránh xóa nhầm
+        String[] noisePhrases = {
+            // Cụm dài — hỏi giá
+            "bao nhiêu tiền", "bao nhiêu vậy", "bao nhiêu", "bao nhiu",
+            "giá thế nào", "giá bao nhiêu", "giá cả sao", "giá cả",
+            "giá bán", "giá sao", "how much", "mắc không", "rẻ không", "đắt không",
+            // Cụm dài — mào đầu
+            "bên bạn có món", "bên mình có món", "bên em có món",
+            "nhà hàng có món", "quán có món", "shop có món", "ở đây có món",
+            "bên bạn có", "bên mình có", "bên em có",
+            "nhà hàng có", "quán có", "shop có", "ở đây có",
+            "cho tôi biết về", "cho tôi biết", "cho biết về", "cho biết",
+            "tôi muốn biết về", "tôi muốn biết", "tôi muốn hỏi về", "tôi muốn hỏi",
+            "tôi muốn order", "tôi muốn đặt", "tôi muốn gọi", "tôi muốn lấy",
+            "tôi muốn ăn", "tôi muốn", "em muốn",
+            "thông tin về", "thông tin", "mô tả về", "mô tả",
+            "cho hỏi về", "cho hỏi", "hỏi về",
+            "cho tôi xin", "cho tôi", "cho xin", "cho em",
+            // Cụm follow-up
+            "thế còn", "vậy còn", "à còn", "còn có",
+            "ngoài ra còn", "ngoài ra",
+            // Cụm hỏi tính chất
+            "có gì đặc biệt", "gồm những gì", "ngon không", "nên ăn không",
+            "nên ăn", "là gì", "là sao", "thế nào",
+            // Cụm hành động
+            "có bán", "có món",
         };
 
-        for (String pattern : searchPatterns) {
-            if (lowerMessage.contains(pattern)) {
-                // Trích xuất từ khóa sau pattern
-                int index = lowerMessage.indexOf(pattern);
-                if (index != -1) {
-                    String after = lowerMessage.substring(index + pattern.length()).trim();
-                    if (!after.isEmpty()) {
-                        // Lấy từ đầu tiên sau pattern
-                        String[] words = after.split("\\s+");
-                        if (words.length > 0 && words[0].length() > 2) {
-                            return words[0];
-                        }
-                    }
-                    return pattern;
-                }
-            }
+        String cleaned = lowerMessage;
+        for (String phrase : noisePhrases) {
+            cleaned = cleaned.replace(phrase, " ");
+        }
+
+        // Loại bỏ các từ đơn lẻ còn sót (noise words ngắn)
+        String[] noiseWords = {
+            "giá", "tiền", "phí", "chi phí",
+            "không", "nhỉ", "nhé", "nha", "vậy", "hả", "ha", "ạ", "à",
+            "ơi", "này", "đó", "kia", "thế", "rồi", "nè", "hen",
+            "order", "đặt", "gọi", "lấy", "muốn", "xin",
+            "món", "cái",
+        };
+
+        // Loại dấu câu
+        cleaned = cleaned.replaceAll("[?!.,;:\"'()\\[\\]{}]", " ");
+
+        // Loại từng noise word (chỉ khớp nguyên từ, tránh xóa substring)
+        for (String word : noiseWords) {
+            cleaned = cleaned.replaceAll("(?<![\\p{L}])" + java.util.regex.Pattern.quote(word) + "(?![\\p{L}])", " ");
+        }
+
+        // Loại bỏ khoảng trắng thừa
+        cleaned = cleaned.trim().replaceAll("\\s+", " ");
+
+        // Nếu sau khi loại bỏ noise vẫn còn nội dung → đó là tên món
+        if (!cleaned.isEmpty() && cleaned.length() >= 2) {
+            return cleaned;
         }
 
         return null;
     }
 
     /**
-     * Trích xuất từ khóa từ tin nhắn user
+     * Trích xuất từ khóa từ tin nhắn user (cho tìm knowledge base)
      */
     private List<String> extractKeywords(String message) {
         if (message == null || message.trim().isEmpty()) {
@@ -150,7 +228,6 @@ public class RAGService {
 
         String normalizedMessage = message.toLowerCase().trim();
 
-        // Danh sách từ khóa quan trọng cho nhà hàng
         Map<String, List<String>> keywordCategories = Map.of(
             "menu", Arrays.asList("thực đơn", "món ăn", "menu", "món", "đồ ăn", "food", "dish"),
             "order", Arrays.asList("đặt hàng", "order", "giao hàng", "delivery", "ship"),
@@ -163,7 +240,6 @@ public class RAGService {
 
         List<String> foundKeywords = new ArrayList<>();
 
-        // Tìm từ khóa trong các danh mục
         for (Map.Entry<String, List<String>> entry : keywordCategories.entrySet()) {
             for (String keyword : entry.getValue()) {
                 if (normalizedMessage.contains(keyword)) {
@@ -172,11 +248,10 @@ public class RAGService {
             }
         }
 
-        // Nếu không tìm thấy từ khóa đặc biệt, tách từ từ tin nhắn
         if (foundKeywords.isEmpty()) {
             String[] words = normalizedMessage.split("\\s+");
             for (String word : words) {
-                if (word.length() > 3) { // Chỉ lấy từ có độ dài > 3
+                if (word.length() > 3) {
                     foundKeywords.add(word);
                 }
             }
@@ -195,13 +270,11 @@ public class RAGService {
 
         Set<KnowledgeBase> results = new HashSet<>();
 
-        // Tìm kiếm với từng từ khóa
         for (String keyword : keywords) {
             List<KnowledgeBase> matches = knowledgeBaseRepository.searchByKeyword(keyword);
             results.addAll(matches);
         }
 
-        // Nếu có nhiều từ khóa, thử tìm kiếm kết hợp
         if (keywords.size() >= 2) {
             for (int i = 0; i < keywords.size() - 1; i++) {
                 for (int j = i + 1; j < keywords.size(); j++) {
@@ -212,7 +285,6 @@ public class RAGService {
             }
         }
 
-        // Sắp xếp theo độ ưu tiên và giới hạn kết quả
         return results.stream()
             .sorted((a, b) -> {
                 int priorityCompare = Integer.compare(b.getPriority(), a.getPriority());
@@ -221,7 +293,7 @@ public class RAGService {
                 }
                 return priorityCompare;
             })
-            .limit(5) // Giới hạn 5 kết quả để tránh context quá dài
+            .limit(5)
             .collect(Collectors.toList());
     }
 
@@ -323,7 +395,6 @@ public class RAGService {
                                   knowledge.getContent() + " " +
                                   knowledge.getKeywords()).toLowerCase();
 
-        // Đếm số từ khóa trùng khớp (phương pháp đơn giản)
         String[] queryWords = normalizedQuery.split("\\s+");
         long matchCount = Arrays.stream(queryWords)
             .filter(word -> word.length() > 2)

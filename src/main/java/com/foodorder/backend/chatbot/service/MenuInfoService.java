@@ -3,6 +3,7 @@ package com.foodorder.backend.chatbot.service;
 import com.foodorder.backend.category.entity.Category;
 import com.foodorder.backend.category.repository.CategoryRepository;
 import com.foodorder.backend.food.entity.Food;
+import com.foodorder.backend.food.entity.FoodVariant;
 import com.foodorder.backend.food.repository.FoodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +12,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Service để lấy thông tin thực đơn từ database cho chatbot
+ * Cung cấp dữ liệu chi tiết (tên, giá, biến thể) để chatbot trả lời chính xác
  */
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class MenuInfoService {
             }
 
             // Thêm thông tin món nổi bật
-            menuInfo.append("\n**MỚN NỔI BẬT:**\n");
+            menuInfo.append("\n**MÓN NỔI BẬT:**\n");
 
             // Món bán chạy
             List<Food> bestSellers = foodRepository.findByIsBestSellerTrue(PageRequest.of(0, 5)).getContent();
@@ -95,41 +96,150 @@ public class MenuInfoService {
     }
 
     /**
-     * Tìm kiếm món ăn theo từ khóa
+     * Lấy TOÀN BỘ danh sách món ăn kèm giá và biến thể — dùng làm context đầy đủ cho chatbot
+     * Giúp chatbot có thể trả lời chính xác giá của bất kỳ món nào
+     */
+    public String getFullMenuWithPrices() {
+        try {
+            List<Food> allFoods = foodRepository.findAllActiveWithCategoryAndVariants();
+
+            if (allFoods.isEmpty()) {
+                return "Hiện tại chưa có món ăn nào trong thực đơn.";
+            }
+
+            // Nhóm theo danh mục
+            Map<String, List<Food>> foodsByCategory = allFoods.stream()
+                    .collect(Collectors.groupingBy(
+                            food -> food.getCategory() != null ? food.getCategory().getName() : "Khác",
+                            Collectors.toList()
+                    ));
+
+            StringBuilder menuInfo = new StringBuilder();
+            menuInfo.append("DANH SÁCH ĐẦY ĐỦ CÁC MÓN ĂN VÀ GIÁ:\n\n");
+
+            for (Map.Entry<String, List<Food>> entry : foodsByCategory.entrySet()) {
+                menuInfo.append("📂 ").append(entry.getKey().toUpperCase()).append(":\n");
+
+                for (Food food : entry.getValue()) {
+                    menuInfo.append("- ").append(food.getName())
+                            .append(" | Giá: ").append(formatPrice(food.getPrice()));
+
+                    // Thêm thông tin biến thể (size, topping) nếu có
+                    if (food.getVariants() != null && !food.getVariants().isEmpty()) {
+                        menuInfo.append(" | Biến thể: ");
+                        menuInfo.append(food.getVariants().stream()
+                                .map(v -> v.getName() + " (+" + formatPrice(v.getExtraPrice()) + ")")
+                                .collect(Collectors.joining(", ")));
+                    }
+
+                    // Nhãn đặc biệt
+                    if (Boolean.TRUE.equals(food.getIsBestSeller())) menuInfo.append(" [Bán chạy]");
+                    if (Boolean.TRUE.equals(food.getIsNew())) menuInfo.append(" [Mới]");
+                    if (Boolean.TRUE.equals(food.getIsFeatured())) menuInfo.append(" [Đặc sắc]");
+
+                    menuInfo.append("\n");
+                }
+                menuInfo.append("\n");
+            }
+
+            return menuInfo.toString();
+
+        } catch (Exception e) {
+            log.error("Lỗi khi lấy danh sách đầy đủ thực đơn: {}", e.getMessage());
+            return "";
+        }
+    }
+
+    /**
+     * Tìm kiếm và trả về thông tin chi tiết món ăn theo từ khóa (tên món)
+     * Bao gồm: tên, giá, mô tả, biến thể, trạng thái.
+     * Chiến lược tìm kiếm:
+     * 1. Tìm chính xác theo cả cụm từ khóa
+     * 2. Nếu không có, tách thành từng từ và tìm
+     * 3. Nếu vẫn không có, tìm trong mô tả
      */
     public String searchFoodsByKeyword(String keyword) {
         try {
-            List<Food> allFoods = foodRepository.findAll();
-            List<Food> matchedFoods = allFoods.stream()
-                    .filter(food -> food.getName().toLowerCase().contains(keyword.toLowerCase()) ||
-                                  (food.getDescription() != null && food.getDescription().toLowerCase().contains(keyword.toLowerCase())))
-                    .limit(10) // Giới hạn 10 kết quả
-                    .toList();
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return "Vui lòng nhập từ khóa để tìm kiếm.";
+            }
+
+            String trimmedKeyword = keyword.trim();
+
+            // Bước 1: Tìm kiếm theo cả cụm từ khóa
+            List<Food> matchedFoods = new ArrayList<>(foodRepository.searchByNameForChatbot(trimmedKeyword));
+
+            // Bước 2: Nếu không tìm thấy, tách thành từng từ và tìm kiếm
+            if (matchedFoods.isEmpty() && trimmedKeyword.contains(" ")) {
+                String[] words = trimmedKeyword.split("\\s+");
+                Set<Long> addedIds = new HashSet<>();
+
+                for (String word : words) {
+                    if (word.length() >= 2) { // Chỉ tìm từ có ít nhất 2 ký tự
+                        List<Food> partialMatches = foodRepository.searchByNameForChatbot(word);
+                        for (Food food : partialMatches) {
+                            if (addedIds.add(food.getId())) {
+                                matchedFoods.add(food);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Bước 3: Nếu vẫn không tìm thấy, thử tìm trong mô tả
+            if (matchedFoods.isEmpty()) {
+                List<Food> allActive = foodRepository.findAllActiveWithCategoryAndVariants();
+                matchedFoods = allActive.stream()
+                        .filter(food -> food.getDescription() != null &&
+                                food.getDescription().toLowerCase().contains(trimmedKeyword.toLowerCase()))
+                        .limit(10)
+                        .toList();
+            }
 
             if (matchedFoods.isEmpty()) {
-                return "🔍 Không tìm thấy món ăn nào phù hợp với từ khóa: **" + keyword + "**\n\n" +
-                       "Bạn có thể thử tìm kiếm với các từ khóa khác hoặc xem thực đơn đầy đủ của chúng tôi!";
+                return "Không tìm thấy món ăn nào phù hợp với từ khóa: \"" + keyword + "\"\n" +
+                       "Bạn có thể thử tìm kiếm với các từ khóa khác hoặc xem thực đơn đầy đủ.";
             }
 
             StringBuilder result = new StringBuilder();
-            result.append("🔍 **KẾT QUẢ TÌM KIẾM**: \"").append(keyword).append("\"\n\n");
-            result.append("Tìm thấy **").append(matchedFoods.size()).append(" món ăn** phù hợp:\n\n");
+            result.append("KẾT QUẢ TÌM KIẾM CHO: \"").append(keyword).append("\"\n");
+            result.append("Tìm thấy ").append(matchedFoods.size()).append(" món ăn phù hợp:\n\n");
 
             for (Food food : matchedFoods) {
-                result.append("🍽️ **").append(food.getName()).append("**\n");
-                result.append("💰 Giá: ").append(formatPrice(food.getPrice())).append("\n");
+                result.append("- ").append(food.getName()).append("\n");
+                result.append("  Giá: ").append(formatPrice(food.getPrice())).append("\n");
+
                 if (food.getDescription() != null && !food.getDescription().trim().isEmpty()) {
-                    result.append("📝 ").append(food.getDescription()).append("\n");
+                    result.append("  Mô tả: ").append(food.getDescription()).append("\n");
                 }
 
-                // Thêm nhãn đặc biệt
-                StringBuilder badges = new StringBuilder();
-                if (Boolean.TRUE.equals(food.getIsBestSeller())) badges.append("🌟 Bán chạy ");
-                if (Boolean.TRUE.equals(food.getIsNew())) badges.append("🆕 Mới ");
-                if (Boolean.TRUE.equals(food.getIsFeatured())) badges.append("⭐ Đặc sắc ");
+                if (food.getCategory() != null) {
+                    result.append("  Danh mục: ").append(food.getCategory().getName()).append("\n");
+                }
 
+                // Thông tin biến thể chi tiết
+                if (food.getVariants() != null && !food.getVariants().isEmpty()) {
+                    result.append("  Các biến thể:\n");
+                    for (FoodVariant variant : food.getVariants()) {
+                        BigDecimal totalPrice = food.getPrice().add(
+                                variant.getExtraPrice() != null ? variant.getExtraPrice() : BigDecimal.ZERO);
+                        result.append("    + ").append(variant.getName())
+                                .append(": phụ thu ").append(formatPrice(variant.getExtraPrice()))
+                                .append(" → Tổng ").append(formatPrice(totalPrice));
+                        if (Boolean.TRUE.equals(variant.getIsDefault())) {
+                            result.append(" (mặc định)");
+                        }
+                        result.append("\n");
+                    }
+                }
+
+                // Nhãn đặc biệt
+                StringBuilder badges = new StringBuilder();
+                if (Boolean.TRUE.equals(food.getIsBestSeller())) badges.append("Bán chạy ");
+                if (Boolean.TRUE.equals(food.getIsNew())) badges.append("Mới ");
+                if (Boolean.TRUE.equals(food.getIsFeatured())) badges.append("Đặc sắc ");
                 if (!badges.isEmpty()) {
-                    result.append("🏷️ ").append(badges.toString().trim()).append("\n");
+                    result.append("  Nhãn: ").append(badges.toString().trim()).append("\n");
                 }
                 result.append("\n");
             }
