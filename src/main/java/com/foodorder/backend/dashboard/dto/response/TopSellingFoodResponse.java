@@ -19,22 +19,22 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa danh sách top món ăn bán chạy")
+@Schema(description = "Response containing top selling foods list")
 public class TopSellingFoodResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Danh sách top món ăn bán chạy")
+    @Schema(description = "List of top selling foods")
     private List<TopFoodItem> topFoods;
 
-    @Schema(description = "Tổng doanh thu của các món bán chạy (VND)", example = "5000000")
+    @Schema(description = "Total revenue from top selling foods (VND)", example = "5000000")
     private BigDecimal totalRevenue;
 
-    @Schema(description = "Tổng số lượng bán của các món bán chạy", example = "500")
+    @Schema(description = "Total quantity sold from top selling foods", example = "500")
     private Long totalQuantitySold;
 
-    @Schema(description = "Khoảng thời gian thống kê (7, 30, 90 ngày)", example = "30")
+    @Schema(description = "Statistics period in days (7, 30, 90)", example = "30")
     private Integer periodDays;
 
     /**
@@ -44,33 +44,33 @@ public class TopSellingFoodResponse implements Serializable {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Thông tin món ăn bán chạy")
+    @Schema(description = "Top selling food item")
     public static class TopFoodItem implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        @Schema(description = "ID món ăn", example = "1")
+        @Schema(description = "Food ID", example = "1")
         private Long foodId;
 
-        @Schema(description = "Tên món ăn", example = "Phở bò tái")
+        @Schema(description = "Food name", example = "Beef Pho")
         private String foodName;
 
-        @Schema(description = "Slug món ăn", example = "pho-bo-tai")
+        @Schema(description = "Food slug", example = "beef-pho")
         private String foodSlug;
 
-        @Schema(description = "URL ảnh đại diện", example = "https://example.com/pho.jpg")
+        @Schema(description = "Representative image URL", example = "https://example.com/pho.jpg")
         private String imageUrl;
 
-        @Schema(description = "Tên danh mục", example = "Món chính")
+        @Schema(description = "Category name", example = "Main dishes")
         private String categoryName;
 
-        @Schema(description = "Số lượng đã bán", example = "150")
+        @Schema(description = "Quantity sold", example = "150")
         private Long quantitySold;
 
-        @Schema(description = "Doanh thu từ món này (VND)", example = "8250000")
+        @Schema(description = "Revenue from this food (VND)", example = "8250000")
         private BigDecimal revenue;
 
-        @Schema(description = "Tỷ lệ % so với tổng doanh thu top 5", example = "25.5")
+        @Schema(description = "Percentage compared to top 5 total revenue", example = "25.5")
         private Double revenuePercentage;
     }
 }

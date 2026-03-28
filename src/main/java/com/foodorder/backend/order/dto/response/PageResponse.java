@@ -12,27 +12,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response wrapper cho dữ liệu phân trang")
+@Schema(description = "Response wrapper for paginated data")
 public class PageResponse<T> {
 
-    @Schema(description = "Danh sách dữ liệu của trang hiện tại")
+    @Schema(description = "List of data for current page")
     private List<T> data;
 
-    @Schema(description = "Số trang hiện tại (bắt đầu từ 0)", example = "0")
+    @Schema(description = "Current page number (starts from 0)", example = "0")
     private int page;
 
-    @Schema(description = "Số lượng phần tử mỗi trang", example = "10")
+    @Schema(description = "Number of items per page", example = "10")
     private int size;
 
-    @Schema(description = "Tổng số phần tử", example = "100")
+    @Schema(description = "Total number of items", example = "100")
     private long total;
 
-    @Schema(description = "Tổng số trang", example = "10")
+    @Schema(description = "Total number of pages", example = "10")
     private int totalPages;
 
-    @Schema(description = "Có trang tiếp theo không", example = "true")
+    @Schema(description = "Has next page or not", example = "true")
     private boolean hasNext;
 
-    @Schema(description = "Có trang trước đó không", example = "false")
+    @Schema(description = "Has previous page or not", example = "false")
     private boolean hasPrevious;
 }

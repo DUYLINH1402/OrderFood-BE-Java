@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
         log.warn("JWT token expired: {}", ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Token đã hết hạn, vui lòng đăng nhập lại")
+                .message("Token has expired, please login again")
                 .errorCode("JWT_TOKEN_EXPIRED")
                 .errors(null)
                 .details(ex.getMessage())
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
         log.warn("Invalid JWT token: {}", ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Token không hợp lệ, vui lòng đăng nhập lại")
+                .message("Invalid token, please login again")
                 .errorCode("JWT_TOKEN_INVALID")
                 .errors(null)
                 .details(ex.getMessage())
@@ -101,7 +101,7 @@ public class GlobalExceptionHandler {
         log.warn("Authentication failed: {}", ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Xác thực thất bại")
+                .message("Authentication failed")
                 .errorCode("AUTHENTICATION_FAILED")
                 .errors(null)
                 .details(ex.getMessage())
@@ -115,10 +115,10 @@ public class GlobalExceptionHandler {
         log.warn("Bad credentials: {}", ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Tên đăng nhập hoặc mật khẩu không đúng")
+                .message("Invalid username or password")
                 .errorCode("INVALID_CREDENTIALS")
                 .errors(null)
-                .details("Vui lòng kiểm tra lại thông tin đăng nhập")
+                .details("Please check your login credentials")
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler {
         log.warn("Access denied: {}", ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .message("Bạn không có quyền truy cập tài nguyên này")
+                .message("You do not have permission to access this resource")
                 .errorCode("ACCESS_DENIED")
                 .errors(null)
                 .details(ex.getMessage())
@@ -146,10 +146,10 @@ public class GlobalExceptionHandler {
         }
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("Dữ liệu không hợp lệ")
+                .message("Validation failed")
                 .errorCode("VALIDATION_ERROR")
                 .errors(errors)
-                .details("Vui lòng kiểm tra lại các trường dữ liệu")
+                .details("Please check the input fields")
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -161,10 +161,10 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred", ex);
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message("Có lỗi xảy ra, vui lòng thử lại sau")
+                .message("An error occurred, please try again later")
                 .errorCode("INTERNAL_ERROR")
                 .errors(null)
-                .details("Lỗi hệ thống không xác định")
+                .details("Unknown system error")
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }

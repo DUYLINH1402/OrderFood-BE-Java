@@ -44,7 +44,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Override
     @Cacheable(value = BLOG_CATEGORIES_CACHE, key = "'active'")
     public List<BlogCategoryResponse> getActiveCategories() {
-        log.info("Lấy danh sách danh mục blog đang hoạt động");
+        log.info("Fetching active blog categories");
         return blogCategoryRepository.findByIsActiveTrueOrderByDisplayOrderAsc()
                 .stream()
                 .map(this::toResponse)
@@ -57,7 +57,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Override
     @Cacheable(value = BLOG_CATEGORIES_CACHE, key = "'active_type_' + #blogType")
     public List<BlogCategoryResponse> getActiveCategoriesByType(BlogType blogType) {
-        log.info("Lấy danh sách danh mục blog đang hoạt động theo loại: {}", blogType);
+        log.info("Fetching active blog categories by type: {}", blogType);
         return blogCategoryRepository.findByIsActiveTrueAndBlogTypeOrderByDisplayOrderAsc(blogType)
                 .stream()
                 .map(this::toResponse)
@@ -71,13 +71,13 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     public BlogCategoryResponse getCategoryBySlug(String slug) {
         BlogCategory category = blogCategoryRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy danh mục với slug: " + slug,
+                        "Blog category not found with slug: " + slug,
                         "BLOG_CATEGORY_NOT_FOUND"
                 ));
 
         if (!Boolean.TRUE.equals(category.getIsActive())) {
             throw new ResourceNotFoundException(
-                    "Danh mục không khả dụng",
+                    "Blog category is not available",
                     "BLOG_CATEGORY_NOT_AVAILABLE"
             );
         }
@@ -93,7 +93,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Override
     @Cacheable(value = BLOG_CATEGORIES_CACHE, key = "'all'")
     public List<BlogCategoryResponse> getAllCategories() {
-        log.info("Admin: Lấy tất cả danh mục blog");
+        log.info("Admin: Fetching all blog categories");
         return blogCategoryRepository.findAllByOrderByDisplayOrderAsc()
                 .stream()
                 .map(this::toResponse)
@@ -106,7 +106,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Override
     @Cacheable(value = BLOG_CATEGORIES_CACHE, key = "'all_type_' + #blogType")
     public List<BlogCategoryResponse> getAllCategoriesByType(BlogType blogType) {
-        log.info("Admin: Lấy tất cả danh mục blog theo loại: {}", blogType);
+        log.info("Admin: Fetching all blog categories by type: {}", blogType);
         return blogCategoryRepository.findByBlogTypeOrderByDisplayOrderAsc(blogType)
                 .stream()
                 .map(this::toResponse)
@@ -129,7 +129,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Transactional
     @CacheEvict(value = BLOG_CATEGORIES_CACHE, allEntries = true)
     public BlogCategoryResponse createCategory(BlogCategoryRequest request) {
-        log.info("Admin: Tạo danh mục blog mới: {}", request.getName());
+        log.info("Admin: Creating new blog category: {}", request.getName());
 
         // Tạo slug từ tên nếu không có
         String slug = request.getSlug();
@@ -140,7 +140,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
         // Kiểm tra slug đã tồn tại chưa
         if (blogCategoryRepository.existsBySlug(slug)) {
             throw new BadRequestException(
-                    "Slug đã tồn tại: " + slug,
+                    "Slug already exists: " + slug,
                     "BLOG_CATEGORY_SLUG_EXISTS"
             );
         }
@@ -155,7 +155,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
                 .build();
 
         category = blogCategoryRepository.save(category);
-        log.info("Đã tạo danh mục blog: ID={}, slug={}", category.getId(), category.getSlug());
+        log.info("Blog category created: ID={}, slug={}", category.getId(), category.getSlug());
 
         return toResponse(category);
     }
@@ -168,18 +168,18 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Transactional
     @CacheEvict(value = BLOG_CATEGORIES_CACHE, allEntries = true)
     public BlogCategoryResponse updateCategory(Long id, BlogCategoryRequest request) {
-        log.info("Admin: Cập nhật danh mục blog ID={}", id);
+        log.info("Admin: Updating blog category ID={}", id);
 
         BlogCategory category = findCategoryById(id);
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(category.getIsProtected(), "cập nhật");
+        checkProtectedDataPermission(category.getIsProtected(), "update");
 
         // Kiểm tra slug mới
         if (request.getSlug() != null && !request.getSlug().isBlank()) {
             if (blogCategoryRepository.existsBySlugAndIdNot(request.getSlug(), id)) {
                 throw new BadRequestException(
-                        "Slug đã tồn tại: " + request.getSlug(),
+                        "Slug already exists: " + request.getSlug(),
                         "BLOG_CATEGORY_SLUG_EXISTS"
                 );
             }
@@ -203,7 +203,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
         }
 
         category = blogCategoryRepository.save(category);
-        log.info("Đã cập nhật danh mục blog: ID={}", category.getId());
+        log.info("Blog category updated: ID={}", category.getId());
 
         return toResponse(category);
     }
@@ -217,24 +217,24 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     @Transactional
     @CacheEvict(value = BLOG_CATEGORIES_CACHE, allEntries = true)
     public void deleteCategory(Long id) {
-        log.info("Admin: Xóa danh mục blog ID={}", id);
+        log.info("Admin: Deleting blog category ID={}", id);
 
         BlogCategory category = findCategoryById(id);
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(category.getIsProtected(), "xóa");
+        checkProtectedDataPermission(category.getIsProtected(), "delete");
 
         // Kiểm tra có bài viết nào thuộc danh mục không
         long blogCount = blogRepository.countByCategoryId(id);
         if (blogCount > 0) {
             throw new BadRequestException(
-                    "Không thể xóa danh mục có " + blogCount + " bài viết",
+                    "Cannot delete category with " + blogCount + " blog post(s)",
                     "BLOG_CATEGORY_HAS_BLOGS"
             );
         }
 
         blogCategoryRepository.delete(category);
-        log.info("Đã xóa danh mục blog: ID={}", id);
+        log.info("Blog category deleted: ID={}", id);
     }
 
     // ==================== Helper Methods ====================
@@ -253,7 +253,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
     private BlogCategory findCategoryById(Long id) {
         return blogCategoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy danh mục với ID: " + id,
+                        "Blog category not found with ID: " + id,
                         "BLOG_CATEGORY_NOT_FOUND"
                 ));
     }

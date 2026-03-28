@@ -27,17 +27,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequireAdmin
 @Slf4j
-@Tag(name = "Chat - Admin", description = "API quản trị chat")
+@Tag(name = "Chat - Admin", description = "Admin APIs for chat management")
 public class ChatAdminController {
 
     private final ChatService chatService;
 
-    @Operation(summary = "Thống kê chat (Admin)", description = "Lấy thống kê chat trong khoảng thời gian cụ thể.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Chat statistics (Admin)", description = "Retrieve chat statistics for a specific time range.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/statistics")
     public ResponseEntity<?> getChatStatistics(
-            @Parameter(description = "Ngày bắt đầu") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @Parameter(description = "Ngày kết thúc") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @Parameter(description = "Start date") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @Parameter(description = "End date") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         try {
             List<ChatMessageResponse> messages = chatService.getMessagesBetweenDates(startDate, endDate);
 
@@ -60,10 +60,10 @@ public class ChatAdminController {
             return ResponseEntity.ok(statistics);
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy thống kê chat: {}", e.getMessage());
+            log.error("Error fetching chat statistics: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "STATISTICS_ERROR",
-                "message", "Lỗi khi lấy thống kê chat"
+                "message", "Failed to fetch chat statistics"
             ));
         }
     }

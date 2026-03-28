@@ -37,33 +37,33 @@ public class RecentActivityResponse implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Thông tin một hoạt động")
+    @Schema(description = "Activity information")
     public static class Activity implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        @Schema(description = "Loại hoạt động", example = "ORDER", allowableValues = {"ORDER", "USER_REGISTER", "ORDER_COMPLETED", "ORDER_CANCELLED"})
+        @Schema(description = "Activity type", example = "ORDER", allowableValues = {"ORDER", "USER_REGISTER", "ORDER_COMPLETED", "ORDER_CANCELLED"})
         private String type;
 
-        @Schema(description = "Mô tả hoạt động", example = "Đơn hàng mới #ORD-20250120-001")
+        @Schema(description = "Activity description", example = "New order #ORD-20250120-001")
         private String description;
 
-        @Schema(description = "Thời gian xảy ra", example = "2025-01-20T10:30:00")
+        @Schema(description = "Timestamp", example = "2025-01-20T10:30:00")
         private LocalDateTime timestamp;
 
-        @Schema(description = "ID liên quan (orderId hoặc userId)", example = "100")
+        @Schema(description = "Related ID (orderId or userId)", example = "100")
         private Long referenceId;
 
-        @Schema(description = "Mã đơn hàng (nếu là hoạt động đơn hàng)", example = "ORD-20250120-001")
+        @Schema(description = "Order code (if activity is order-related)", example = "ORD-20250120-001")
         private String orderCode;
 
-        @Schema(description = "Tên khách hàng hoặc người dùng liên quan", example = "Nguyễn Văn A")
+        @Schema(description = "Customer name or related user", example = "Nguyen Van A")
         private String customerName;
 
-        @Schema(description = "Số tiền (nếu là hoạt động đơn hàng)", example = "150000")
+        @Schema(description = "Amount (if activity is order-related)", example = "150000")
         private BigDecimal amount;
 
-        @Schema(description = "Trạng thái (nếu là đơn hàng)", example = "CONFIRMED")
+        @Schema(description = "Status (if order-related)", example = "CONFIRMED")
         private String status;
     }
 }

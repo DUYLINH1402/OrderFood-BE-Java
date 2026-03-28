@@ -18,45 +18,45 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa thống kê nâng cao cho Dashboard")
+@Schema(description = "Response containing advanced statistics for Dashboard")
 public class AdvancedStatisticsResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Average Order Value - Giá trị đơn hàng trung bình (VND)", example = "85000")
+    @Schema(description = "Average Order Value (VND)", example = "85000")
     private BigDecimal aov;
 
-    @Schema(description = "Tỷ lệ thay đổi AOV so với kỳ trước (%)", example = "5.5")
+    @Schema(description = "AOV change rate compared to previous period (%)", example = "5.5")
     private Double aovChangePercent;
 
-    @Schema(description = "Tổng số đơn hàng trong kỳ", example = "500")
+    @Schema(description = "Total orders in period", example = "500")
     private Long totalOrders;
 
-    @Schema(description = "Số đơn hàng bị hủy", example = "15")
+    @Schema(description = "Number of cancelled orders", example = "15")
     private Long cancelledOrders;
 
-    @Schema(description = "Tỷ lệ hủy đơn (%)", example = "3.0")
+    @Schema(description = "Cancellation rate (%)", example = "3.0")
     private Double cancellationRate;
 
-    @Schema(description = "Tỷ lệ thay đổi tỷ lệ hủy so với kỳ trước (%)", example = "-2.5")
+    @Schema(description = "Cancellation rate change compared to previous period (%)", example = "-2.5")
     private Double cancellationRateChangePercent;
 
-    @Schema(description = "Số khách hàng mới trong kỳ", example = "50")
+    @Schema(description = "Number of new customers in period", example = "50")
     private Long newCustomers;
 
-    @Schema(description = "Tỷ lệ thay đổi khách hàng mới so với kỳ trước (%)", example = "10.0")
+    @Schema(description = "New customers change rate compared to previous period (%)", example = "10.0")
     private Double newCustomersChangePercent;
 
-    @Schema(description = "Tổng điểm thưởng đã sử dụng trong kỳ", example = "5000")
+    @Schema(description = "Total reward points used in period", example = "5000")
     private Long pointsUsed;
 
-    @Schema(description = "Tỷ lệ thay đổi điểm thưởng đã dùng so với kỳ trước (%)", example = "15.0")
+    @Schema(description = "Points used change rate compared to previous period (%)", example = "15.0")
     private Double pointsUsedChangePercent;
 
-    @Schema(description = "Giá trị quy đổi từ điểm thưởng (VND)", example = "50000")
+    @Schema(description = "Points discount value (VND)", example = "50000")
     private BigDecimal pointsDiscountValue;
 
-    @Schema(description = "Khoảng thời gian thống kê (7, 30, 90 ngày)", example = "30")
+    @Schema(description = "Statistics period (7, 30, 90 days)", example = "30")
     private Integer periodDays;
 }

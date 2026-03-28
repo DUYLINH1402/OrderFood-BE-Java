@@ -19,61 +19,61 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO để tạo/cập nhật Knowledge Base cho chatbot")
+@Schema(description = "DTO for creating/updating Knowledge Base for chatbot")
 public class KnowledgeBaseDTO {
 
-    @Schema(description = "ID của knowledge base", example = "1")
+    @Schema(description = "Knowledge base ID", example = "1")
     private Long id;
 
     @Schema(
-        description = "Tiêu đề của knowledge base",
-        example = "Hướng dẫn đặt hàng",
+        description = "Knowledge base title",
+        example = "How to place an order",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Tiêu đề không được để trống")
+    @NotBlank(message = "TITLE_REQUIRED")
     private String title;
 
     @Schema(
-        description = "Nội dung chi tiết của knowledge base",
-        example = "Để đặt hàng, bạn cần chọn món ăn, thêm vào giỏ hàng và tiến hành thanh toán...",
+        description = "Detailed knowledge base content",
+        example = "To place an order, select food items, add to cart and proceed to checkout...",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Nội dung không được để trống")
+    @NotBlank(message = "CONTENT_REQUIRED")
     private String content;
 
     @Schema(
-        description = "Các từ khóa liên quan (phân cách bằng dấu phẩy)",
-        example = "đặt hàng, order, mua hàng, thanh toán"
+        description = "Related keywords (comma-separated)",
+        example = "order, purchase, checkout, payment"
     )
     private String keywords;
 
     @Schema(
-        description = "Danh mục của knowledge base",
+        description = "Knowledge base category",
         example = "FAQ",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotNull(message = "Danh mục không được để trống")
+    @NotNull(message = "CATEGORY_REQUIRED")
     private KnowledgeCategory category;
 
     @Schema(
-        description = "Độ ưu tiên hiển thị (1-10, số nhỏ ưu tiên cao)",
+        description = "Display priority (1-10, lower number = higher priority)",
         example = "1",
         minimum = "1",
         maximum = "10"
     )
-    @Min(value = 1, message = "Độ ưu tiên phải từ 1 đến 10")
-    @Max(value = 10, message = "Độ ưu tiên phải từ 1 đến 10")
+    @Min(value = 1, message = "PRIORITY_MIN_1")
+    @Max(value = 10, message = "PRIORITY_MAX_10")
     private Integer priority;
 
-    @Schema(description = "Trạng thái hoạt động", example = "true")
+    @Schema(description = "Active status", example = "true")
     private Boolean isActive;
 
-    @Schema(description = "Thời gian tạo", example = "2025-01-20T10:30:00")
+    @Schema(description = "Created timestamp", example = "2025-01-20T10:30:00")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Thời gian cập nhật gần nhất", example = "2025-01-20T15:45:00")
+    @Schema(description = "Last updated timestamp", example = "2025-01-20T15:45:00")
     private LocalDateTime updatedAt;
 
-    @Schema(description = "ID của người tạo", example = "1")
+    @Schema(description = "Creator user ID", example = "1")
     private Long createdBy;
 }

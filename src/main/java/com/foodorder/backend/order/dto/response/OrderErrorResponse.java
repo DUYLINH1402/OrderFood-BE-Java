@@ -8,22 +8,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin lỗi khi xử lý đơn hàng")
+@Schema(description = "Response containing error information when processing order")
 public class OrderErrorResponse {
 
-    @Schema(description = "Trạng thái thành công hay thất bại", example = "false")
+    @Schema(description = "Success or failure status", example = "false")
     private boolean success;
 
-    @Schema(description = "Thông báo lỗi chi tiết", example = "Số điểm không đủ để sử dụng")
+    @Schema(description = "Detailed error message", example = "Insufficient points to use")
     private String message;
 
-    @Schema(description = "Mã lỗi chuẩn hóa", example = "INSUFFICIENT_POINTS")
+    @Schema(description = "Standardized error code", example = "INSUFFICIENT_POINTS")
     private String errorCode;
 
-    @Schema(description = "Timestamp của lỗi (Unix milliseconds)", example = "1705744800000")
+    @Schema(description = "Error timestamp (Unix milliseconds)", example = "1705744800000")
     private long timestamp;
 
-    // Các error codes phổ biến cho Order
+    // Common error codes for Order
     public static final String INSUFFICIENT_POINTS = "INSUFFICIENT_POINTS";
     public static final String POINTS_EXCEED_ORDER_VALUE = "POINTS_EXCEED_ORDER_VALUE";
     public static final String POINTS_GUEST_ORDER = "POINTS_GUEST_ORDER";

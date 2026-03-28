@@ -17,9 +17,10 @@ services:
       MYSQL_DATABASE: food_ordering_system
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - "3306:3306"
-    command: --innodb-buffer-pool-size=128M
+    command: --innodb-buffer-pool-size=128M --default-time-zone=+07:00
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -66,12 +67,13 @@ services:
     environment:
       # Database configuration - Trỏ vào container MySQL trong Docker
       # Production sử dụng database: food_ordering_system
-      MYSQL_DATABASE_URL: jdbc:mysql://mysql:3306/food_ordering_system?useSSL=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull&allowPublicKeyRetrieval=true
+      MYSQL_DATABASE_URL: jdbc:mysql://mysql:3306/food_ordering_system?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull&allowPublicKeyRetrieval=true
       MYSQL_USERNAME: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
-      # Giới hạn RAM cho Java để chạy được trên gói Lightsail
-      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx400m"
+      # Giới hạn RAM cho Java để chạy được trên gói Lightsail + set timezone Việt Nam
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx400m -Duser.timezone=Asia/Ho_Chi_Minh"
+      TZ: Asia/Ho_Chi_Minh
 
       # JWT configuration
       JWT_SECRET: ${JWT_SECRET}

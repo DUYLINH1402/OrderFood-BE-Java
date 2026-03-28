@@ -79,7 +79,7 @@ public class RAGService {
             return contextBuilder.toString();
 
         } catch (Exception e) {
-            log.error("Lỗi khi tìm kiếm context: {}", e.getMessage());
+            log.error("Error searching context: {}", e.getMessage());
             return "";
         }
     }
@@ -377,7 +377,7 @@ public class RAGService {
             return overview.toString();
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy overview context: {}", e.getMessage());
+            log.error("Error fetching overview context: {}", e.getMessage());
             return "Nhà hàng trực tuyến chuyên phục vụ các món ăn ngon, giao hàng nhanh chóng.";
         }
     }

@@ -13,15 +13,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request thêm/cập nhật hình ảnh gallery")
+@Schema(description = "Request to add/update a gallery image")
 public class GalleryRequest {
 
-    @NotBlank(message = "URL hình ảnh không được để trống")
-    @Size(max = 500, message = "URL hình ảnh không được vượt quá 500 ký tự")
-    @Schema(description = "URL hình ảnh", example = "https://example.com/image.jpg", required = true)
+    @NotBlank(message = "Image URL must not be blank")
+    @Size(max = 500, message = "Image URL must not exceed 500 characters")
+    @Schema(description = "Image URL", example = "https://example.com/image.jpg", required = true)
     private String imageUrl;
 
-    @Schema(description = "Thứ tự hiển thị", example = "1")
+    @Schema(description = "Display order", example = "1")
     private Integer displayOrder;
 }
-

@@ -16,23 +16,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để Admin hủy đơn hàng kèm lý do")
+@Schema(description = "Request body for Admin to cancel order with reason")
 public class AdminCancelOrderRequest {
 
     @Schema(
-        description = "Lý do hủy đơn hàng (tối đa 500 ký tự)",
-        example = "Khách hàng yêu cầu hủy đơn",
+        description = "Order cancellation reason (max 500 characters)",
+        example = "Customer requested to cancel order",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Lý do hủy đơn không được để trống")
-    @Size(max = 500, message = "Lý do hủy đơn không được vượt quá 500 ký tự")
+    @NotBlank(message = "Cancellation reason cannot be empty")
+    @Size(max = 500, message = "Cancellation reason cannot exceed 500 characters")
     private String cancelReason;
 
     @Schema(
-        description = "Ghi chú nội bộ bổ sung (chỉ Admin thấy, tối đa 2000 ký tự)",
-        example = "Khách hàng gọi điện yêu cầu hủy lúc 10h sáng"
+        description = "Additional internal note (Admin only, max 2000 characters)",
+        example = "Customer called to request cancellation at 10am"
     )
-    @Size(max = 2000, message = "Ghi chú nội bộ không được vượt quá 2000 ký tự")
+    @Size(max = 2000, message = "Internal note cannot exceed 2000 characters")
     private String internalNote;
 }
 

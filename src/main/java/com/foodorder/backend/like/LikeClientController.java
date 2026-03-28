@@ -22,13 +22,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/client/likes")
 @RequiredArgsConstructor
-@Tag(name = "Like - Client", description = "API thao tác lượt thích - Yêu cầu đăng nhập")
+@Tag(name = "Like - Client", description = "Like operations API - Requires authentication")
 public class LikeClientController {
 
     private final LikeService likeService;
 
     @PostMapping("/toggle")
-    @Operation(summary = "Toggle like/unlike", description = "Like nếu chưa like, unlike nếu đã like")
+    @Operation(summary = "Toggle like/unlike", description = "Like if not liked yet, unlike if already liked")
     public ResponseEntity<LikeResponse> toggleLike(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody LikeRequest request
@@ -39,7 +39,7 @@ public class LikeClientController {
     }
 
     @GetMapping("/check/{targetType}/{targetId}")
-    @Operation(summary = "Kiểm tra đã like", description = "Kiểm tra user hiện tại đã like đối tượng chưa")
+    @Operation(summary = "Check if liked", description = "Check if current user has liked the target")
     public ResponseEntity<Boolean> checkLiked(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String targetType,

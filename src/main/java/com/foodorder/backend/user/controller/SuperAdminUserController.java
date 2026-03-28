@@ -33,23 +33,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequireSuperAdmin
 @Slf4j
-@Tag(name = "Users - Super Admin", description = "API quản lý người dùng dành cho Super Admin - Bao gồm dữ liệu được bảo vệ")
+@Tag(name = "Users - Super Admin", description = "User management API for Super Admin - Including protected data")
 public class SuperAdminUserController {
 
     private final AdminUserService adminUserService;
 
-    @Operation(summary = "Danh sách tất cả người dùng",
-            description = "Lấy danh sách tất cả người dùng (mọi role), bao gồm cả dữ liệu được bảo vệ.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "List all users",
+            description = "Get a list of all users (any role), including protected data.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<AdminUserResponse>> getAllUsers(
-            @Parameter(description = "Từ khóa tìm kiếm") @RequestParam(required = false) String keyword,
+            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
             @Parameter(description = "Role code (ROLE_USER, ROLE_STAFF, ROLE_ADMIN)") @RequestParam(required = false) String roleCode,
-            @Parameter(description = "Trạng thái active") @RequestParam(required = false) Boolean isActive,
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Trường sắp xếp") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Hướng sắp xếp") @RequestParam(defaultValue = "desc") String sortDir) {
+            @Parameter(description = "Active status") @RequestParam(required = false) Boolean isActive,
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction") @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -60,24 +60,24 @@ public class SuperAdminUserController {
         return ResponseEntity.ok(users);
     }
 
-    @Operation(summary = "Chi tiết người dùng",
-            description = "Xem chi tiết thông tin người dùng, bao gồm cả user được bảo vệ.")
+    @Operation(summary = "User details",
+            description = "View detailed information of a user, including protected users.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<AdminUserResponse> getUserById(
-            @Parameter(description = "ID người dùng") @PathVariable Long id) {
+            @Parameter(description = "User ID") @PathVariable Long id) {
         AdminUserResponse user = adminUserService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Tạo người dùng mới",
-            description = "Tạo mới người dùng với bất kỳ role nào.")
+    @Operation(summary = "Create user",
+            description = "Create a new user with any role.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "201", description = "Created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
     public ResponseEntity<AdminUserResponse> createUser(
@@ -86,58 +86,57 @@ public class SuperAdminUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @Operation(summary = "Cập nhật người dùng",
-            description = "Cập nhật thông tin người dùng, bao gồm cả user được bảo vệ và thay đổi role.")
+    @Operation(summary = "Update user",
+            description = "Update user information, including protected users and role changes.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PutMapping("/{id}")
     public ResponseEntity<AdminUserResponse> updateUser(
-            @Parameter(description = "ID người dùng") @PathVariable Long id,
+            @Parameter(description = "User ID") @PathVariable Long id,
             @Valid @RequestBody AdminUpdateUserRequest request) {
         AdminUserResponse user = adminUserService.updateUser(id, request);
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Xóa người dùng",
-            description = "Xóa người dùng, bao gồm cả user được bảo vệ.")
+    @Operation(summary = "Delete user",
+            description = "Delete a user, including protected users.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+            @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
-            @Parameter(description = "ID người dùng") @PathVariable Long id) {
+            @Parameter(description = "User ID") @PathVariable Long id) {
         adminUserService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Thay đổi trạng thái người dùng",
-            description = "Khóa/mở khóa tài khoản, bao gồm cả user được bảo vệ.")
+    @Operation(summary = "Update user status",
+            description = "Lock or unlock an account, including protected users.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PutMapping("/{id}/status")
     public ResponseEntity<AdminUserResponse> updateUserStatus(
-            @Parameter(description = "ID người dùng") @PathVariable Long id,
+            @Parameter(description = "User ID") @PathVariable Long id,
             @Valid @RequestBody AdminUpdateUserStatusRequest request) {
         AdminUserResponse user = adminUserService.updateUserStatus(id, request);
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Gửi email reset mật khẩu",
-            description = "Gửi email để người dùng đặt lại mật khẩu.")
+    @Operation(summary = "Send password reset email",
+            description = "Send a password reset email to the user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Gửi email thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PostMapping("/{id}/reset-password")
     public ResponseEntity<Void> sendResetPasswordEmail(
-            @Parameter(description = "ID người dùng") @PathVariable Long id) {
+            @Parameter(description = "User ID") @PathVariable Long id) {
         adminUserService.sendResetPasswordEmail(id);
         return ResponseEntity.ok().build();
     }
 }
-

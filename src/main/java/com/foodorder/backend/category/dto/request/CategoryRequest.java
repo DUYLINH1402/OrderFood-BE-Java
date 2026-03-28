@@ -4,22 +4,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(description = "Request body để tạo/cập nhật danh mục món ăn")
+@Schema(description = "Request body for creating/updating a food category")
 public class CategoryRequest {
 
-    @Schema(description = "Tên danh mục", example = "Món chính", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Category name", example = "Main Dishes", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "Mô tả danh mục", example = "Các món ăn chính trong thực đơn")
+    @Schema(description = "Category description", example = "Main course items on the menu")
     private String description;
 
-    @Schema(description = "ID của danh mục cha (để null nếu là danh mục gốc)", example = "1")
+    @Schema(description = "Parent category ID (null for root category)", example = "1")
     private Long parentId;
 
-    @Schema(description = "Thứ tự hiển thị (số nhỏ hiển thị trước)", example = "1")
+    @Schema(description = "Display order (lower number displayed first)", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "Slug của danh mục (dùng cho URL)", example = "mon-chinh")
+    @Schema(description = "Category slug (for URL)", example = "main-dishes")
     private String slug;
 
 }

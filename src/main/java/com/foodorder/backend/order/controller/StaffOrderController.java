@@ -30,20 +30,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @RequireStaff
-@Tag(name = "Orders - Staff", description = "API quản lý đơn hàng dành cho Staff")
+@Tag(name = "Orders - Staff", description = "Order management API for Staff")
 public class StaffOrderController {
 
     private final StaffOrderService staffOrderService;
 
-    @Operation(summary = "Đơn hàng cần xác nhận", description = "Lấy danh sách đơn hàng đã thanh toán, đang chờ xác nhận (PROCESSING).")
+    @Operation(summary = "Orders need confirmation", description = "Get list of paid orders waiting for confirmation (PROCESSING status).")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Không có quyền Staff")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No Staff permission")
     })
     @GetMapping("/need-confirmation")
     public ResponseEntity<PageResponse<OrderResponse>> getOrdersNeedConfirmation(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Items per page") @RequestParam(defaultValue = "20") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").ascending());
         PageResponse<OrderResponse> orders = staffOrderService.getOrdersNeedConfirmation(pageRequest);
@@ -51,12 +51,12 @@ public class StaffOrderController {
         return ResponseEntity.ok(orders);
     }
 
-    @Operation(summary = "Đơn hàng đang xử lý", description = "Lấy danh sách đơn hàng đang trong quá trình xử lý.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Processing orders", description = "Get list of orders in processing.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/processing")
     public ResponseEntity<PageResponse<OrderResponse>> getProcessingOrders(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Items per page") @RequestParam(defaultValue = "20") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("updatedAt").descending());
         PageResponse<OrderResponse> orders = staffOrderService.getProcessingOrders(pageRequest);
@@ -64,33 +64,33 @@ public class StaffOrderController {
         return ResponseEntity.ok(orders);
     }
 
-    @Operation(summary = "Cập nhật trạng thái đơn hàng", description = "Cập nhật trạng thái đơn hàng theo mã đơn (Staff).")
+    @Operation(summary = "Update order status", description = "Update order status by order code (Staff).")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy đơn hàng")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
     })
     @PutMapping("/{orderCode}/status")
     public ResponseEntity<ApiResponse<OrderResponse>> updateOrderStatus(
-            @Parameter(description = "Mã đơn hàng") @PathVariable String orderCode,
+            @Parameter(description = "Order code") @PathVariable String orderCode,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
 
         OrderResponse updatedOrder = staffOrderService.updateOrderStatusByCode(orderCode, request);
 
         return ResponseEntity.ok(ApiResponse.<OrderResponse>builder()
                 .success(true)
-                .message("Cập nhật trạng thái đơn hàng thành công")
+                .message("Order status updated successfully")
                 .data(updatedOrder)
                 .build());
     }
 
-    @Operation(summary = "Chi tiết đơn hàng", description = "Lấy chi tiết đơn hàng theo ID hoặc mã đơn.")
+    @Operation(summary = "Order details", description = "Get order details by ID or order code.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy đơn hàng")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
     })
     @GetMapping("/{orderIdOrCode}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderDetails(
-            @Parameter(description = "ID hoặc mã đơn hàng") @PathVariable String orderIdOrCode) {
+            @Parameter(description = "Order ID or code") @PathVariable String orderIdOrCode) {
 
         OrderResponse order = staffOrderService.getOrderDetails(orderIdOrCode);
 
@@ -100,17 +100,17 @@ public class StaffOrderController {
                 .build());
     }
 
-    @Operation(summary = "Đơn hàng gần đây", description = "Lấy danh sách đơn hàng gần đây với nhiều tùy chọn lọc và phân trang.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Recent orders", description = "Get recent orders with multiple filter options and pagination.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/recent")
     public ResponseEntity<PageResponse<OrderResponse>> getRecentOrders(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "5") int size,
-            @Parameter(description = "Số ngày gần đây") @RequestParam(defaultValue = "365") int days,
-            @Parameter(description = "Trạng thái đơn hàng") @RequestParam(required = false) String status,
-            @Parameter(description = "Từ khóa tìm kiếm") @RequestParam(required = false) String search,
-            @Parameter(description = "Trường sắp xếp") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Hướng sắp xếp (asc/desc)") @RequestParam(defaultValue = "desc") String sortDirection) {
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Items per page") @RequestParam(defaultValue = "5") int size,
+            @Parameter(description = "Recent days") @RequestParam(defaultValue = "365") int days,
+            @Parameter(description = "Order status") @RequestParam(required = false) String status,
+            @Parameter(description = "Search keyword") @RequestParam(required = false) String search,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "desc") String sortDirection) {
 
         Sort sort = sortDirection.equalsIgnoreCase("asc")
             ? Sort.by(sortBy).ascending()

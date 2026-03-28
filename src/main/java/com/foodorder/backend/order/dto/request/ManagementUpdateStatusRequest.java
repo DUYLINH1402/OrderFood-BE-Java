@@ -9,23 +9,23 @@ import lombok.Data;
  * DTO cho request cập nhật trạng thái đơn hàng bởi Staff/Admin
  */
 @Data
-@Schema(description = "Request body để Staff/Admin cập nhật trạng thái đơn hàng")
+@Schema(description = "Request body for Staff/Admin to update order status")
 public class ManagementUpdateStatusRequest {
     
     @Schema(
-        description = "Trạng thái mới của đơn hàng",
+        description = "New order status",
         example = "CONFIRMED",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotNull(message = "Trạng thái không được để trống")
+    @NotNull(message = "Status cannot be empty")
     private OrderStatus status;
     
-    @Schema(description = "Ghi chú cho khách hàng", example = "Đơn hàng đang được chuẩn bị")
+    @Schema(description = "Note for customer", example = "Your order is being prepared")
     private String note;
 
-    @Schema(description = "Ghi chú nội bộ (chỉ Staff/Admin thấy)", example = "Đã xác nhận với khách qua điện thoại")
+    @Schema(description = "Internal note (Staff/Admin only)", example = "Confirmed with customer via phone call")
     private String internalNote;
 
-    @Schema(description = "Có thông báo cho khách hàng không", example = "true", defaultValue = "true")
+    @Schema(description = "Notify customer or not", example = "true", defaultValue = "true")
     private boolean notifyCustomer = true;
 }

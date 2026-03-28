@@ -31,15 +31,15 @@ import java.util.Map;
 @Validated
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Coupons - Client", description = "API mã giảm giá dành cho người dùng đã đăng nhập")
+@Tag(name = "Coupons - Client", description = "Coupon API for authenticated users")
 public class CouponUserController {
 
     private final CouponService couponService;
 
-    @Operation(summary = "Coupon khả dụng cho user", description = "Lấy danh sách mã giảm giá mà user hiện tại có thể sử dụng.")
+    @Operation(summary = "Get available coupons for user", description = "Get list of coupons that current user can use.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/available")
     public ResponseEntity<List<CouponResponse>> getAvailableCouponsForCurrentUser() {
@@ -51,9 +51,9 @@ public class CouponUserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Kiểm tra coupon", description = "Kiểm tra tính hợp lệ của mã giảm giá cho đơn hàng (không áp dụng thực tế).")
+    @Operation(summary = "Validate coupon", description = "Check coupon validity for order (without actual application).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công - Trả về kết quả kiểm tra")
+            @ApiResponse(responseCode = "200", description = "Success - Returns validation result")
     })
     @PostMapping("/validate")
     public ResponseEntity<CouponApplyResult> validateCoupon(
@@ -74,10 +74,10 @@ public class CouponUserController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Áp dụng coupon", description = "Áp dụng mã giảm giá vào đơn hàng và tính toán số tiền giảm.")
+    @Operation(summary = "Apply coupon", description = "Apply coupon to order and calculate discount amount.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công - Trả về kết quả giảm giá"),
-            @ApiResponse(responseCode = "400", description = "Coupon không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Success - Returns discount result"),
+            @ApiResponse(responseCode = "400", description = "Invalid coupon")
     })
     @PostMapping("/apply")
     public ResponseEntity<CouponApplyResult> applyCoupon(@RequestBody @Valid ApplyCouponRequest request) {

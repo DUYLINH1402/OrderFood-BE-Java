@@ -28,16 +28,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 
 @Slf4j
-@Tag(name = "Chatbot", description = "API Chatbot AI hỗ trợ khách hàng")
+@Tag(name = "Chatbot", description = "AI Chatbot APIs for customer support")
 public class ChatbotController {
 
     private final ChatbotService chatbotService;
 
-    @Operation(summary = "Chat với bot", description = "Gửi tin nhắn và nhận phản hồi từ AI chatbot.")
+    @Operation(summary = "Chat with bot", description = "Send a message and receive a response from the AI chatbot.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "400", description = "Yêu cầu không hợp lệ"),
-            @ApiResponse(responseCode = "500", description = "Lỗi server")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "500", description = "Server error")
     })
     @PostMapping("/chat")
     public Mono<ResponseEntity<Object>> chat(
@@ -49,44 +49,44 @@ public class ChatbotController {
                 log.debug("User đã đăng nhập nhưng chưa set userId trong request");
             }
 
-            log.info("Nhận tin nhắn chat: {}", request.getMessage());
+            log.info("Received chat message: {}", request.getMessage());
 
             return chatbotService.processMessage(request)
                 .map(response -> ResponseEntity.ok().body((Object) response))
                 .onErrorResume(error -> {
-                    log.error("Lỗi trong chat API: {}", error.getMessage(), error);
+                    log.error("Error in chat API: {}", error.getMessage(), error);
                     ApiError apiError = ApiError.builder()
                         .errorCode("CHATBOT_ERROR")
-                        .message("Lỗi khi xử lý tin nhắn chat")
+                        .message("Failed to process chat message")
                         .details(error.getMessage())
                         .build();
                     return Mono.just(ResponseEntity.internalServerError().body((Object) apiError));
                 });
 
         } catch (Exception e) {
-            log.error("Lỗi validation trong chat API: {}", e.getMessage(), e);
+            log.error("Validation error in chat API: {}", e.getMessage(), e);
             ApiError apiError = ApiError.builder()
                 .errorCode("INVALID_REQUEST")
-                .message("Yêu cầu không hợp lệ")
+                .message("Invalid request")
                 .details(e.getMessage())
                 .build();
             return Mono.just(ResponseEntity.badRequest().body((Object) apiError));
         }
     }
 
-    @Operation(summary = "Lịch sử chat", description = "Lấy lịch sử chat theo session ID.")
+    @Operation(summary = "Chat history", description = "Retrieve chat history by session ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "400", description = "Session ID không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Invalid session ID")
     })
     @GetMapping("/history/{sessionId}")
     public ResponseEntity<?> getChatHistory(
-            @Parameter(description = "Session ID của cuộc hội thoại") @PathVariable String sessionId) {
+            @Parameter(description = "Conversation session ID") @PathVariable String sessionId) {
         try {
             if (sessionId == null || sessionId.trim().isEmpty()) {
                 ApiError apiError = ApiError.builder()
                     .errorCode("INVALID_SESSION_ID")
-                    .message("Session ID không hợp lệ")
+                    .message("Invalid session ID")
                     .build();
                 return ResponseEntity.badRequest().body(apiError);
             }
@@ -98,20 +98,20 @@ public class ChatbotController {
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy lịch sử chat: {}", e.getMessage(), e);
+            log.error("Error fetching chat history: {}", e.getMessage(), e);
             ApiError apiError = ApiError.builder()
                 .errorCode("HISTORY_FETCH_ERROR")
-                .message("Không thể lấy lịch sử chat")
+                .message("Failed to fetch chat history")
                 .details(e.getMessage())
                 .build();
             return ResponseEntity.internalServerError().body(apiError);
         }
     }
 
-    @Operation(summary = "Đánh giá phản hồi", description = "Đánh giá chất lượng phản hồi của chatbot (1-5 sao).")
+    @Operation(summary = "Rate response", description = "Rate chatbot response quality (1-5 stars).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đánh giá thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Rating submitted"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping("/rate")
     public ResponseEntity<?> rateResponse(@RequestBody Map<String, Object> request) {
@@ -123,8 +123,8 @@ public class ChatbotController {
             if (sessionId == null || messageIdObj == null || ratingObj == null) {
                 ApiError apiError = ApiError.builder()
                     .errorCode("MISSING_PARAMETERS")
-                    .message("Thiếu thông tin bắt buộc")
-                    .details("Cần có sessionId, messageId và rating")
+                    .message("Missing required parameters")
+                    .details("sessionId, messageId and rating are required")
                     .build();
                 return ResponseEntity.badRequest().body(apiError);
             }
@@ -135,7 +135,7 @@ public class ChatbotController {
             if (rating < 1 || rating > 5) {
                 ApiError apiError = ApiError.builder()
                     .errorCode("INVALID_RATING")
-                    .message("Rating phải từ 1 đến 5")
+                    .message("Rating must be between 1 and 5")
                     .build();
                 return ResponseEntity.badRequest().body(apiError);
             }
@@ -145,38 +145,38 @@ public class ChatbotController {
             if (success) {
                 return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Đánh giá thành công"
+                    "message", "Rating submitted successfully"
                 ));
             } else {
                 ApiError apiError = ApiError.builder()
                     .errorCode("RATING_FAILED")
-                    .message("Không thể đánh giá phản hồi")
-                    .details("Tin nhắn không tồn tại hoặc không thuộc session này")
+                    .message("Unable to rate response")
+                    .details("Message does not exist or does not belong to this session")
                     .build();
                 return ResponseEntity.badRequest().body(apiError);
             }
 
         } catch (NumberFormatException e) {
-            log.error("Lỗi format số trong rate response: {}", e.getMessage());
+            log.error("Number format error in rate response: {}", e.getMessage());
             ApiError apiError = ApiError.builder()
                 .errorCode("INVALID_NUMBER_FORMAT")
-                .message("Định dạng số không hợp lệ")
-                .details("messageId và rating phải là số hợp lệ")
+                .message("Invalid number format")
+                .details("messageId and rating must be valid numbers")
                 .build();
             return ResponseEntity.badRequest().body(apiError);
         } catch (Exception e) {
-            log.error("Lỗi khi đánh giá phản hồi: {}", e.getMessage(), e);
+            log.error("Error rating response: {}", e.getMessage(), e);
             ApiError apiError = ApiError.builder()
                 .errorCode("RATING_ERROR")
-                .message("Lỗi khi đánh giá phản hồi")
+                .message("Failed to rate response")
                 .details(e.getMessage())
                 .build();
             return ResponseEntity.internalServerError().body(apiError);
         }
     }
 
-    @Operation(summary = "Health check", description = "Kiểm tra trạng thái hoạt động của chatbot service.")
-    @ApiResponse(responseCode = "200", description = "Service đang hoạt động")
+    @Operation(summary = "Health check", description = "Check chatbot service status.")
+    @ApiResponse(responseCode = "200", description = "Service is running")
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> healthCheck() {
         return ResponseEntity.ok(Map.of(

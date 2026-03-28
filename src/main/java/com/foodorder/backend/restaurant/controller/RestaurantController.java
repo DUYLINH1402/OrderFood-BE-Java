@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/v1/public/restaurant")
 @RequiredArgsConstructor
-@Tag(name = "Restaurant", description = "API công khai để lấy thông tin nhà hàng")
+@Tag(name = "Restaurant", description = "Public API to get restaurant information")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
@@ -33,13 +33,13 @@ public class RestaurantController {
      * API Public - Không cần đăng nhập
      */
     @Operation(
-            summary = "Lấy thông tin nhà hàng",
-            description = "Lấy thông tin chi tiết nhà hàng bao gồm tên, địa chỉ, số điện thoại, mô tả, giờ mở cửa và danh sách hình ảnh gallery"
+            summary = "Get restaurant information",
+            description = "Get detailed restaurant information including name, address, phone, description, opening hours and gallery images"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Thành công",
+                    description = "Success",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = RestaurantResponseDTO.class)
@@ -47,7 +47,7 @@ public class RestaurantController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Không tìm thấy thông tin nhà hàng",
+                    description = "Restaurant information not found",
                     content = @Content
             )
     })

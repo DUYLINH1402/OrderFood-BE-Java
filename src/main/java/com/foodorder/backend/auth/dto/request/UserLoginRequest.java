@@ -8,11 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Request body để đăng nhập tài khoản")
+@Schema(description = "Request body for user login")
 public class UserLoginRequest {
 
     @Schema(
-        description = "Tên đăng nhập hoặc email của người dùng",
+        description = "Username or email",
         example = "user@gmail.com",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -20,7 +20,7 @@ public class UserLoginRequest {
     private String login;
 
     @Schema(
-        description = "Mật khẩu đăng nhập (tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt)",
+        description = "Login password (minimum 8 characters, including uppercase, lowercase, number and special character)",
         example = "A123456",
         requiredMode = Schema.RequiredMode.REQUIRED
     )

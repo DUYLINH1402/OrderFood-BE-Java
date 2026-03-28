@@ -17,22 +17,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa dữ liệu doanh thu theo ngày")
+@Schema(description = "Response containing daily revenue data")
 public class RevenueDataResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Danh sách dữ liệu doanh thu theo từng ngày")
+    @Schema(description = "List of daily revenue entries")
     private List<DailyRevenue> dailyRevenues;
 
-    @Schema(description = "Tổng doanh thu trong khoảng thời gian (VND)", example = "5000000")
+    @Schema(description = "Total revenue for the period (VND)", example = "5000000")
     private BigDecimal totalRevenue;
 
-    @Schema(description = "Tổng số đơn hàng trong khoảng thời gian", example = "150")
+    @Schema(description = "Total orders for the period", example = "150")
     private Long totalOrders;
 
-    @Schema(description = "Số ngày thống kê", example = "7")
+    @Schema(description = "Number of days in statistics", example = "7")
     private Integer days;
 
     /**
@@ -43,18 +43,18 @@ public class RevenueDataResponse implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Doanh thu của 1 ngày")
+    @Schema(description = "Daily revenue data")
     public static class DailyRevenue implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        @Schema(description = "Ngày", example = "2025-01-20")
+        @Schema(description = "Date", example = "2025-01-20")
         private LocalDate date;
 
-        @Schema(description = "Doanh thu ngày đó (VND)", example = "500000")
+        @Schema(description = "Revenue for that day (VND)", example = "500000")
         private BigDecimal revenue;
 
-        @Schema(description = "Số đơn hàng ngày đó", example = "15")
+        @Schema(description = "Order count for that day", example = "15")
         private Long orderCount;
     }
 }

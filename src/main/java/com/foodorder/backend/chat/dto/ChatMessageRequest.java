@@ -15,31 +15,31 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để gửi tin nhắn chat")
+@Schema(description = "Request body for sending a chat message")
 public class ChatMessageRequest {
 
     @Schema(
-        description = "Nội dung tin nhắn (tối đa 1000 ký tự)",
-        example = "Xin chào, tôi cần hỗ trợ",
+        description = "Message content (max 1000 characters)",
+        example = "Hello, I need support",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Nội dung tin nhắn không được để trống")
-    @Size(max = 1000, message = "Tin nhắn không được vượt quá 1000 ký tự")
+    @NotBlank(message = "MESSAGE_REQUIRED")
+    @Size(max = 1000, message = "MESSAGE_MAX_LENGTH_1000")
     private String message;
 
     @Schema(
-        description = "JWT Token xác thực người dùng",
+        description = "JWT authentication token",
         example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Token xác thực không được để trống")
+    @NotBlank(message = "TOKEN_REQUIRED")
     private String token;
 
     /**
      * ID của tin nhắn mà staff đang phản hồi (chỉ dành cho staff reply)
      */
     @Schema(
-        description = "ID của tin nhắn gốc mà staff muốn phản hồi (chỉ dành cho staff)",
+        description = "Original message ID that staff is replying to (staff only)",
         example = "msg_123456"
     )
     private String replyToMessageId;
@@ -48,7 +48,7 @@ public class ChatMessageRequest {
      * ID của user mà staff muốn gửi tin nhắn riêng (chỉ dành cho staff)
      */
     @Schema(
-        description = "ID của user mà staff muốn gửi tin nhắn riêng (chỉ dành cho staff)",
+        description = "Recipient user ID for direct message (staff only)",
         example = "5"
     )
     private Long recipientUserId;

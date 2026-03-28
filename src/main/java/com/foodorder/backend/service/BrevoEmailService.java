@@ -28,7 +28,7 @@ public class BrevoEmailService {
         // Log API key một cách an toàn
         if (apiKey == null || apiKey.isEmpty()) {
             log.error("API key is NULL or EMPTY!");
-            throw new BadRequestException("API key chưa được cấu hình", "EMAIL_CONFIG_ERROR");
+            throw new BadRequestException("Email API key is not configured", "EMAIL_CONFIG_ERROR");
         }
         String url = "https://api.brevo.com/v3/smtp/email";
         HttpHeaders headers = new HttpHeaders();
@@ -47,27 +47,27 @@ public class BrevoEmailService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
         } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("=== LỖI 401 UNAUTHORIZED ===");
-            log.error("Chi tiết: API key không hợp lệ hoặc đã hết hạn");
+            log.error("=== ERROR 401 UNAUTHORIZED ===");
+            log.error("Detail: API key is invalid or expired");
             log.error("Response body: {}", e.getResponseBodyAsString());
-            throw new BadRequestException("Không thể gửi email - API key không hợp lệ", "EMAIL_SERVICE_AUTH_ERROR");
+            throw new BadRequestException("Failed to send email - Invalid API key", "EMAIL_SERVICE_AUTH_ERROR");
         } catch (HttpClientErrorException.BadRequest e) {
-            log.error("=== LỖI 400 BAD REQUEST ===");
+            log.error("=== ERROR 400 BAD REQUEST ===");
             log.error("Response body: {}", e.getResponseBodyAsString());
-            throw new BadRequestException("Không thể gửi email - Yêu cầu không hợp lệ: " + e.getResponseBodyAsString(), "EMAIL_BAD_REQUEST");
+            throw new BadRequestException("Failed to send email - Bad request: " + e.getResponseBodyAsString(), "EMAIL_BAD_REQUEST");
         } catch (HttpClientErrorException e) {
-            log.error("=== LỖI HTTP CLIENT {} ===", e.getStatusCode());
+            log.error("=== HTTP CLIENT ERROR {} ===", e.getStatusCode());
             log.error("Response body: {}", e.getResponseBodyAsString());
-            throw new BadRequestException("Không thể gửi email: " + e.getResponseBodyAsString(), "EMAIL_SEND_FAILED");
+            throw new BadRequestException("Failed to send email: " + e.getResponseBodyAsString(), "EMAIL_SEND_FAILED");
         } catch (HttpServerErrorException e) {
-            log.error("=== LỖI HTTP SERVER {} ===", e.getStatusCode());
+            log.error("=== HTTP SERVER ERROR {} ===", e.getStatusCode());
             log.error("Response body: {}", e.getResponseBodyAsString());
-            throw new BadRequestException("Lỗi server Brevo: " + e.getStatusCode(), "EMAIL_SERVER_ERROR");
+            throw new BadRequestException("Brevo server error: " + e.getStatusCode(), "EMAIL_SERVER_ERROR");
         } catch (Exception e) {
-            log.error("=== LỖI KHÔNG XÁC ĐỊNH ===");
-            log.error("Loại lỗi: {}", e.getClass().getName());
-            log.error("Chi tiết: {}", e.getMessage(), e);
-            throw new BadRequestException("Không thể gửi email: " + e.getMessage(), "EMAIL_SEND_FAILED");
+            log.error("=== UNEXPECTED ERROR ===");
+            log.error("Error type: {}", e.getClass().getName());
+            log.error("Detail: {}", e.getMessage(), e);
+            throw new BadRequestException("Failed to send email: " + e.getMessage(), "EMAIL_SEND_FAILED");
         }
     }
 }

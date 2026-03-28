@@ -11,10 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request để cập nhật trạng thái bảo vệ dữ liệu")
+@Schema(description = "Request to update the protected status of data")
 public class ProtectedStatusRequest {
 
-    @Schema(description = "Trạng thái bảo vệ mới", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "New protection status", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean isProtected;
 }
 

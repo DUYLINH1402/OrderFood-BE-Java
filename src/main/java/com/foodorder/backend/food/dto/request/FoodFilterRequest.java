@@ -12,19 +12,19 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request params để lọc danh sách món ăn")
+@Schema(description = "Request params for filtering food list")
 public class FoodFilterRequest {
 
-    @Schema(description = "Lọc theo tên món ăn (tìm kiếm gần đúng)", example = "phở")
+    @Schema(description = "Filter by food name (fuzzy search)", example = "beef")
     private String name;
 
-    @Schema(description = "Lọc theo trạng thái món ăn", example = "AVAILABLE", allowableValues = {"AVAILABLE", "UNAVAILABLE"})
+    @Schema(description = "Filter by food status", example = "AVAILABLE", allowableValues = {"AVAILABLE", "UNAVAILABLE"})
     private String status;
 
-    @Schema(description = "Lọc theo ID danh mục", example = "1")
+    @Schema(description = "Filter by category ID", example = "1")
     private Long categoryId;
 
-    @Schema(description = "Lọc theo trạng thái hoạt động", example = "true")
+    @Schema(description = "Filter by active status", example = "true")
     private Boolean isActive;
 }
 

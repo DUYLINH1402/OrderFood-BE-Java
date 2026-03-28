@@ -105,14 +105,14 @@ public class ContactServiceImpl implements ContactService {
         long countByIp = contactMessageRepository.countByIpAddressSince(ipAddress, oneMinuteAgo);
         if (countByIp >= MAX_MESSAGES_PER_MINUTE_PER_IP) {
             log.warn("Rate limit exceeded for IP: {} ({} messages in 1 minute)", ipAddress, countByIp);
-            throw new TooManyRequestException("Bạn đã gửi quá nhiều tin nhắn. Vui lòng thử lại sau 1 phút.", "CONTACT_RATE_LIMIT_IP");
+            throw new TooManyRequestException("You have sent too many messages. Please try again after 1 minute.", "CONTACT_RATE_LIMIT_IP");
         }
 
         // Kiểm tra số tin nhắn từ email trong 1 giờ
         long countByEmail = contactMessageRepository.countByEmailSince(email.trim().toLowerCase(), oneHourAgo);
         if (countByEmail >= MAX_MESSAGES_PER_HOUR_PER_EMAIL) {
             log.warn("Rate limit exceeded for email: {} ({} messages in 1 hour)", email, countByEmail);
-            throw new TooManyRequestException("Bạn đã gửi quá nhiều tin nhắn từ email này. Vui lòng thử lại sau.", "CONTACT_RATE_LIMIT_EMAIL");
+            throw new TooManyRequestException("You have sent too many messages from this email. Please try again later.", "CONTACT_RATE_LIMIT_EMAIL");
         }
     }
 
@@ -165,11 +165,11 @@ public class ContactServiceImpl implements ContactService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h2>📬 Tin nhắn liên hệ mới</h2>
+                        <h2>📬 New Contact Message</h2>
                     </div>
                     <div class="content">
                         <div class="field">
-                            <div class="label">👤 Tên khách hàng:</div>
+                            <div class="label">👤 Customer Name:</div>
                             <div class="value">%s</div>
                         </div>
                         <div class="field">
@@ -179,16 +179,16 @@ public class ContactServiceImpl implements ContactService {
                         %s
                         %s
                         <div class="field">
-                            <div class="label">💬 Nội dung tin nhắn:</div>
+                            <div class="label">💬 Message Content:</div>
                             <div class="message-content">%s</div>
                         </div>
                         <div class="field">
-                            <div class="label">🕐 Thời gian gửi:</div>
+                            <div class="label">🕐 Sent At:</div>
                             <div class="value">%s</div>
                         </div>
                     </div>
                     <div class="footer">
-                        <p>Email này được gửi tự động từ hệ thống %s</p>
+                        <p>This email was automatically sent from %s system</p>
                     </div>
                 </div>
             </body>
@@ -198,13 +198,13 @@ public class ContactServiceImpl implements ContactService {
             escapeHtml(message.getEmail()),
             message.getPhone() != null ? String.format("""
                 <div class="field">
-                    <div class="label">📱 Số điện thoại:</div>
+                    <div class="label">📱 Phone Number:</div>
                     <div class="value">%s</div>
                 </div>
                 """, escapeHtml(message.getPhone())) : "",
             message.getSubject() != null ? String.format("""
                 <div class="field">
-                    <div class="label">📋 Chủ đề:</div>
+                    <div class="label">📋 Subject:</div>
                     <div class="value">%s</div>
                 </div>
                 """, escapeHtml(message.getSubject())) : "",
@@ -349,25 +349,25 @@ public class ContactServiceImpl implements ContactService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h2>📬 Phản hồi từ %s</h2>
+                        <h2>📬 Reply from %s</h2>
                     </div>
                     <div class="content">
                         <div class="greeting">
-                            <p>Xin chào <strong>%s</strong>,</p>
-                            <p>Cảm ơn bạn đã liên hệ với chúng tôi. Dưới đây là phản hồi cho tin nhắn của bạn:</p>
+                            <p>Hello <strong>%s</strong>,</p>
+                            <p>Thank you for contacting us. Below is our response to your message:</p>
                         </div>
                         
-                        <p><strong>📝 Tin nhắn gốc của bạn:</strong></p>
+                        <p><strong>📝 Your original message:</strong></p>
                         <div class="original-message">%s</div>
                         
-                        <p><strong>💬 Phản hồi của chúng tôi:</strong></p>
+                        <p><strong>💬 Our response:</strong></p>
                         <div class="reply-content">%s</div>
                         
-                        <p style="margin-top: 20px;">Nếu bạn có thêm câu hỏi, đừng ngần ngại liên hệ lại với chúng tôi.</p>
-                        <p>Trân trọng,<br><strong>%s</strong></p>
+                        <p style="margin-top: 20px;">If you have any further questions, please don't hesitate to contact us again.</p>
+                        <p>Best regards,<br><strong>%s</strong></p>
                     </div>
                     <div class="footer">
-                        <p>Email này được gửi từ %s</p>
+                        <p>This email was sent from %s</p>
                     </div>
                 </div>
             </body>
@@ -389,7 +389,7 @@ public class ContactServiceImpl implements ContactService {
 
         // Chỉ cho phép xóa tin nhắn đã archived
         if (message.getStatus() != ContactStatus.ARCHIVED) {
-            throw new BadRequestException("Chỉ có thể xóa tin nhắn đã lưu trữ", "CONTACT_DELETE_NOT_ALLOWED");
+            throw new BadRequestException("Only archived messages can be deleted", "CONTACT_DELETE_NOT_ALLOWED");
         }
 
         contactMessageRepository.delete(message);

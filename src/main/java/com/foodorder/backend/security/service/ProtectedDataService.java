@@ -51,9 +51,9 @@ public class ProtectedDataService {
      */
     public void checkPermission(Boolean isProtected, String action) {
         if (Boolean.TRUE.equals(isProtected) && !isCurrentUserSuperAdmin()) {
-            log.warn("User không có quyền {} dữ liệu được bảo vệ", action);
+            log.warn("User does not have permission to {} protected data", action);
             throw new ForbiddenException(
-                    "Dữ liệu được bảo vệ, chỉ Super Admin mới có quyền " + action,
+                    "Protected data, only Super Admin can " + action,
                     "PROTECTED_DATA_ACCESS_DENIED"
             );
         }

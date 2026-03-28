@@ -32,10 +32,10 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         // Tạo response lỗi chuẩn hóa
         ApiError apiError = new ApiError(
                 HttpServletResponse.SC_FORBIDDEN,
-                "Bạn không có quyền truy cập tài nguyên này",
+                "You do not have permission to access this resource",
                 "ACCESS_DENIED",
                 null,
-                "Token không hợp lệ hoặc đã hết hạn"
+                "Token is invalid or has expired"
         );
 
         // Set response header và content type

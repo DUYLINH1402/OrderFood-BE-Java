@@ -28,8 +28,8 @@ public class WebSocketService {
             messagingTemplate.convertAndSend("/topic/new-orders", message);
 
         } catch (Exception e) {
-            log.error(" LỖI khi gửi thông báo đơn hàng mới: {}", e.getMessage(), e);
-            log.error(" Order Code: {}, Order ID: {}", message.getOrderCode(), message.getOrderId());
+            log.error("Failed to send new order notification: {}", e.getMessage(), e);
+            log.error("Order Code: {}, Order ID: {}", message.getOrderCode(), message.getOrderId());
         }
     }
 
@@ -47,7 +47,7 @@ public class WebSocketService {
             messagingTemplate.convertAndSend("/topic/order/" + message.getOrderId(), message);
 
         } catch (Exception e) {
-            log.error(" LỖI khi gửi thông báo cập nhật trạng thái: {}", e.getMessage(), e);
+            log.error("Failed to send order status update notification: {}", e.getMessage(), e);
         }
     }
 
@@ -70,7 +70,7 @@ public class WebSocketService {
             );
 
         } catch (Exception e) {
-            log.error(" Lỗi khi gửi thông báo cho user {}: {}", userId, e.getMessage(), e);
+            log.error("Failed to send notification to user {}: {}", userId, e.getMessage(), e);
         }
     }
 

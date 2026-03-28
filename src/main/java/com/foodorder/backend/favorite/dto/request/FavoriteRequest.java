@@ -6,18 +6,18 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Request body để thêm/xóa món ăn yêu thích")
+@Schema(description = "Request body for adding/removing favorite food")
 public class FavoriteRequest {
 
     @Schema(
-        description = "ID của món ăn cần thêm vào yêu thích",
+        description = "Food ID to add to favorites",
         example = "1",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Long foodId;
 
     @Schema(
-        description = "ID của biến thể món ăn. Để null nếu không có biến thể",
+        description = "Food variant ID. Set to null if no variant",
         example = "2"
     )
     private Long variantId;

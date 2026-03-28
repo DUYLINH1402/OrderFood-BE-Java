@@ -94,7 +94,7 @@ public class UserWebSocketController {
             webSocketService.sendNotificationToUser(Long.parseLong(userId), updateMessage);
 
         } catch (Exception e) {
-            log.error("Lỗi khi gửi order update tới user {}: {}", userId, e.getMessage());
+            log.error("Error sending order update to user {}: {}", userId, e.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ public class UserWebSocketController {
 
             messagingTemplate.convertAndSend("/topic/user-errors", error);
         } catch (Exception e) {
-            log.error("Lỗi khi gửi error message tới user: {}", e.getMessage());
+            log.error("Error sending error message to user: {}", e.getMessage());
         }
     }
 }

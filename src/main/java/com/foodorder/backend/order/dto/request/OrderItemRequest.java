@@ -9,15 +9,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Thông tin một món ăn trong đơn hàng")
+@Schema(description = "Information of one food item in order")
 public class OrderItemRequest {
 
-    @Schema(description = "ID của món ăn", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Food ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long foodId;
 
-    @Schema(description = "Số lượng", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Quantity", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer quantity;
 
-    @Schema(description = "Giá của món ăn (VND). FE truyền lên, BE có thể tính lại nếu cần", example = "55000")
+    @Schema(description = "Food price (VND). Sent from FE, BE can recalculate if needed", example = "55000")
     private BigDecimal price;
 }

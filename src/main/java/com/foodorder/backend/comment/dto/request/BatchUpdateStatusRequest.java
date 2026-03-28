@@ -9,22 +9,21 @@ import lombok.*;
 import java.util.List;
 
 /**
- * DTO request để cập nhật trạng thái nhiều bình luận cùng lúc
+ * DTO request to update the status of multiple comments at once
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request cập nhật trạng thái nhiều bình luận")
+@Schema(description = "Request to batch update comment status")
 public class BatchUpdateStatusRequest {
 
-    @NotEmpty(message = "Danh sách ID bình luận không được trống")
-    @Schema(description = "Danh sách ID các bình luận cần cập nhật", example = "[1, 2, 3]")
+    @NotEmpty(message = "COMMENT_IDS_REQUIRED")
+    @Schema(description = "List of comment IDs to update", example = "[1, 2, 3]")
     private List<Long> commentIds;
 
-    @NotNull(message = "Trạng thái mới không được null")
-    @Schema(description = "Trạng thái mới (ACTIVE, HIDDEN, DELETED)", example = "HIDDEN")
+    @NotNull(message = "STATUS_REQUIRED")
+    @Schema(description = "New status (ACTIVE, HIDDEN, DELETED)", example = "HIDDEN")
     private CommentStatus status;
 }
-

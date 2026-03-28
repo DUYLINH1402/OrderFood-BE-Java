@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 public class ContactUpdateRequest {
 
-    @NotNull(message = "Trạng thái không được để trống")
+    @NotNull(message = "Status cannot be empty")
     private ContactStatus status;
 
     /**

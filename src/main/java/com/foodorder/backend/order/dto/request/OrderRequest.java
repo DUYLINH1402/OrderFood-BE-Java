@@ -12,60 +12,60 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để tạo đơn hàng mới")
+@Schema(description = "Request body for creating new order")
 public class OrderRequest {
 
-    @Schema(description = "ID của người dùng đặt hàng", example = "1")
+    @Schema(description = "User ID placing the order", example = "1")
     private Long userId;
 
-    @Schema(description = "Tên người nhận", example = "Nguyễn Văn A", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Receiver name", example = "John Doe", requiredMode = Schema.RequiredMode.REQUIRED)
     private String receiverName;
 
-    @Schema(description = "Số điện thoại người nhận", example = "0901234567", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Receiver phone number", example = "0901234567", requiredMode = Schema.RequiredMode.REQUIRED)
     private String receiverPhone;
 
-    @Schema(description = "Email người nhận (để gửi thông báo)", example = "user@example.com")
+    @Schema(description = "Receiver email (for notifications)", example = "user@example.com")
     private String receiverEmail;
 
-    @Schema(description = "Địa chỉ giao hàng", example = "123 Nguyễn Huệ, Quận 1, TP.HCM", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Delivery address", example = "123 Nguyen Hue, District 1, HCMC", requiredMode = Schema.RequiredMode.REQUIRED)
     private String deliveryAddress;
 
-    @Schema(description = "ID khu vực giao hàng", example = "1")
+    @Schema(description = "Shipping zone ID", example = "1")
     private Long shippingZoneId;
 
-    @Schema(description = "Phương thức thanh toán", example = "COD", allowableValues = {"COD", "BANK_TRANSFER", "VNPAY"})
+    @Schema(description = "Payment method", example = "COD", allowableValues = {"COD", "BANK_TRANSFER", "VNPAY"})
     private PaymentMethod paymentMethod;
 
-    @Schema(description = "Loại giao hàng", example = "DELIVERY", allowableValues = {"DELIVERY", "PICKUP"})
+    @Schema(description = "Delivery type", example = "DELIVERY", allowableValues = {"DELIVERY", "PICKUP"})
     private DeliveryType deliveryType;
 
-    // === TIỀN TỆ MỚI - RÕ RÀNG ===
-    @Schema(description = "Tổng tiền món ăn (không bao gồm phí ship, chưa trừ giảm giá)", example = "150000")
+    // === NEW CURRENCY - CLEAR ===
+    @Schema(description = "Subtotal amount for food items (excluding shipping, before discount)", example = "150000")
     private BigDecimal subtotalAmount;
 
-    @Schema(description = "Phí giao hàng", example = "15000")
+    @Schema(description = "Shipping fee", example = "15000")
     private BigDecimal shippingFee;
 
-    @Schema(description = "Tổng tiền sau khi cộng phí ship, trước khi áp dụng giảm giá", example = "165000")
+    @Schema(description = "Total amount after adding shipping fee, before applying discount", example = "165000")
     private BigDecimal totalBeforeDiscount;
 
-    @Schema(description = "Số tiền cuối cùng khách phải trả (sau tất cả giảm giá)", example = "145000")
+    @Schema(description = "Final amount customer has to pay (after all discounts)", example = "145000")
     private BigDecimal finalAmount;
 
-    // === GIẢM GIÁ ===
-    @Schema(description = "Số điểm thưởng muốn sử dụng", example = "100")
+    // === DISCOUNT ===
+    @Schema(description = "Reward points to use", example = "100")
     private Integer pointsUsed;
 
-    @Schema(description = "Số tiền giảm từ điểm thưởng (tự động tính)", example = "10000")
+    @Schema(description = "Discount amount from reward points (auto calculated)", example = "10000")
     private BigDecimal pointsDiscountAmount;
 
-    @Schema(description = "Mã coupon muốn áp dụng", example = "SUMMER2025")
+    @Schema(description = "Coupon code to apply", example = "SUMMER2025")
     private String couponCode;
 
-    @Schema(description = "Số tiền giảm từ coupon (tự động tính)", example = "10000")
+    @Schema(description = "Discount amount from coupon (auto calculated)", example = "10000")
     private BigDecimal couponDiscountAmount;
 
-    // === DEPRECATED FIELDS - GIỮ LẠI ĐỂ TƯƠNG THÍCH ===
+    // === DEPRECATED FIELDS - KEPT FOR COMPATIBILITY ===
     @Deprecated
     @Schema(hidden = true)
     private BigDecimal totalPriceBeforeDiscount;
@@ -82,12 +82,12 @@ public class OrderRequest {
     @Schema(hidden = true)
     private BigDecimal originalAmount;
 
-    @Schema(description = "ID quận/huyện", example = "1")
+    @Schema(description = "District ID", example = "1")
     private Long districtId;
 
-    @Schema(description = "ID phường/xã", example = "1")
+    @Schema(description = "Ward ID", example = "1")
     private Long wardId;
 
-    @Schema(description = "Danh sách các món ăn trong đơn hàng", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "List of food items in order", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<OrderItemRequest> items;
 }

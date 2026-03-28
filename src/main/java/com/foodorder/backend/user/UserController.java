@@ -31,16 +31,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/client/users")
 @RequiredArgsConstructor
-@Tag(name = "Users - Client", description = "API quản lý thông tin người dùng - Yêu cầu đăng nhập")
+@Tag(name = "Users - Client", description = "User profile management API - Requires authentication")
 public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Lấy thông tin cá nhân", description = "Lấy thông tin profile của người dùng đang đăng nhập, bao gồm điểm thưởng.")
+    @Operation(summary = "Get current user profile", description = "Get the profile of the currently logged-in user, including reward points.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công",
+            @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getCurrentUser() {
@@ -61,11 +61,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Cập nhật thông tin cá nhân", description = "Cập nhật thông tin profile của người dùng.")
+    @Operation(summary = "Update user profile", description = "Update the profile information of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PutMapping("/update-profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody @Valid UserUpdateRequest request) {
@@ -87,15 +87,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Upload avatar", description = "Upload ảnh đại diện cho người dùng.")
+    @Operation(summary = "Upload avatar", description = "Upload a profile picture for the current user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Upload thành công - Trả về URL ảnh"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "500", description = "Lỗi upload")
+            @ApiResponse(responseCode = "200", description = "Uploaded successfully - Returns image URL"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "500", description = "Upload failed")
     })
     @PostMapping("/avatar")
     public ResponseEntity<String> uploadAvatar(
-            @Parameter(description = "File ảnh cần upload") @RequestParam("file") MultipartFile file) {
+            @Parameter(description = "Image file to upload") @RequestParam("file") MultipartFile file) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long userId = userDetails.getId(); // Đã đúng rồi
@@ -104,11 +104,11 @@ public class UserController {
         return ResponseEntity.ok(imageUrl);
     }
 
-    @Operation(summary = "Đổi mật khẩu", description = "Đổi mật khẩu cho người dùng đang đăng nhập.")
+    @Operation(summary = "Change password", description = "Change the password for the currently logged-in user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đổi mật khẩu thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "400", description = "Mật khẩu cũ không đúng hoặc mật khẩu mới không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "400", description = "Incorrect current password or invalid new password")
     })
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(

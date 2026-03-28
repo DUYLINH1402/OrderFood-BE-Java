@@ -33,23 +33,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequireAdmin
 @Slf4j
-@Tag(name = "Users - Admin", description = "API quản lý khách hàng dành cho Admin")
+@Tag(name = "Users - Admin", description = "Customer management API for Admin")
 public class AdminUserController {
 
     private static final String USER_ROLE_CODE = "ROLE_USER";
 
     private final AdminUserService adminUserService;
 
-    @Operation(summary = "Danh sách khách hàng", description = "Lấy danh sách khách hàng với phân trang và filter.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "List customers", description = "Get a paginated and filterable list of customers.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<AdminUserResponse>> getAllUsers(
-            @Parameter(description = "Từ khóa tìm kiếm") @RequestParam(required = false) String keyword,
-            @Parameter(description = "Trạng thái active") @RequestParam(required = false) Boolean isActive,
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Trường sắp xếp") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Hướng sắp xếp") @RequestParam(defaultValue = "desc") String sortDir) {
+            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
+            @Parameter(description = "Active status") @RequestParam(required = false) Boolean isActive,
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction") @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -61,23 +61,23 @@ public class AdminUserController {
         return ResponseEntity.ok(users);
     }
 
-    @Operation(summary = "Chi tiết khách hàng", description = "Xem chi tiết thông tin một khách hàng.")
+    @Operation(summary = "Customer details", description = "View detailed information of a customer.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<AdminUserResponse> getUserById(
-            @Parameter(description = "ID khách hàng") @PathVariable Long id) {
+            @Parameter(description = "Customer ID") @PathVariable Long id) {
 
         AdminUserResponse user = adminUserService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Thêm khách hàng", description = "Tạo mới một khách hàng.")
+    @Operation(summary = "Create customer", description = "Create a new customer account.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "201", description = "Created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
     public ResponseEntity<AdminUserResponse> createUser(@Valid @RequestBody AdminCreateUserRequest request) {
@@ -89,14 +89,14 @@ public class AdminUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @Operation(summary = "Cập nhật khách hàng", description = "Cập nhật thông tin khách hàng.")
+    @Operation(summary = "Update customer", description = "Update customer information.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @PutMapping("/{id}")
     public ResponseEntity<AdminUserResponse> updateUser(
-            @Parameter(description = "ID khách hàng") @PathVariable Long id,
+            @Parameter(description = "Customer ID") @PathVariable Long id,
             @Valid @RequestBody AdminUpdateUserRequest request) {
 
         // Không cho phép thay đổi role thông qua API users
@@ -106,39 +106,39 @@ public class AdminUserController {
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Xóa khách hàng", description = "Xóa một khách hàng.")
+    @Operation(summary = "Delete customer", description = "Delete a customer account.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+            @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
-            @Parameter(description = "ID khách hàng") @PathVariable Long id) {
+            @Parameter(description = "Customer ID") @PathVariable Long id) {
         adminUserService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Thay đổi trạng thái", description = "Khóa/mở khóa tài khoản khách hàng.")
+    @Operation(summary = "Update account status", description = "Lock or unlock a customer account.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @PutMapping("/{id}/status")
     public ResponseEntity<AdminUserResponse> updateUserStatus(
-            @Parameter(description = "ID khách hàng") @PathVariable Long id,
+            @Parameter(description = "Customer ID") @PathVariable Long id,
             @Valid @RequestBody AdminUpdateUserStatusRequest request) {
         AdminUserResponse user = adminUserService.updateUserStatus(id, request);
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Gửi email reset mật khẩu", description = "Gửi email để khách hàng đặt lại mật khẩu.")
+    @Operation(summary = "Send password reset email", description = "Send a password reset email to the customer.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Gửi email thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @PostMapping("/{id}/reset-password")
     public ResponseEntity<Void> sendResetPasswordEmail(
-            @Parameter(description = "ID khách hàng") @PathVariable Long id) {
+            @Parameter(description = "Customer ID") @PathVariable Long id) {
         adminUserService.sendResetPasswordEmail(id);
         return ResponseEntity.ok().build();
     }

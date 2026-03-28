@@ -16,34 +16,34 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thống kê tổng quan cho Dashboard Admin")
+@Schema(description = "Response containing general dashboard statistics for Admin")
 public class DashboardStatisticsResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Tổng số khách hàng (ROLE_USER)", example = "1500")
+    @Schema(description = "Total number of customers (ROLE_USER)", example = "1500")
     private Long totalCustomers;
 
-    @Schema(description = "Doanh thu tháng hiện tại (VND)", example = "15000000")
+    @Schema(description = "Revenue for current month (VND)", example = "15000000")
     private BigDecimal monthlyRevenue;
 
-    @Schema(description = "Số đơn hàng trong ngày hôm nay", example = "25")
+    @Schema(description = "Orders for today", example = "25")
     private Long todayOrders;
 
-    @Schema(description = "Tổng số nhân viên (ROLE_STAFF)", example = "10")
+    @Schema(description = "Total number of staff (ROLE_STAFF)", example = "10")
     private Long totalStaff;
 
-    @Schema(description = "Số đơn hàng đang chờ xử lý (PENDING + PROCESSING)", example = "5")
+    @Schema(description = "Pending orders count (PENDING + PROCESSING)", example = "5")
     private Long pendingOrders;
 
-    @Schema(description = "Số đơn hàng đã hoàn thành hôm nay", example = "20")
+    @Schema(description = "Completed orders today", example = "20")
     private Long completedTodayOrders;
 
-    @Schema(description = "Tỷ lệ tăng trưởng doanh thu so với tháng trước (%)", example = "15.5")
+    @Schema(description = "Revenue growth rate compared to last month (%)", example = "15.5")
     private Double revenueGrowthPercent;
 
-    @Schema(description = "Tỷ lệ tăng trưởng khách hàng so với tháng trước (%)", example = "8.2")
+    @Schema(description = "Customer growth rate compared to last month (%)", example = "8.2")
     private Double customerGrowthPercent;
 }
 

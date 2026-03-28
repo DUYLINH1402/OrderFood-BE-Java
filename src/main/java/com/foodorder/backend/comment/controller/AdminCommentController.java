@@ -21,22 +21,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller xử lý các API quản lý bình luận (dành cho Admin)
+ * Controller for handling comment management APIs (for Admin)
  */
 @RestController
 @RequestMapping("/api/v1/admin/comments")
 @RequiredArgsConstructor
 @RequireAdmin
-@Tag(name = "Comments - Admin", description = "API quản lý bình luận dành cho Admin")
+@Tag(name = "Comments - Admin", description = "Admin APIs for comment management")
 public class AdminCommentController {
 
     private final CommentService commentService;
 
     /**
-     * Lấy tất cả bình luận (phân trang)
+     * Retrieve all comments (with pagination)
      */
     @GetMapping
-    @Operation(summary = "Lấy tất cả bình luận", description = "Lấy danh sách tất cả bình luận trong hệ thống")
+    @Operation(summary = "Get all comments", description = "Retrieve all comments in the system")
     public ResponseEntity<CommentPageResponse> getAllComments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
@@ -47,10 +47,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Lấy bình luận theo trạng thái
+     * Retrieve comments by status
      */
     @GetMapping("/status/{status}")
-    @Operation(summary = "Lấy bình luận theo trạng thái", description = "Lọc bình luận theo trạng thái (ACTIVE, HIDDEN, DELETED)")
+    @Operation(summary = "Get comments by status", description = "Filter comments by status (ACTIVE, HIDDEN, DELETED)")
     public ResponseEntity<CommentPageResponse> getCommentsByStatus(
             @PathVariable CommentStatus status,
             @RequestParam(defaultValue = "0") int page,
@@ -62,10 +62,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Tìm kiếm bình luận theo nội dung
+     * Search comments by content
      */
     @GetMapping("/search")
-    @Operation(summary = "Tìm kiếm bình luận", description = "Tìm kiếm bình luận theo nội dung")
+    @Operation(summary = "Search comments", description = "Search comments by content")
     public ResponseEntity<CommentPageResponse> searchComments(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -77,10 +77,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Thay đổi trạng thái bình luận (ẩn/hiện/xóa)
+     * Update comment status (hide/show/delete)
      */
     @PutMapping("/{commentId}/status")
-    @Operation(summary = "Thay đổi trạng thái bình luận", description = "Ẩn, hiện hoặc xóa một bình luận")
+    @Operation(summary = "Update comment status", description = "Hide, show, or delete a comment")
     public ResponseEntity<CommentResponse> updateCommentStatus(
             @PathVariable Long commentId,
             @Valid @RequestBody UpdateCommentStatusRequest request
@@ -90,10 +90,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Xóa vĩnh viễn bình luận (hard delete)
+     * Permanently delete a comment (hard delete)
      */
     @DeleteMapping("/{commentId}/hard-delete")
-    @Operation(summary = "Xóa vĩnh viễn bình luận", description = "Xóa vĩnh viễn một bình luận khỏi database")
+    @Operation(summary = "Hard delete comment", description = "Permanently delete a comment from database")
     public ResponseEntity<Void> hardDeleteComment(
             @PathVariable Long commentId
     ) {
@@ -102,10 +102,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Lấy chi tiết một bình luận
+     * Retrieve comment details
      */
     @GetMapping("/{commentId}")
-    @Operation(summary = "Lấy chi tiết bình luận", description = "Lấy thông tin chi tiết của một bình luận (bao gồm cả HIDDEN, DELETED)")
+    @Operation(summary = "Get comment detail", description = "Retrieve comment details (including HIDDEN, DELETED)")
     public ResponseEntity<CommentResponse> getCommentById(
             @PathVariable Long commentId
     ) {
@@ -114,10 +114,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Lấy tất cả bình luận của một user
+     * Retrieve all comments by a specific user
      */
     @GetMapping("/user/{userId}")
-    @Operation(summary = "Lấy bình luận theo user", description = "Lấy danh sách tất cả bình luận của một user cụ thể")
+    @Operation(summary = "Get comments by user", description = "Retrieve all comments by a specific user")
     public ResponseEntity<CommentPageResponse> getCommentsByUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
@@ -129,11 +129,11 @@ public class AdminCommentController {
     }
 
     /**
-     * Lấy bình luận theo đối tượng (món ăn/bài viết)
+     * Retrieve comments for a specific target (food post/article)
      */
     @GetMapping("/target/{targetType}/{targetId}")
-    @Operation(summary = "Lấy bình luận theo đối tượng",
-               description = "Lấy danh sách bình luận của một đối tượng cụ thể (bao gồm cả HIDDEN, DELETED)")
+    @Operation(summary = "Get comments by target",
+               description = "Retrieve comments for a specific target (including HIDDEN, DELETED)")
     public ResponseEntity<CommentPageResponse> getCommentsByTarget(
             @PathVariable String targetType,
             @PathVariable Long targetId,
@@ -147,20 +147,20 @@ public class AdminCommentController {
     }
 
     /**
-     * Thống kê bình luận
+     * Retrieve comment statistics overview
      */
     @GetMapping("/statistics")
-    @Operation(summary = "Thống kê bình luận", description = "Lấy thống kê tổng quan về bình luận trong hệ thống")
+    @Operation(summary = "Comment statistics", description = "Retrieve comment statistics overview")
     public ResponseEntity<CommentStatisticsResponse> getCommentStatistics() {
         CommentStatisticsResponse response = commentService.getCommentStatistics();
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Cập nhật trạng thái nhiều bình luận cùng lúc
+     * Update status for multiple comments at once
      */
     @PutMapping("/batch/status")
-    @Operation(summary = "Cập nhật trạng thái hàng loạt", description = "Cập nhật trạng thái cho nhiều bình luận cùng lúc")
+    @Operation(summary = "Batch update status", description = "Update status for multiple comments at once")
     public ResponseEntity<BatchOperationResponse> batchUpdateStatus(
             @Valid @RequestBody BatchUpdateStatusRequest request
     ) {
@@ -169,10 +169,10 @@ public class AdminCommentController {
     }
 
     /**
-     * Xóa vĩnh viễn nhiều bình luận cùng lúc
+     * Permanently delete multiple comments from database
      */
     @DeleteMapping("/batch/hard-delete")
-    @Operation(summary = "Xóa vĩnh viễn hàng loạt", description = "Xóa vĩnh viễn nhiều bình luận khỏi database")
+    @Operation(summary = "Batch hard delete", description = "Permanently delete multiple comments from database")
     public ResponseEntity<BatchOperationResponse> batchHardDelete(
             @Valid @RequestBody BatchDeleteRequest request
     ) {
@@ -180,4 +180,3 @@ public class AdminCommentController {
         return ResponseEntity.ok(response);
     }
 }
-

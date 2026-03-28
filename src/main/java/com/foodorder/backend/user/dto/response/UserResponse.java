@@ -11,52 +11,52 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin người dùng")
+@Schema(description = "Response containing user information")
 public class UserResponse {
 
-    @Schema(description = "ID của người dùng", example = "1")
+    @Schema(description = "User ID", example = "1")
     private Long id;
 
-    @Schema(description = "Họ tên đầy đủ", example = "Nguyễn Văn A")
+    @Schema(description = "Full name", example = "Nguyen Van A")
     private String fullName;
 
-    @Schema(description = "Tên đăng nhập", example = "johndoe")
+    @Schema(description = "Username", example = "johndoe")
     private String username;
 
-    @Schema(description = "Email", example = "user@example.com")
+    @Schema(description = "Email address", example = "user@example.com")
     private String email;
 
-    @Schema(description = "Số điện thoại", example = "0901234567")
+    @Schema(description = "Phone number", example = "0901234567")
     private String phoneNumber;
 
-    @Schema(description = "URL avatar", example = "https://example.com/avatar.jpg")
+    @Schema(description = "Avatar URL", example = "https://example.com/avatar.jpg")
     private String avatarUrl;
 
-    @Schema(description = "Địa chỉ", example = "123 Nguyễn Huệ, Quận 1, TP.HCM")
+    @Schema(description = "Address", example = "123 Nguyen Hue, District 1, Ho Chi Minh City")
     private String address;
 
-    @Schema(description = "JWT token (chỉ trả về khi đăng nhập)", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    @Schema(description = "JWT token (only returned on login)", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String token;
 
-    @Schema(description = "Mã vai trò", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
+    @Schema(description = "Role code", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
     private String roleCode;
 
-    @Schema(description = "Tên vai trò hiển thị", example = "Khách hàng")
+    @Schema(description = "Role display name", example = "Customer")
     private String roleName;
 
-    @Schema(description = "Trạng thái hoạt động", example = "true")
+    @Schema(description = "Active status", example = "true")
     private boolean isActive;
 
-    @Schema(description = "Đã xác thực email chưa", example = "true")
+    @Schema(description = "Email verified status", example = "true")
     private boolean isVerified;
 
-    @Schema(description = "Số điểm thưởng hiện tại", example = "500")
+    @Schema(description = "Current reward points balance", example = "500")
     private int point;
 
-    @Schema(description = "Thời gian đăng nhập gần nhất", example = "2025-01-20T10:30:00")
+    @Schema(description = "Last login time", example = "2025-01-20T10:30:00")
     private LocalDateTime lastLogin;
 
-    @Schema(description = "Thời gian cập nhật gần nhất", example = "2025-01-20T10:30:00")
+    @Schema(description = "Last updated time", example = "2025-01-20T10:30:00")
     private LocalDateTime updatedAt;
 
     // Method tiện dụng

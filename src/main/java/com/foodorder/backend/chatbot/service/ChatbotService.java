@@ -83,7 +83,7 @@ public class ChatbotService {
                              context.ragContext, response.getResponseTime())
             )
         )
-        .doOnError(error -> log.error("Lỗi xử lý tin nhắn: {}", error.getMessage()))
+        .doOnError(error -> log.error("Error processing message: {}", error.getMessage()))
         .onErrorResume(error ->
             Mono.just(createErrorResponse(request.getSessionId(), startTime))
         );
@@ -143,7 +143,7 @@ public class ChatbotService {
 
             chatbotMessageRepository.save(message);
         } catch (Exception e) {
-            log.error("Lỗi khi lưu tin nhắn bot: {}", e.getMessage());
+            log.error("Error saving bot message: {}", e.getMessage());
         }
     }
 
@@ -161,7 +161,7 @@ public class ChatbotService {
                 .collect(Collectors.toList());
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy lịch sử hội thoại: {}", e.getMessage());
+            log.error("Error fetching conversation history: {}", e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -347,7 +347,7 @@ public class ChatbotService {
                 .build();
 
         } catch (Exception e) {
-            log.error("Lỗi khi tạo food recommendations: {}", e.getMessage());
+            log.error("Error generating food recommendations: {}", e.getMessage());
             return null;
         }
     }
@@ -399,7 +399,7 @@ public class ChatbotService {
             return false;
 
         } catch (Exception e) {
-            log.error("Lỗi khi đánh giá phản hồi: {}", e.getMessage());
+            log.error("Error rating response: {}", e.getMessage());
             return false;
         }
     }

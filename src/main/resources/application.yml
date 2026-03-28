@@ -11,6 +11,10 @@ spring:
   profiles:
     active: local  # Profile mặc định khi chạy ở local
 
+  # Cấu hình Jackson serialization - timezone Việt Nam
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+
   jpa:
     hibernate:
       # TODO: Đổi lại 'validate' sau khi database đã được cập nhật xong
@@ -20,6 +24,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
 
   servlet:
     multipart:

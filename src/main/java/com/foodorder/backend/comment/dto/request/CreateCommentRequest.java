@@ -14,23 +14,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request tạo bình luận mới")
+@Schema(description = "Request to create a new comment")
 public class CreateCommentRequest {
 
-    @NotBlank(message = "Nội dung bình luận không được để trống")
-    @Size(min = 1, max = 2000, message = "Nội dung bình luận từ 1-2000 ký tự")
-    @Schema(description = "Nội dung bình luận", example = "Món này ngon lắm!")
+    @NotBlank(message = "COMMENT_CONTENT_REQUIRED")
+    @Size(min = 1, max = 2000, message = "COMMENT_CONTENT_LENGTH_1_2000")
+    @Schema(description = "Comment content", example = "This dish is delicious!")
     private String content;
 
-    @NotNull(message = "Loại đối tượng là bắt buộc")
-    @Schema(description = "Loại đối tượng (FOOD, BLOG...)", example = "FOOD", allowableValues = {"FOOD", "BLOG", "MOVIE"})
+    @NotNull(message = "TARGET_TYPE_REQUIRED")
+    @Schema(description = "Target type (FOOD, BLOG...)", example = "FOOD", allowableValues = {"FOOD", "BLOG", "MOVIE"})
     private String targetType;
 
-    @NotNull(message = "ID đối tượng là bắt buộc")
-    @Schema(description = "ID của đối tượng được bình luận", example = "1")
+    @NotNull(message = "TARGET_ID_REQUIRED")
+    @Schema(description = "Target ID being commented on", example = "1")
     private Long targetId;
 
-    @Schema(description = "ID của comment cha (nếu là reply)", example = "null")
+    @Schema(description = "Parent comment ID (if this is a reply)", example = "null")
     private Long parentId;
 }
-

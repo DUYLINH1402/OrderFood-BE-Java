@@ -8,22 +8,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response trả về kết quả share")
+@Schema(description = "Response containing share action result")
 public class ShareResponse {
 
-    @Schema(description = "Tổng số lượt share của đối tượng", example = "50")
+    @Schema(description = "Total share count for the target object", example = "50")
     private long totalShares;
 
-    @Schema(description = "Loại đối tượng", example = "FOOD")
+    @Schema(description = "Type of the target object", example = "FOOD")
     private String targetType;
 
-    @Schema(description = "ID của đối tượng", example = "1")
+    @Schema(description = "ID of the target object", example = "1")
     private Long targetId;
 
-    @Schema(description = "Nền tảng đã chia sẻ", example = "FACEBOOK")
+    @Schema(description = "Platform used to share", example = "FACEBOOK")
     private String platform;
 
-    @Schema(description = "Thông báo kết quả", example = "Chia sẻ thành công")
+    @Schema(description = "Result message", example = "Shared successfully")
     private String message;
 }
 

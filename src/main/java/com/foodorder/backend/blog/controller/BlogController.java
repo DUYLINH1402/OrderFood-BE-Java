@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/v1/public/blogs")
 
 @RequiredArgsConstructor
-@Tag(name = "Blogs - Public", description = "API công khai cho bài viết/tin tức")
+@Tag(name = "Blogs - Public", description = "Public APIs for blog posts and news")
 public class BlogController {
 
     private final BlogService blogService;
@@ -38,24 +38,24 @@ public class BlogController {
 
     // ==================== BLOG APIs ====================
 
-    @Operation(summary = "Lấy danh sách bài viết công khai",
-            description = "Lấy danh sách bài viết đã xuất bản, hỗ trợ phân trang")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get published blog posts",
+            description = "Retrieve published blog posts with pagination support")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<BlogListResponse>> getPublishedBlogs(
-            @Parameter(description = "Thông tin phân trang")
+            @Parameter(description = "Pagination info")
             @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
                 .body(blogService.getPublishedBlogs(pageable));
     }
 
-    @Operation(summary = "Lấy danh sách bài viết nổi bật",
-            description = "Lấy danh sách bài viết được đánh dấu là nổi bật")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get featured blog posts",
+            description = "Retrieve blog posts marked as featured")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/featured")
     public ResponseEntity<List<BlogListResponse>> getFeaturedBlogs(
-            @Parameter(description = "Số lượng bài viết cần lấy")
+            @Parameter(description = "Number of posts to retrieve")
             @RequestParam(defaultValue = "6") int limit) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
@@ -64,64 +64,64 @@ public class BlogController {
 
     // ==================== BLOG TYPE APIs ====================
 
-    @Operation(summary = "Lấy danh sách bài viết theo loại nội dung",
-            description = "Lấy danh sách bài viết theo loại: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog posts by content type",
+            description = "Retrieve blog posts by type: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/type/{blogType}")
     public ResponseEntity<Page<BlogListResponse>> getBlogsByType(
-            @Parameter(description = "Loại nội dung (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
+            @Parameter(description = "Content type (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
             @PathVariable BlogType blogType,
-            @Parameter(description = "Thông tin phân trang")
+            @Parameter(description = "Pagination info")
             @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
                 .body(blogService.getPublishedBlogsByType(blogType, pageable));
     }
 
-    @Operation(summary = "Lấy danh sách bài viết nổi bật theo loại nội dung",
-            description = "Lấy danh sách bài viết nổi bật theo loại: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get featured blog posts by content type",
+            description = "Retrieve featured blog posts by type: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/type/{blogType}/featured")
     public ResponseEntity<List<BlogListResponse>> getFeaturedBlogsByType(
-            @Parameter(description = "Loại nội dung (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
+            @Parameter(description = "Content type (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
             @PathVariable BlogType blogType,
-            @Parameter(description = "Số lượng bài viết cần lấy")
+            @Parameter(description = "Number of posts to retrieve")
             @RequestParam(defaultValue = "6") int limit) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
                 .body(blogService.getFeaturedBlogsByType(blogType, limit));
     }
 
-    @Operation(summary = "Tìm kiếm bài viết",
-            description = "Tìm kiếm bài viết theo từ khóa trong tiêu đề, tóm tắt và tags")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Search blog posts",
+            description = "Search blog posts by keyword in title, summary and tags")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/search")
     public ResponseEntity<Page<BlogListResponse>> searchBlogs(
-            @Parameter(description = "Từ khóa tìm kiếm", required = true)
+            @Parameter(description = "Search keyword", required = true)
             @RequestParam String keyword,
-            @Parameter(description = "Thông tin phân trang")
+            @Parameter(description = "Pagination info")
             @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(blogService.searchPublishedBlogs(keyword, pageable));
     }
 
-    @Operation(summary = "Lấy chi tiết bài viết theo slug",
-            description = "Lấy nội dung đầy đủ của bài viết, tự động tăng lượt xem")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog post by slug",
+            description = "Retrieve full blog post content, automatically increments view count")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/{slug}")
     public ResponseEntity<BlogResponse> getBlogBySlug(
-            @Parameter(description = "Slug của bài viết", required = true)
+            @Parameter(description = "Blog post slug", required = true)
             @PathVariable String slug) {
         return ResponseEntity.ok(blogService.getPublishedBlogBySlug(slug));
     }
 
-    @Operation(summary = "Lấy bài viết liên quan",
-            description = "Lấy danh sách bài viết cùng danh mục với bài viết hiện tại")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get related blog posts",
+            description = "Retrieve blog posts in the same category as the current post")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/{id}/related")
     public ResponseEntity<List<BlogListResponse>> getRelatedBlogs(
-            @Parameter(description = "ID của bài viết hiện tại", required = true)
+            @Parameter(description = "Current blog post ID", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Số lượng bài viết liên quan cần lấy")
+            @Parameter(description = "Number of related posts to retrieve")
             @RequestParam(defaultValue = "4") int limit) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
@@ -130,9 +130,9 @@ public class BlogController {
 
     // ==================== CATEGORY APIs ====================
 
-    @Operation(summary = "Lấy danh sách danh mục blog",
-            description = "Lấy danh sách danh mục đang hoạt động")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get active blog categories",
+            description = "Retrieve active blog categories")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories")
     public ResponseEntity<List<BlogCategoryResponse>> getActiveCategories() {
         return ResponseEntity.ok()
@@ -140,36 +140,36 @@ public class BlogController {
                 .body(blogCategoryService.getActiveCategories());
     }
 
-    @Operation(summary = "Lấy danh sách danh mục blog theo loại nội dung",
-            description = "Lấy danh sách danh mục đang hoạt động theo loại: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog categories by content type",
+            description = "Retrieve active blog categories by type: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories/type/{blogType}")
     public ResponseEntity<List<BlogCategoryResponse>> getActiveCategoriesByType(
-            @Parameter(description = "Loại nội dung (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
+            @Parameter(description = "Content type (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
             @PathVariable BlogType blogType) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
                 .body(blogCategoryService.getActiveCategoriesByType(blogType));
     }
 
-    @Operation(summary = "Lấy chi tiết danh mục theo slug",
-            description = "Lấy thông tin danh mục và số lượng bài viết")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get category by slug",
+            description = "Retrieve category details and post count")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories/{slug}")
     public ResponseEntity<BlogCategoryResponse> getCategoryBySlug(
-            @Parameter(description = "Slug của danh mục", required = true)
+            @Parameter(description = "Category slug", required = true)
             @PathVariable String slug) {
         return ResponseEntity.ok(blogCategoryService.getCategoryBySlug(slug));
     }
 
-    @Operation(summary = "Lấy bài viết theo danh mục",
-            description = "Lấy danh sách bài viết thuộc danh mục theo slug")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog posts by category",
+            description = "Retrieve blog posts belonging to a category by slug")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories/{slug}/posts")
     public ResponseEntity<Page<BlogListResponse>> getBlogsByCategory(
-            @Parameter(description = "Slug của danh mục", required = true)
+            @Parameter(description = "Category slug", required = true)
             @PathVariable String slug,
-            @Parameter(description = "Thông tin phân trang")
+            @Parameter(description = "Pagination info")
             @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(blogService.getPublishedBlogsByCategorySlug(slug, pageable));
     }

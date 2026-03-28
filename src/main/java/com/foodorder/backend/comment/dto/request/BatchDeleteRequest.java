@@ -14,11 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request xóa hàng loạt bình luận")
+@Schema(description = "Request to batch delete comments")
 public class BatchDeleteRequest {
 
-    @NotEmpty(message = "Danh sách ID bình luận không được trống")
-    @Schema(description = "Danh sách ID các bình luận cần xóa", example = "[1, 2, 3]")
+    @NotEmpty(message = "COMMENT_IDS_REQUIRED")
+    @Schema(description = "List of comment IDs to delete", example = "[1, 2, 3]")
     private List<Long> commentIds;
 }
-

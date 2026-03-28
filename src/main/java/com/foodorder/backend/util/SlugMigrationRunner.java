@@ -1,4 +1,4 @@
-// COMPONENT TẠO SLUG CATEGORY TRONG CSDL
+// COMPONENT TO GENERATE CATEGORY SLUGS IN DATABASE
 
 package com.foodorder.backend.util;
 
@@ -38,9 +38,9 @@ public class SlugMigrationRunner implements CommandLineRunner {
 
         if (count > 0) {
             categoryRepository.saveAll(categories);
-            System.out.println("Đã cập nhật slug cho " + count + " danh mục.");
+            System.out.println("Updated slug for " + count + " categories.");
         } else {
-            System.out.println("Tất cả danh mục đã có slug.");
+            System.out.println("All categories already have slugs.");
         }
     }
 

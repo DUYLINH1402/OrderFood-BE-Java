@@ -9,19 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request để ghi nhận lượt share")
+@Schema(description = "Request to record a share action")
 public class ShareRequest {
 
-    @NotNull(message = "Target type là bắt buộc")
-    @Schema(description = "Loại đối tượng được share", example = "FOOD", allowableValues = {"FOOD", "BLOG"})
+    @NotNull(message = "Target type is required")
+    @Schema(description = "Type of the shared object", example = "FOOD", allowableValues = {"FOOD", "BLOG"})
     private String targetType;
 
-    @NotNull(message = "Target ID là bắt buộc")
-    @Schema(description = "ID của đối tượng được share", example = "1")
+    @NotNull(message = "Target ID is required")
+    @Schema(description = "ID of the shared object", example = "1")
     private Long targetId;
 
-    @NotNull(message = "Platform là bắt buộc")
-    @Schema(description = "Nền tảng chia sẻ", example = "FACEBOOK", allowableValues = {"FACEBOOK", "ZALO"})
+    @NotNull(message = "Platform is required")
+    @Schema(description = "Sharing platform", example = "FACEBOOK", allowableValues = {"FACEBOOK", "ZALO"})
     private String platform;
 }
 

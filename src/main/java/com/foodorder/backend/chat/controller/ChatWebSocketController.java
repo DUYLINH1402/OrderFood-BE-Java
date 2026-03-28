@@ -59,7 +59,7 @@ public class ChatWebSocketController {
 
             // Validate JWT token
             if (!jwtUtil.validateToken(request.getToken())) {
-                sendErrorToUser("INVALID_TOKEN", "Phiên đăng nhập đã hết hạn", headerAccessor.getSessionId());
+                sendErrorToUser("INVALID_TOKEN", "Session expired", headerAccessor.getSessionId());
                 return;
             }
 
@@ -68,13 +68,13 @@ public class ChatWebSocketController {
             User user = userService.findByUsername(username);
 
             if (user == null) {
-                sendErrorToUser("USER_NOT_FOUND", "Không tìm thấy thông tin người dùng", headerAccessor.getSessionId());
+                sendErrorToUser("USER_NOT_FOUND", "User not found", headerAccessor.getSessionId());
                 return;
             }
 
             // Kiểm tra user phải là ROLE_USER
             if (!"ROLE_USER".equals(user.getRole().getCode())) {
-                sendErrorToUser("ACCESS_DENIED", "Chỉ khách hàng mới có thể gửi tin nhắn hỗ trợ",
+                sendErrorToUser("ACCESS_DENIED", "Only customers can send support messages",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -95,7 +95,7 @@ public class ChatWebSocketController {
                 // Phản hồi tin nhắn cụ thể của Staff
                 ChatMessage originalMessage = chatService.findMessageById(request.getReplyToMessageId());
                 if (originalMessage == null) {
-                    sendErrorToUser("ORIGINAL_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn gốc để phản hồi",
+                    sendErrorToUser("ORIGINAL_MESSAGE_NOT_FOUND", "Original message not found for reply",
                             headerAccessor.getSessionId());
                     return;
                 }
@@ -139,8 +139,8 @@ public class ChatWebSocketController {
             }
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý tin nhắn từ user tới staff: {}", e.getMessage());
-            sendErrorToUser("CHAT_ERROR", "Lỗi khi gửi tin nhắn: " + e.getMessage(), headerAccessor.getSessionId());
+            log.error("Error processing user-to-staff message: {}", e.getMessage());
+            sendErrorToUser("CHAT_ERROR", "Failed to send message: " + e.getMessage(), headerAccessor.getSessionId());
         }
     }
 
@@ -158,7 +158,7 @@ public class ChatWebSocketController {
 
             // Validate JWT token
             if (!jwtUtil.validateToken(request.getToken())) {
-                sendErrorToStaff("INVALID_TOKEN", "Phiên đăng nhập đã hết hạn", headerAccessor.getSessionId());
+                sendErrorToStaff("INVALID_TOKEN", "Session expired", headerAccessor.getSessionId());
                 return;
             }
 
@@ -167,7 +167,7 @@ public class ChatWebSocketController {
             User staff = userService.findByUsername(username);
 
             if (staff == null) {
-                sendErrorToStaff("STAFF_NOT_FOUND", "Không tìm thấy thông tin nhân viên",
+                sendErrorToStaff("STAFF_NOT_FOUND", "Staff not found",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -175,7 +175,7 @@ public class ChatWebSocketController {
             // Kiểm tra phải là staff hoặc admin
             String roleCode = staff.getRole().getCode();
             if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-                sendErrorToStaff("ACCESS_DENIED", "Chỉ nhân viên mới có thể trả lời tin nhắn",
+                sendErrorToStaff("ACCESS_DENIED", "Only staff can reply to messages",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -201,8 +201,8 @@ public class ChatWebSocketController {
             log.info("Staff {} đã gửi tin nhắn broadcast thành công", staffId);
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý tin nhắn từ staff: {}", e.getMessage());
-            sendErrorToStaff("CHAT_ERROR", "Lỗi khi gửi tin nhắn: " + e.getMessage(), headerAccessor.getSessionId());
+            log.error("Error processing staff message: {}", e.getMessage());
+            sendErrorToStaff("CHAT_ERROR", "Failed to send message: " + e.getMessage(), headerAccessor.getSessionId());
         }
     }
 
@@ -215,7 +215,7 @@ public class ChatWebSocketController {
             ChatRegistrationRequest request = parsePayloadToRegistrationRequest(payload);
 
             if (!jwtUtil.validateToken(request.getToken())) {
-                sendErrorToUser("INVALID_TOKEN", "Phiên đăng nhập đã hết hạn", headerAccessor.getSessionId());
+                sendErrorToUser("INVALID_TOKEN", "Session expired", headerAccessor.getSessionId());
                 return;
             }
 
@@ -223,7 +223,7 @@ public class ChatWebSocketController {
             User user = userService.findByUsername(username);
 
             if (user == null) {
-                sendErrorToUser("USER_NOT_FOUND", "Không tìm thấy thông tin người dùng", headerAccessor.getSessionId());
+                sendErrorToUser("USER_NOT_FOUND", "User not found", headerAccessor.getSessionId());
                 return;
             }
 
@@ -239,8 +239,8 @@ public class ChatWebSocketController {
             // Gửi thông báo welcome
             Map<String, Object> welcomeMessage = new HashMap<>();
             welcomeMessage.put("type", "CHAT_WELCOME");
-            welcomeMessage.put("message", "Xin chào " + user.getFullName()
-                    + "! Bạn có thể gửi tin nhắn và nhận phản hồi từ nhân viên hỗ trợ.");
+            welcomeMessage.put("message", "Welcome " + user.getFullName()
+                    + "! You can send messages and receive replies from our support staff.");
             welcomeMessage.put("userId", userId);
             welcomeMessage.put("onlineStaffCount", onlineStaff.size());
             welcomeMessage.put("timestamp", LocalDateTime.now().toString());
@@ -250,8 +250,8 @@ public class ChatWebSocketController {
             log.info("User {} đã online và đăng ký chat thành công", userId);
 
         } catch (Exception e) {
-            log.error("Lỗi khi đăng ký user chat: {}", e.getMessage());
-            sendErrorToUser("REGISTRATION_ERROR", "Lỗi đăng ký chat: " + e.getMessage(), headerAccessor.getSessionId());
+            log.error("Error registering user chat: {}", e.getMessage());
+            sendErrorToUser("REGISTRATION_ERROR", "Chat registration error: " + e.getMessage(), headerAccessor.getSessionId());
         }
     }
 
@@ -264,7 +264,7 @@ public class ChatWebSocketController {
             ChatRegistrationRequest request = parsePayloadToRegistrationRequest(payload);
 
             if (!jwtUtil.validateToken(request.getToken())) {
-                sendErrorToStaff("INVALID_TOKEN", "Phiên đăng nhập đã hết hạn", headerAccessor.getSessionId());
+                sendErrorToStaff("INVALID_TOKEN", "Session expired", headerAccessor.getSessionId());
                 return;
             }
 
@@ -272,14 +272,14 @@ public class ChatWebSocketController {
             User staff = userService.findByUsername(username);
 
             if (staff == null) {
-                sendErrorToStaff("STAFF_NOT_FOUND", "Không tìm thấy thông tin nhân viên",
+                sendErrorToStaff("STAFF_NOT_FOUND", "Staff not found",
                         headerAccessor.getSessionId());
                 return;
             }
 
             String roleCode = staff.getRole().getCode();
             if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-                sendErrorToStaff("ACCESS_DENIED", "Chỉ nhân viên mới có thể sử dụng tính năng này",
+                sendErrorToStaff("ACCESS_DENIED", "Only staff can use this feature",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -304,7 +304,7 @@ public class ChatWebSocketController {
             Map<String, Object> welcomeMessage = new HashMap<>();
             welcomeMessage.put("type", "STAFF_CHAT_WELCOME");
             welcomeMessage.put("message",
-                    "Xin chào " + staff.getFullName() + "! Bạn đã online và sẵn sàng nhận tin nhắn từ khách hàng.");
+                    "Welcome " + staff.getFullName() + "! You are now online and ready to receive customer messages.");
             welcomeMessage.put("staffId", staffId);
             welcomeMessage.put("unreadCount", unreadCount);
             welcomeMessage.put("onlineUserCount", onlineUserCount);
@@ -323,8 +323,8 @@ public class ChatWebSocketController {
 
             messagingTemplate.convertAndSend("/topic/staff-chat", staffOnlineNotification);
         } catch (Exception e) {
-            log.error("Lỗi khi đăng ký staff chat: {}", e.getMessage());
-            sendErrorToStaff("REGISTRATION_ERROR", "Lỗi đăng ký chat: " + e.getMessage(),
+            log.error("Error registering staff chat: {}", e.getMessage());
+            sendErrorToStaff("REGISTRATION_ERROR", "Chat registration error: " + e.getMessage(),
                     headerAccessor.getSessionId());
         }
     }
@@ -340,12 +340,12 @@ public class ChatWebSocketController {
 
             // Validate JWT token
             if (token == null || token.trim().isEmpty()) {
-                sendErrorToStaff("TOKEN_REQUIRED", "Token xác thực không được để trống", headerAccessor.getSessionId());
+                sendErrorToStaff("TOKEN_REQUIRED", "Authentication token is required", headerAccessor.getSessionId());
                 return;
             }
 
             if (!jwtUtil.validateToken(token)) {
-                sendErrorToStaff("INVALID_TOKEN", "Phiên đăng nhập đã hết hạn", headerAccessor.getSessionId());
+                sendErrorToStaff("INVALID_TOKEN", "Session expired", headerAccessor.getSessionId());
                 return;
             }
 
@@ -354,13 +354,13 @@ public class ChatWebSocketController {
 
             // Validate message content only
             if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
-                sendErrorToStaff("MESSAGE_REQUIRED", "Nội dung tin nhắn không được để trống",
+                sendErrorToStaff("MESSAGE_REQUIRED", "Message content is required",
                         headerAccessor.getSessionId());
                 return;
             }
 
             if (request.getMessage().length() > 1000) {
-                sendErrorToStaff("MESSAGE_TOO_LONG", "Tin nhắn không được vượt quá 1000 ký tự",
+                sendErrorToStaff("MESSAGE_TOO_LONG", "Message must not exceed 1000 characters",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -370,7 +370,7 @@ public class ChatWebSocketController {
             User staff = userService.findByUsername(username);
 
             if (staff == null) {
-                sendErrorToStaff("STAFF_NOT_FOUND", "Không tìm thấy thông tin nhân viên",
+                sendErrorToStaff("STAFF_NOT_FOUND", "Staff not found",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -378,14 +378,14 @@ public class ChatWebSocketController {
             // Kiểm tra phải là staff hoặc admin
             String roleCode = staff.getRole().getCode();
             if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-                sendErrorToStaff("ACCESS_DENIED", "Chỉ nhân viên mới có thể phản hồi tin nhắn",
+                sendErrorToStaff("ACCESS_DENIED", "Only staff can reply to messages",
                         headerAccessor.getSessionId());
                 return;
             }
 
             // Kiểm tra recipientUserId (bắt buộc)
             if (request.getRecipientUserId() == null) {
-                sendErrorToStaff("RECIPIENT_USER_ID_REQUIRED", "Cần chỉ định người nhận tin nhắn",
+                sendErrorToStaff("RECIPIENT_USER_ID_REQUIRED", "Recipient user is required",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -393,7 +393,7 @@ public class ChatWebSocketController {
             // Tìm user nhận tin nhắn
             User recipientUser = userService.findById(request.getRecipientUserId());
             if (recipientUser == null) {
-                sendErrorToStaff("RECIPIENT_USER_NOT_FOUND", "Không tìm thấy người dùng nhận tin nhắn",
+                sendErrorToStaff("RECIPIENT_USER_NOT_FOUND", "Recipient user not found",
                         headerAccessor.getSessionId());
                 return;
             }
@@ -413,7 +413,7 @@ public class ChatWebSocketController {
                 // Phản hồi tin nhắn cụ thể
                 ChatMessage originalMessage = chatService.findMessageById(request.getReplyToMessageId());
                 if (originalMessage == null) {
-                    sendErrorToStaff("ORIGINAL_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn gốc để phản hồi",
+                    sendErrorToStaff("ORIGINAL_MESSAGE_NOT_FOUND", "Original message not found for reply",
                             headerAccessor.getSessionId());
                     return;
                 }
@@ -450,8 +450,8 @@ public class ChatWebSocketController {
             }
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý tin nhắn từ staff: {}", e.getMessage());
-            sendErrorToStaff("MESSAGE_ERROR", "Lỗi khi gửi tin nhắn: " + e.getMessage(), headerAccessor.getSessionId());
+            log.error("Error processing staff message: {}", e.getMessage());
+            sendErrorToStaff("MESSAGE_ERROR", "Failed to send message: " + e.getMessage(), headerAccessor.getSessionId());
         }
     }
 
@@ -502,7 +502,7 @@ public class ChatWebSocketController {
             }
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý disconnect: {}", e.getMessage());
+            log.error("Error handling disconnect: {}", e.getMessage());
         }
     }
 
@@ -541,7 +541,7 @@ public class ChatWebSocketController {
                 Map<String, Object> unreadNotification = new HashMap<>();
                 unreadNotification.put("type", "UNREAD_MESSAGES_NOTIFICATION");
                 unreadNotification.put("unreadCount", unreadCount);
-                unreadNotification.put("message", "Bạn có " + unreadCount + " tin nhắn chưa đọc từ khách hàng");
+                unreadNotification.put("message", "You have " + unreadCount + " unread message(s) from customers");
                 unreadNotification.put("timestamp", LocalDateTime.now().toString());
 
                 messagingTemplate.convertAndSendToUser(staffId, "/queue/staff-chat", unreadNotification);
@@ -616,7 +616,7 @@ public class ChatWebSocketController {
         // Validate token ngay tại đây
         if (token == null || token.trim().isEmpty()) {
             log.error("Token is null or empty in payload. Payload keys: {}", payloadMap.keySet());
-            throw new IllegalArgumentException("Token không được để trống trong payload");
+            throw new IllegalArgumentException("Token must not be empty in payload");
         }
 
         ChatMessageRequest.ChatMessageRequestBuilder builder = ChatMessageRequest.builder()
@@ -680,7 +680,7 @@ public class ChatWebSocketController {
         log.debug("Payload toString: {}", payload);
 
         if (payload == null) {
-            throw new IllegalArgumentException("Payload không được để trống");
+            throw new IllegalArgumentException("Payload must not be empty");
         }
 
         // Trường hợp 1: Payload đã là Map
@@ -695,7 +695,7 @@ public class ChatWebSocketController {
             log.debug("Payload là String: '{}'", payloadStr);
 
             if (payloadStr.isEmpty()) {
-                throw new IllegalArgumentException("Payload string không được để trống");
+                throw new IllegalArgumentException("Payload string must not be empty");
             }
 
             // Kiểm tra định dạng JSON
@@ -705,12 +705,12 @@ public class ChatWebSocketController {
                     log.debug("Parse JSON string thành công: {}", result);
                     return result;
                 } catch (Exception e) {
-                    log.error("Lỗi parse JSON string: {}", e.getMessage());
-                    throw new IllegalArgumentException("Định dạng JSON không hợp lệ: " + e.getMessage());
+                    log.error("Error parsing JSON string: {}", e.getMessage());
+                    throw new IllegalArgumentException("Invalid JSON format: " + e.getMessage());
                 }
             } else {
                 throw new IllegalArgumentException(
-                        "String payload phải là JSON hợp lệ (bắt đầu với { và kết thúc với }). Nhận được: "
+                        "String payload must be valid JSON (starts with { and ends with }). Received: "
                                 + payloadStr);
             }
         }
@@ -721,7 +721,7 @@ public class ChatWebSocketController {
             log.debug("Payload là byte array, length: {}", bytes.length);
 
             if (bytes.length == 0) {
-                throw new IllegalArgumentException("Byte array payload rỗng");
+                throw new IllegalArgumentException("Empty byte array payload");
             }
 
             try {
@@ -733,7 +733,7 @@ public class ChatWebSocketController {
                 log.debug("String ends with }}: {}", jsonString.endsWith("}"));
 
                 if (jsonString.isEmpty()) {
-                    throw new IllegalArgumentException("Byte array payload chuyển thành string rỗng");
+                    throw new IllegalArgumentException("Byte array payload converted to empty string");
                 }
 
                 // Kiểm tra nếu string không phải JSON, có thể là plain text
@@ -752,7 +752,7 @@ public class ChatWebSocketController {
                         }
                     }
                     throw new IllegalArgumentException(
-                            "Byte array payload không chứa JSON hợp lệ. Nhận được: '" + jsonString + "'");
+                            "Byte array payload does not contain valid JSON. Received: '" + jsonString + "'");
                 }
 
                 Map<String, Object> result = objectMapper.readValue(jsonString, Map.class);
@@ -760,12 +760,12 @@ public class ChatWebSocketController {
                 return result;
 
             } catch (Exception e) {
-                log.error("Lỗi xử lý byte array payload: {}", e.getMessage());
+                log.error("Error processing byte array payload: {}", e.getMessage());
                 // Log byte array content để debug
                 log.debug("Byte array content (first 100 bytes): {}",
                         bytes.length > 100 ? new String(bytes, 0, 100, java.nio.charset.StandardCharsets.UTF_8)
                                 : new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
-                throw new IllegalArgumentException("Lỗi xử lý byte array payload: " + e.getMessage());
+                throw new IllegalArgumentException("Error processing byte array payload: " + e.getMessage());
             }
         }
 
@@ -779,10 +779,10 @@ public class ChatWebSocketController {
                 log.debug("Convert bằng ObjectMapper thành công: {}", result);
                 return result;
             } catch (Exception e) {
-                log.error("Lỗi convert payload: {}", e.getMessage());
-                throw new IllegalArgumentException("Định dạng payload không được hỗ trợ. Payload type: "
+                log.error("Error converting payload: {}", e.getMessage());
+                throw new IllegalArgumentException("Unsupported payload format. Payload type: "
                         + payload.getClass().getSimpleName() + ". Error: " + e.getMessage()
-                        + ". Chỉ hỗ trợ: JSON Object, JSON String, hoặc byte array chứa JSON");
+                        + ". Supported: JSON Object, JSON String, or byte array containing JSON");
             }
         }
     }
@@ -872,7 +872,7 @@ public class ChatWebSocketController {
         confirmMessage.put("type", "MESSAGE_SENT");
         confirmMessage.put("messageId", message.getMessageId());
         confirmMessage.put("message",
-                "Tin nhắn của bạn đã được gửi thành công. Nhân viên sẽ phản hồi sớm nhất có thể.");
+                "Your message has been sent successfully. Our staff will respond as soon as possible.");
         confirmMessage.put("timestamp", message.getSentAt().toString());
 
         // Gửi thông báo chỉ khi không có staff online
@@ -926,7 +926,7 @@ public class ChatWebSocketController {
         confirmMessage.put("type", "REPLY_MESSAGE_SENT");
         confirmMessage.put("messageId", message.getMessageId());
         confirmMessage.put("message",
-                "Tin nhắn phản hồi của bạn đã được gửi thành công. Nhân viên sẽ phản hồi sớm nhất có thể.");
+                "Your reply has been sent successfully. Our staff will respond as soon as possible.");
         confirmMessage.put("timestamp", message.getSentAt().toString());
         confirmMessage.put("isReply", true);
 
@@ -945,7 +945,7 @@ public class ChatWebSocketController {
         Map<String, Object> confirmMessage = new HashMap<>();
         confirmMessage.put("type", "STAFF_MESSAGE_SENT");
         confirmMessage.put("messageId", message.getMessageId());
-        confirmMessage.put("message", "Tin nhắn đã được gửi broadcast thành công tới tất cả khách hàng online");
+        confirmMessage.put("message", "Message has been broadcast to all online customers");
         confirmMessage.put("onlineUserCount", onlineUsers.size());
         confirmMessage.put("timestamp", message.getSentAt().toString());
 
@@ -958,7 +958,7 @@ public class ChatWebSocketController {
         Map<String, Object> confirmMessage = new HashMap<>();
         confirmMessage.put("type", "REPLY_MESSAGE_SENT");
         confirmMessage.put("messageId", message.getMessageId());
-        confirmMessage.put("message", "Tin nhắn phản hồi của bạn đã được gửi thành công tới user");
+        confirmMessage.put("message", "Your reply has been sent successfully to the user");
         confirmMessage.put("timestamp", message.getSentAt().toString());
 
         // Gửi xác nhận tới staff
@@ -1008,7 +1008,7 @@ public class ChatWebSocketController {
         Map<String, Object> confirmMessage = new HashMap<>();
         confirmMessage.put("type", "MESSAGE_SENT");
         confirmMessage.put("messageId", message.getMessageId());
-        confirmMessage.put("message", "Tin nhắn của bạn đã được gửi thành công tới user");
+        confirmMessage.put("message", "Your message has been sent successfully to the user");
         confirmMessage.put("recipientUserId", message.getReceiver().getId());
         confirmMessage.put("recipientUserName", message.getReceiver().getFullName());
         confirmMessage.put("timestamp", message.getSentAt().toString());

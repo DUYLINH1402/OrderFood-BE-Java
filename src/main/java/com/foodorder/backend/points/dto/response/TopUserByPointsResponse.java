@@ -11,34 +11,33 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin xếp hạng user theo điểm thưởng")
+@Schema(description = "Response containing user ranking by reward points")
 public class TopUserByPointsResponse {
 
-    @Schema(description = "Thứ hạng", example = "1")
+    @Schema(description = "Rank position", example = "1")
     private Integer rank;
 
-    @Schema(description = "ID của user", example = "1")
+    @Schema(description = "User ID", example = "1")
     private Long userId;
 
-    @Schema(description = "Tên đăng nhập", example = "johndoe")
+    @Schema(description = "Username", example = "johndoe")
     private String username;
 
-    @Schema(description = "Họ tên đầy đủ", example = "Nguyễn Văn A")
+    @Schema(description = "Full name", example = "Nguyen Van A")
     private String fullName;
 
-    @Schema(description = "Email", example = "user@example.com")
+    @Schema(description = "Email address", example = "user@example.com")
     private String email;
 
-    @Schema(description = "Số dư điểm hiện tại", example = "500")
+    @Schema(description = "Current points balance", example = "500")
     private Integer currentBalance;
 
-    @Schema(description = "Tổng điểm đã tích lũy", example = "2000")
+    @Schema(description = "Total points earned", example = "2000")
     private Long totalPointsEarned;
 
-    @Schema(description = "Tổng điểm đã sử dụng", example = "1500")
+    @Schema(description = "Total points used", example = "1500")
     private Long totalPointsUsed;
 
-    @Schema(description = "Tổng số đơn hàng", example = "50")
+    @Schema(description = "Total number of orders", example = "50")
     private Long totalOrders;
 }
-

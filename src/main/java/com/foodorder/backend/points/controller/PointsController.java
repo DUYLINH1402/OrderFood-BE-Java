@@ -29,14 +29,14 @@ import org.springframework.data.web.PageableDefault;
 @RestController
 @RequestMapping("/api/v1/client/points")
 @RequiredArgsConstructor
-@Tag(name = "Points - Client", description = "API quản lý điểm thưởng - Yêu cầu đăng nhập")
+@Tag(name = "Points - Client", description = "Reward points management API - Requires authentication")
 public class PointsController {
     private final PointsService pointsService;
 
-    @Operation(summary = "Lấy điểm hiện tại", description = "Lấy số điểm thưởng hiện tại của người dùng đang đăng nhập.")
+    @Operation(summary = "Get current points", description = "Get current reward points of logged-in user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/current")
     @PreAuthorize("isAuthenticated()")
@@ -47,16 +47,16 @@ public class PointsController {
         return ResponseEntity.ok(points);
     }
 
-    @Operation(summary = "Lịch sử điểm thưởng", description = "Lấy lịch sử sử dụng điểm thưởng của người dùng với phân trang.")
+    @Operation(summary = "Points history", description = "Get reward points usage history with pagination.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/history")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<PointsHistoryDTO>> getPointsHistory(
             @Parameter(hidden = true) Authentication authentication,
-            @Parameter(description = "Thông tin phân trang") @PageableDefault(size = 10) Pageable pageable) {
+            @Parameter(description = "Pagination info") @PageableDefault(size = 10) Pageable pageable) {
         String username = authentication.getName();
         Page<PointsHistoryDTO> history = pointsService.getPointsHistoryByUsername(username, pageable);
         return ResponseEntity.ok(history);

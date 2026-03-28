@@ -23,16 +23,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/client/favorites")
 @RequiredArgsConstructor
-@Tag(name = "Favorites", description = "API quản lý danh sách món ăn yêu thích - Yêu cầu đăng nhập")
+@Tag(name = "Favorites", description = "Favorite food list management API - Requires authentication")
 public class FavoriteFoodController {
 
     private final FavoriteFoodService favoriteFoodService;
 
 
-    @Operation(summary = "Lấy danh sách yêu thích", description = "Lấy danh sách các món ăn yêu thích của người dùng đang đăng nhập.")
+    @Operation(summary = "Get favorites list", description = "Get list of favorite foods for the authenticated user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping
     public ResponseEntity<List<FavoriteFoodResponse>> getFavorites(
@@ -47,11 +47,11 @@ public class FavoriteFoodController {
         return ResponseEntity.ok(favorites);
     }
 
-    @Operation(summary = "Thêm vào yêu thích", description = "Thêm một món ăn vào danh sách yêu thích.")
+    @Operation(summary = "Add to favorites", description = "Add a food item to favorites list.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thêm thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Added successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "404", description = "Food not found")
     })
     @PostMapping
     public ResponseEntity<?> addFavorite(
@@ -67,10 +67,10 @@ public class FavoriteFoodController {
         return ResponseEntity.ok("Added to favorites!");
     }
 
-    @Operation(summary = "Xóa khỏi yêu thích", description = "Xóa một món ăn khỏi danh sách yêu thích.")
+    @Operation(summary = "Remove from favorites", description = "Remove a food item from favorites list.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Removed successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @DeleteMapping
     public ResponseEntity<?> removeFavorite(

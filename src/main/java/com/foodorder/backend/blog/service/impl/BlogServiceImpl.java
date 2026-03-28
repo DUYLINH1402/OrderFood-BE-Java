@@ -62,7 +62,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = BLOGS_CACHE, key = "'published_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<BlogListResponse> getPublishedBlogs(Pageable pageable) {
-        log.info("Lấy danh sách bài viết công khai - page: {}", pageable.getPageNumber());
+        log.info("Fetching published blogs - page: {}", pageable.getPageNumber());
         Pageable pageableWithSort = addDefaultSort(pageable);
         Page<BlogListResponse> page = blogRepository.findPublishedBlogs(LocalDateTime.now(), pageableWithSort)
                 .map(this::toListResponse);
@@ -75,7 +75,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = BLOGS_BY_TYPE_CACHE, key = "'type_' + #blogType + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<BlogListResponse> getPublishedBlogsByType(BlogType blogType, Pageable pageable) {
-        log.info("Lấy danh sách bài viết theo loại nội dung: {}", blogType);
+        log.info("Fetching blogs by content type: {}", blogType);
         Pageable pageableWithSort = addDefaultSort(pageable);
         Page<BlogListResponse> page = blogRepository.findPublishedBlogsByType(blogType, LocalDateTime.now(), pageableWithSort)
                 .map(this::toListResponse);
@@ -88,7 +88,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = BLOGS_BY_CATEGORY_CACHE, key = "'category_' + #categoryId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<BlogListResponse> getPublishedBlogsByCategory(Long categoryId, Pageable pageable) {
-        log.info("Lấy danh sách bài viết theo danh mục ID: {}", categoryId);
+        log.info("Fetching blogs by category ID: {}", categoryId);
         Pageable pageableWithSort = addDefaultSort(pageable);
         Page<BlogListResponse> page = blogRepository.findPublishedBlogsByCategory(categoryId, LocalDateTime.now(), pageableWithSort)
                 .map(this::toListResponse);
@@ -101,7 +101,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = BLOGS_BY_CATEGORY_CACHE, key = "'slug_' + #categorySlug + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<BlogListResponse> getPublishedBlogsByCategorySlug(String categorySlug, Pageable pageable) {
-        log.info("Lấy danh sách bài viết theo slug danh mục: {}", categorySlug);
+        log.info("Fetching blogs by category slug: {}", categorySlug);
         Pageable pageableWithSort = addDefaultSort(pageable);
         Page<BlogListResponse> page = blogRepository.findPublishedBlogsByCategorySlug(categorySlug, LocalDateTime.now(), pageableWithSort)
                 .map(this::toListResponse);
@@ -114,7 +114,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = FEATURED_BLOGS_CACHE, key = "'featured_' + #limit")
     public List<BlogListResponse> getFeaturedBlogs(int limit) {
-        log.info("Lấy danh sách {} bài viết nổi bật", limit);
+        log.info("Fetching {} featured blogs", limit);
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "publishedAt"));
         return blogRepository.findFeaturedBlogs(LocalDateTime.now(), pageable)
                 .stream()
@@ -128,7 +128,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = FEATURED_BLOGS_CACHE, key = "'featured_type_' + #blogType + '_' + #limit")
     public List<BlogListResponse> getFeaturedBlogsByType(BlogType blogType, int limit) {
-        log.info("Lấy danh sách {} bài viết nổi bật loại {}", limit, blogType);
+        log.info("Fetching {} featured blogs of type {}", limit, blogType);
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "publishedAt"));
         return blogRepository.findFeaturedBlogsByType(blogType, LocalDateTime.now(), pageable)
                 .stream()
@@ -141,7 +141,7 @@ public class BlogServiceImpl implements BlogService {
      */
     @Override
     public Page<BlogListResponse> searchPublishedBlogs(String keyword, Pageable pageable) {
-        log.info("Tìm kiếm bài viết với từ khóa: {}", keyword);
+        log.info("Searching blogs with keyword: {}", keyword);
         Pageable pageableWithSort = addDefaultSort(pageable);
         return blogRepository.searchPublishedBlogs(keyword, LocalDateTime.now(), pageableWithSort)
                 .map(this::toListResponse);
@@ -154,11 +154,11 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public BlogResponse getPublishedBlogBySlug(String slug) {
-        log.info("Lấy chi tiết bài viết theo slug: {}", slug);
+        log.info("Fetching blog detail by slug: {}", slug);
 
         Blog blog = blogRepository.findPublishedBlogBySlug(slug, LocalDateTime.now())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy bài viết với slug: " + slug,
+                        "Blog not found with slug: " + slug,
                         "BLOG_NOT_FOUND"
                 ));
 
@@ -175,11 +175,11 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Cacheable(value = RELATED_BLOGS_CACHE, key = "'related_' + #blogId + '_' + #limit")
     public List<BlogListResponse> getRelatedBlogs(Long blogId, int limit) {
-        log.info("Lấy danh sách bài viết liên quan với blog ID: {}", blogId);
+        log.info("Fetching related blogs for blog ID: {}", blogId);
 
         Blog blog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy bài viết",
+                        "Blog not found",
                         "BLOG_NOT_FOUND"
                 ));
 
@@ -205,7 +205,7 @@ public class BlogServiceImpl implements BlogService {
      */
     @Override
     public Page<BlogListResponse> getBlogsWithFilter(BlogFilterRequest filterRequest, Pageable pageable) {
-        log.info("Admin: Lấy danh sách bài viết với bộ lọc");
+        log.info("Admin: Fetching blogs with filter");
         Pageable pageableWithSort = addDefaultSort(pageable);
         return blogRepository.findWithFilter(
                         filterRequest.getTitle(),
@@ -222,7 +222,7 @@ public class BlogServiceImpl implements BlogService {
      */
     @Override
     public BlogResponse getBlogById(Long id) {
-        log.info("Admin: Lấy chi tiết bài viết ID: {}", id);
+        log.info("Admin: Fetching blog detail ID: {}", id);
         Blog blog = findBlogById(id);
         return toResponse(blog);
     }
@@ -234,12 +234,12 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     @CacheEvict(value = {BLOGS_CACHE, FEATURED_BLOGS_CACHE, BLOGS_BY_TYPE_CACHE, BLOGS_BY_CATEGORY_CACHE, RELATED_BLOGS_CACHE}, allEntries = true)
     public BlogResponse createBlog(BlogRequest request, Long authorId) {
-        log.info("Admin: Tạo bài viết mới: {}", request.getTitle());
+        log.info("Admin: Creating new blog post: {}", request.getTitle());
 
         // Lấy thông tin tác giả
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy người dùng",
+                        "User not found",
                         "USER_NOT_FOUND"
                 ));
 
@@ -264,7 +264,7 @@ public class BlogServiceImpl implements BlogService {
         if (request.getCategoryId() != null) {
             category = blogCategoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Không tìm thấy danh mục",
+                            "Blog category not found",
                             "BLOG_CATEGORY_NOT_FOUND"
                     ));
         }
@@ -320,7 +320,7 @@ public class BlogServiceImpl implements BlogService {
                 .build();
 
         blog = blogRepository.save(blog);
-        log.info("Đã tạo bài viết: ID={}, slug={}", blog.getId(), blog.getSlug());
+        log.info("Blog created: ID={}, slug={}", blog.getId(), blog.getSlug());
 
         return toResponse(blog);
     }
@@ -333,18 +333,18 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     @CacheEvict(value = {BLOGS_CACHE, FEATURED_BLOGS_CACHE, BLOGS_BY_TYPE_CACHE, BLOGS_BY_CATEGORY_CACHE, RELATED_BLOGS_CACHE}, allEntries = true)
     public BlogResponse updateBlog(Long id, BlogRequest request) {
-        log.info("Admin: Cập nhật bài viết ID: {}", id);
+        log.info("Admin: Updating blog ID: {}", id);
 
         Blog blog = findBlogById(id);
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(blog.getIsProtected(), "cập nhật");
+        checkProtectedDataPermission(blog.getIsProtected(), "update");
 
         // Cập nhật slug nếu có
         if (request.getSlug() != null && !request.getSlug().isBlank()) {
             if (blogRepository.existsBySlugAndIdNot(request.getSlug(), id)) {
                 throw new BadRequestException(
-                        "Slug đã tồn tại: " + request.getSlug(),
+                        "Slug already exists: " + request.getSlug(),
                         "BLOG_SLUG_EXISTS"
                 );
             }
@@ -439,14 +439,14 @@ public class BlogServiceImpl implements BlogService {
         if (request.getCategoryId() != null) {
             BlogCategory category = blogCategoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Không tìm thấy danh mục",
+                            "Blog category not found",
                             "BLOG_CATEGORY_NOT_FOUND"
                     ));
             blog.setCategory(category);
         }
 
         blog = blogRepository.save(blog);
-        log.info("Đã cập nhật bài viết: ID={}", blog.getId());
+        log.info("Blog updated: ID={}", blog.getId());
 
         return toResponse(blog);
     }
@@ -459,16 +459,16 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     @CacheEvict(value = {BLOGS_CACHE, FEATURED_BLOGS_CACHE, BLOGS_BY_TYPE_CACHE, BLOGS_BY_CATEGORY_CACHE, RELATED_BLOGS_CACHE}, allEntries = true)
     public void deleteBlog(Long id) {
-        log.info("Admin: Xóa bài viết ID: {}", id);
+        log.info("Admin: Deleting blog ID: {}", id);
 
         Blog blog = findBlogById(id);
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(blog.getIsProtected(), "xóa");
+        checkProtectedDataPermission(blog.getIsProtected(), "delete");
 
         blogRepository.delete(blog);
 
-        log.info("Đã xóa bài viết: ID={}", id);
+        log.info("Blog deleted: ID={}", id);
     }
 
     /**
@@ -479,19 +479,19 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     @CacheEvict(value = {BLOGS_CACHE, FEATURED_BLOGS_CACHE, BLOGS_BY_TYPE_CACHE, BLOGS_BY_CATEGORY_CACHE, RELATED_BLOGS_CACHE}, allEntries = true)
     public BlogResponse updateBlogStatus(Long id, String status) {
-        log.info("Admin: Cập nhật trạng thái bài viết ID: {} -> {}", id, status);
+        log.info("Admin: Updating blog status ID: {} -> {}", id, status);
 
         Blog blog = findBlogById(id);
 
         // Kiểm tra quyền nếu dữ liệu được bảo vệ
-        checkProtectedDataPermission(blog.getIsProtected(), "cập nhật trạng thái");
+        checkProtectedDataPermission(blog.getIsProtected(), "update status");
 
         BlogStatus newStatus;
         try {
             newStatus = BlogStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(
-                    "Trạng thái không hợp lệ: " + status,
+                    "Invalid blog status: " + status,
                     "INVALID_BLOG_STATUS"
             );
         }
@@ -507,7 +507,7 @@ public class BlogServiceImpl implements BlogService {
         }
 
         blog = blogRepository.save(blog);
-        log.info("Đã cập nhật trạng thái bài viết: ID={}, status={}", id, newStatus);
+        log.info("Blog status updated: ID={}, status={}", id, newStatus);
 
         return toResponse(blog);
     }
@@ -539,7 +539,7 @@ public class BlogServiceImpl implements BlogService {
 
         // Nếu có sort không hợp lệ, dùng sort mặc định
         if (hasInvalidSort) {
-            log.warn("Sort field không hợp lệ, sử dụng sort mặc định");
+            log.warn("Invalid sort field, using default sort");
             return PageRequest.of(
                     pageable.getPageNumber(),
                     pageable.getPageSize(),
@@ -564,7 +564,7 @@ public class BlogServiceImpl implements BlogService {
     private Blog findBlogById(Long id) {
         return blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy bài viết với ID: " + id,
+                        "Blog not found with ID: " + id,
                         "BLOG_NOT_FOUND"
                 ));
     }
@@ -684,7 +684,7 @@ public class BlogServiceImpl implements BlogService {
         try {
             return objectMapper.writeValueAsString(list);
         } catch (JsonProcessingException e) {
-            log.error("Lỗi khi convert list sang JSON: {}", e.getMessage());
+            log.error("Error converting list to JSON: {}", e.getMessage());
             return null;
         }
     }
@@ -699,7 +699,7 @@ public class BlogServiceImpl implements BlogService {
         try {
             return objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
         } catch (JsonProcessingException e) {
-            log.error("Lỗi khi convert JSON sang list: {}", e.getMessage());
+            log.error("Error converting JSON to list: {}", e.getMessage());
             return Collections.emptyList();
         }
     }

@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/public/comments")
 @RequiredArgsConstructor
-@Tag(name = "Comments - Public", description = "API xem bình luận công khai")
+@Tag(name = "Comments - Public", description = "Public APIs for viewing comments")
 public class CommentController {
 
     private final CommentService commentService;
 
     @GetMapping("/{targetType}/{targetId}")
-    @Operation(summary = "Lấy danh sách bình luận", description = "Lấy danh sách bình luận của một đối tượng (FOOD, BLOG...)")
+    @Operation(summary = "Get comments", description = "Retrieve comments for a target (FOOD, BLOG...)")
     public ResponseEntity<CommentPageResponse> getCommentsByTarget(
             @PathVariable String targetType,
             @PathVariable Long targetId,
@@ -38,14 +38,14 @@ public class CommentController {
     }
 
     @GetMapping("/detail/{commentId}")
-    @Operation(summary = "Lấy chi tiết bình luận", description = "Lấy thông tin chi tiết của một bình luận")
+    @Operation(summary = "Get comment detail", description = "Retrieve detailed information of a comment")
     public ResponseEntity<CommentResponse> getCommentById(@PathVariable Long commentId) {
         CommentResponse response = commentService.getCommentById(commentId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{commentId}/replies")
-    @Operation(summary = "Lấy danh sách reply", description = "Lấy danh sách reply của một comment")
+    @Operation(summary = "Get replies", description = "Retrieve replies for a comment")
     public ResponseEntity<CommentPageResponse> getReplies(
             @PathVariable Long commentId,
             @RequestParam(defaultValue = "0") int page,
@@ -56,7 +56,7 @@ public class CommentController {
     }
 
     @GetMapping("/count/{targetType}/{targetId}")
-    @Operation(summary = "Đếm số bình luận", description = "Đếm số bình luận của một đối tượng")
+    @Operation(summary = "Count comments", description = "Count comments for a target")
     public ResponseEntity<Long> countComments(
             @PathVariable String targetType,
             @PathVariable Long targetId) {
@@ -65,4 +65,3 @@ public class CommentController {
         return ResponseEntity.ok(count);
     }
 }
-

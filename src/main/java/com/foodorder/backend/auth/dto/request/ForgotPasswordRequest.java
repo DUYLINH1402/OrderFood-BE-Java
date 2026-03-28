@@ -6,11 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Request body để yêu cầu đặt lại mật khẩu")
+@Schema(description = "Request body for password reset request")
 public class ForgotPasswordRequest {
 
     @Schema(
-        description = "Email của người dùng cần đặt lại mật khẩu",
+        description = "Email of the user requesting password reset",
         example = "user@example.com",
         requiredMode = Schema.RequiredMode.REQUIRED
     )

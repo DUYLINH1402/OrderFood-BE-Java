@@ -19,14 +19,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/public/districts")
 @RequiredArgsConstructor
-@Tag(name = "Districts - Public", description = "API quản lý quận/huyện - Công khai")
+@Tag(name = "Districts - Public", description = "District management API - Public access")
 public class DistrictController {
 
     private final DistrictService districtService;
 
-    @Operation(summary = "Lấy tất cả quận/huyện",
-               description = "Lấy danh sách tất cả quận/huyện có hỗ trợ giao hàng.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get all districts",
+               description = "Get a list of all districts that support delivery.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<List<DistrictResponse>> getAllDistricts() {
         List<DistrictResponse> districts = districtService.getAllDistricts();

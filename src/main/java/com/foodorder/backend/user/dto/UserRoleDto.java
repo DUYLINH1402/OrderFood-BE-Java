@@ -14,31 +14,31 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO chứa thông tin vai trò của người dùng")
+@Schema(description = "DTO containing user role information")
 public class UserRoleDto {
 
-    @Schema(description = "ID của người dùng", example = "1")
+    @Schema(description = "User ID", example = "1")
     private Long userId;
 
-    @Schema(description = "Tên đăng nhập", example = "johndoe")
+    @Schema(description = "Username", example = "johndoe")
     private String username;
 
-    @Schema(description = "Email", example = "user@example.com")
+    @Schema(description = "Email address", example = "user@example.com")
     private String email;
 
-    @Schema(description = "Họ tên đầy đủ", example = "Nguyễn Văn A")
+    @Schema(description = "Full name", example = "Nguyen Van A")
     private String fullName;
 
-    @Schema(description = "Mã vai trò", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
+    @Schema(description = "Role code", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
     private String roleCode;
 
-    @Schema(description = "Tên vai trò hiển thị", example = "Khách hàng")
+    @Schema(description = "Role display name", example = "Customer")
     private String roleName;
 
-    @Schema(description = "Trạng thái hoạt động", example = "true")
+    @Schema(description = "Active status", example = "true")
     private boolean isActive;
 
-    @Schema(description = "Đã xác thực email chưa", example = "true")
+    @Schema(description = "Email verified status", example = "true")
     private boolean isVerified;
 
     /**

@@ -13,22 +13,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để cập nhật trạng thái món ăn")
+@Schema(description = "Request body for updating food status")
 public class FoodStatusUpdateRequest {
 
     @Schema(
-        description = "Trạng thái món ăn",
+        description = "Food status",
         example = "AVAILABLE",
         allowableValues = {"AVAILABLE", "UNAVAILABLE"}
     )
     private String status;
 
-    @Schema(description = "Trạng thái hoạt động của món ăn", example = "true")
+    @Schema(description = "Active status of food", example = "true")
     private Boolean isActive;
 
     @Schema(
-        description = "Ghi chú lý do thay đổi trạng thái (VD: hết nguyên liệu, bảo trì...)",
-        example = "Tạm hết nguyên liệu, dự kiến có lại vào ngày mai"
+        description = "Note for status change reason (e.g., out of stock, maintenance...)",
+        example = "Temporarily out of ingredients, expected back tomorrow"
     )
     private String statusNote;
 }

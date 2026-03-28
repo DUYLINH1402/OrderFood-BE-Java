@@ -300,35 +300,80 @@ public class StaffOrderServiceImpl implements StaffOrderService {
         long shippingFee = order.getShippingFee() != null ? order.getShippingFee().longValue() : 0;
         long finalAmount = order.getFinalAmount() != null ? order.getFinalAmount().longValue() : 0;
 
-        // Tính tổng giảm giá (điểm + coupon)
+        // Điểm đã dùng và giảm giá coupon (chi tiết riêng biệt)
         long pointsDiscount = order.getPointsDiscountAmount() != null ? order.getPointsDiscountAmount().longValue() : 0;
         long couponDiscount = order.getCouponDiscountAmount() != null ? order.getCouponDiscountAmount().longValue() : 0;
-        long totalDiscount = pointsDiscount + couponDiscount;
+        int pointsUsed = order.getPointsUsed() != null ? order.getPointsUsed() : 0;
 
         context.setVariable("subtotalFormatted", VnCurrencyFormatter.format(subtotal));
         context.setVariable("shippingFee", shippingFee);
         context.setVariable("shippingFeeFormatted", VnCurrencyFormatter.format(shippingFee));
-        context.setVariable("discountAmount", totalDiscount);
-        context.setVariable("discountAmountFormatted", VnCurrencyFormatter.format(totalDiscount));
+        context.setVariable("pointsUsed", pointsUsed);
+        context.setVariable("pointsDiscount", pointsDiscount);
+        context.setVariable("pointsDiscountFormatted", VnCurrencyFormatter.format(pointsDiscount));
+        context.setVariable("couponDiscount", couponDiscount);
+        context.setVariable("couponDiscountFormatted", VnCurrencyFormatter.format(couponDiscount));
+        context.setVariable("couponCode", order.getCouponCode() != null ? order.getCouponCode() : "");
         context.setVariable("finalAmountFormatted", VnCurrencyFormatter.format(finalAmount));
 
         // Thông tin thanh toán - hiển thị tiếng Việt
         context.setVariable("paymentMethod",
                 order.getPaymentMethod() != null ? order.getPaymentMethod().getDescription() : "");
 
-        // Thông tin giao hàng
+        // Thông tin giao hàng - ghép địa chỉ đầy đủ (deliveryAddress + ward + district)
         context.setVariable("receiverName",
                 order.getReceiverName() != null ? order.getReceiverName() : "");
         context.setVariable("receiverPhone",
                 order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
         context.setVariable("receiverEmail",
                 order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
-        context.setVariable("deliveryAddress",
-                order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
+        context.setVariable("deliveryAddress", buildFullAddress(order));
         context.setVariable("deliveryType",
                 order.getDeliveryType() != null ? order.getDeliveryType().getDescription() : "");
 
         return context;
+    }
+
+    /**
+     * Ghép địa chỉ đầy đủ từ deliveryAddress + ward + district
+     * Ví dụ: "123 Nguyễn Văn A, Phường Bến Nghé, Quận 1"
+     */
+    private String buildFullAddress(Order order) {
+        StringBuilder fullAddress = new StringBuilder();
+
+        if (order.getDeliveryAddress() != null && !order.getDeliveryAddress().isEmpty()) {
+            fullAddress.append(order.getDeliveryAddress());
+        }
+
+        // Truy vấn Ward name từ ward_id
+        if (order.getWardId() != null) {
+            try {
+                wardRepository.findById(order.getWardId()).ifPresent(ward -> {
+                    if (ward.getName() != null && !ward.getName().isEmpty()) {
+                        if (fullAddress.length() > 0) fullAddress.append(", ");
+                        fullAddress.append(ward.getName());
+                    }
+                });
+            } catch (Exception e) {
+                log.warn("Không thể truy vấn ward_id={}: {}", order.getWardId(), e.getMessage());
+            }
+        }
+
+        // Truy vấn District name từ district_id
+        if (order.getDistrictId() != null) {
+            try {
+                districtRepository.findById(order.getDistrictId()).ifPresent(district -> {
+                    if (district.getName() != null && !district.getName().isEmpty()) {
+                        if (fullAddress.length() > 0) fullAddress.append(", ");
+                        fullAddress.append(district.getName());
+                    }
+                });
+            } catch (Exception e) {
+                log.warn("Không thể truy vấn district_id={}: {}", order.getDistrictId(), e.getMessage());
+            }
+        }
+
+        return fullAddress.toString();
     }
 
     /**

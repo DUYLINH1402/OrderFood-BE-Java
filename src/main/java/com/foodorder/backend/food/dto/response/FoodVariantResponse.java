@@ -12,21 +12,21 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin biến thể món ăn (size, topping...)")
+@Schema(description = "Response containing food variant information (size, topping, etc.)")
 public class FoodVariantResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID của biến thể", example = "1")
+    @Schema(description = "Variant ID", example = "1")
     private Long id;
 
-    @Schema(description = "Tên biến thể", example = "Size L")
+    @Schema(description = "Variant name", example = "Size L")
     private String name;
 
-    @Schema(description = "Giá phụ thu của biến thể (VND)", example = "5000")
+    @Schema(description = "Additional price for this variant (VND)", example = "5000")
     private BigDecimal extraPrice;
 
-    @Schema(description = "Là biến thể mặc định hay không", example = "true")
+    @Schema(description = "Whether this is the default variant", example = "true")
     private boolean isDefault;
 }

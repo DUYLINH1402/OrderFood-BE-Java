@@ -29,25 +29,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/staff/foods")
 @RequiredArgsConstructor
 @RequireStaff
-@Tag(name = "Foods - Staff", description = "API quản lý món ăn - Nhân viên")
+@Tag(name = "Foods - Staff", description = "Food management API - Staff")
 public class FoodStaffController {
 
     private final FoodService foodService;
 
-    @Operation(summary = "Quản lý món ăn (Staff)",
-            description = "Lấy danh sách món ăn cho Staff quản lý. Hỗ trợ lọc theo tên, trạng thái, danh mục và trạng thái hoạt động.")
+    @Operation(summary = "Food management (Staff)",
+            description = "Get food list for Staff management. Supports filtering by name, status, category and active status.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/management")
     public ResponseEntity<Page<FoodResponse>> getFoodsForManagement(
-            @Parameter(description = "Tên món ăn (tìm kiếm)") @RequestParam(required = false) String name,
-            @Parameter(description = "Trạng thái (AVAILABLE/UNAVAILABLE)") @RequestParam(required = false) String status,
-            @Parameter(description = "ID danh mục") @RequestParam(required = false) Long categoryId,
-            @Parameter(description = "Trạng thái hoạt động") @RequestParam(required = false) Boolean isActive,
-            @Parameter(description = "Thông tin phân trang") @PageableDefault(size = 20) Pageable pageable) {
+            @Parameter(description = "Food name (search)") @RequestParam(required = false) String name,
+            @Parameter(description = "Status (AVAILABLE/UNAVAILABLE)") @RequestParam(required = false) String status,
+            @Parameter(description = "Category ID") @RequestParam(required = false) Long categoryId,
+            @Parameter(description = "Active status") @RequestParam(required = false) Boolean isActive,
+            @Parameter(description = "Pagination info") @PageableDefault(size = 20) Pageable pageable) {
 
         FoodFilterRequest filterRequest = FoodFilterRequest.builder()
                 .name(name)
@@ -59,18 +59,18 @@ public class FoodStaffController {
         return ResponseEntity.ok(foodService.getFoodsWithFilter(filterRequest, pageable));
     }
 
-    @Operation(summary = "Cập nhật trạng thái món ăn (Staff)",
-            description = "Cập nhật trạng thái món ăn. Cho phép thay đổi status (AVAILABLE/UNAVAILABLE) hoặc isActive.")
+    @Operation(summary = "Update food status (Staff)",
+            description = "Update food status. Allows changing status (AVAILABLE/UNAVAILABLE) or isActive.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công",
+            @ApiResponse(responseCode = "200", description = "Updated successfully",
                     content = @Content(schema = @Schema(implementation = FoodResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Food not found")
     })
     @PatchMapping("/{id}/status")
     public ResponseEntity<FoodResponse> updateFoodStatus(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id,
+            @Parameter(description = "Food ID") @PathVariable Long id,
             @RequestBody FoodStatusUpdateRequest request) {
         FoodResponse response = foodService.updateFoodStatus(id, request);
         return ResponseEntity.ok(response);

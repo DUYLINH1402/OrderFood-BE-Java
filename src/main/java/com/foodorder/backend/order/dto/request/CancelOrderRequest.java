@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request body để khách hàng hủy đơn hàng")
+@Schema(description = "Request body for customer to cancel order")
 public class CancelOrderRequest {
 
     @Schema(
-        description = "Lý do hủy đơn hàng",
-        example = "Tôi đổi ý không muốn đặt nữa"
+        description = "Reason for order cancellation",
+        example = "I changed my mind and don't want to order anymore"
     )
     private String cancelReason;
 }

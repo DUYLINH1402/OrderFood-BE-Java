@@ -24,50 +24,50 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequireSuperAdmin
 @Slf4j
-@Tag(name = "Search - Super Admin", description = "API quản lý Algolia Search index - Dành cho Super Admin")
+@Tag(name = "Search - Super Admin", description = "Algolia Search index management API - For Super Admin")
 public class SuperAdminSearchController {
 
     private final AlgoliaSearchService algoliaSearchService;
 
     @PostMapping("/reindex")
     @Operation(
-            summary = "Reindex toàn bộ món ăn",
-            description = "Đồng bộ lại toàn bộ dữ liệu món ăn từ MySQL lên Algolia. " +
-                    "Chỉ SUPER_ADMIN mới có quyền thực hiện."
+            summary = "Reindex all food items",
+            description = "Sync all food data from MySQL to Algolia. " +
+                    "Only SUPER_ADMIN can perform this action."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Bắt đầu reindex thành công"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập - Yêu cầu SUPER_ADMIN")
+            @ApiResponse(responseCode = "200", description = "Reindex started successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied - SUPER_ADMIN required")
     })
     public ResponseEntity<String> reindexAll() {
-        log.info("SUPER_ADMIN bắt đầu reindex toàn bộ món ăn lên Algolia");
+        log.info("SUPER_ADMIN started reindexing all food items to Algolia");
         algoliaSearchService.reindexAll();
-        return ResponseEntity.ok("Đã bắt đầu reindex toàn bộ món ăn. Vui lòng kiểm tra log để theo dõi tiến trình.");
+        return ResponseEntity.ok("Reindex started for all food items. Please check the logs to monitor progress.");
     }
 
     @PostMapping("/init")
     @Operation(
-            summary = "Khởi tạo dữ liệu Algolia",
-            description = "Đẩy toàn bộ dữ liệu món ăn từ MySQL lên Algolia lần đầu tiên. " +
-                    "API này sẽ xóa toàn bộ dữ liệu cũ trên Algolia (nếu có) và đẩy lại từ đầu. " +
-                    "Chỉ SUPER_ADMIN mới có quyền thực hiện."
+            summary = "Initialize Algolia data",
+            description = "Push all food data from MySQL to Algolia for the first time. " +
+                    "This API will clear all existing Algolia data (if any) and re-push from scratch. " +
+                    "Only SUPER_ADMIN can perform this action."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Khởi tạo thành công"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập - Yêu cầu SUPER_ADMIN")
+            @ApiResponse(responseCode = "200", description = "Initialized successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied - SUPER_ADMIN required")
     })
     public ResponseEntity<Map<String, Object>> initAlgoliaData() {
-        log.info("SUPER_ADMIN bắt đầu khởi tạo dữ liệu Algolia");
+        log.info("SUPER_ADMIN started initializing Algolia data");
 
         int syncedCount = algoliaSearchService.initializeAlgoliaIndex();
 
         Map<String, Object> response = Map.of(
                 "success", true,
-                "message", "Khởi tạo dữ liệu Algolia thành công",
+                "message", "Algolia data initialized successfully",
                 "syncedFoods", syncedCount
         );
 
-        log.info("Hoàn tất khởi tạo Algolia với {} món ăn", syncedCount);
+        log.info("Algolia initialization completed with {} food items", syncedCount);
         return ResponseEntity.ok(response);
     }
 }

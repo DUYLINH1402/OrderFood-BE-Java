@@ -38,7 +38,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/api/v1/public/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "API xác thực và quản lý tài khoản người dùng")
+@Tag(name = "Authentication", description = "APIs for user authentication and account management")
 public class AuthController {
     @Autowired
     private  AuthService authService;
@@ -55,11 +55,11 @@ public class AuthController {
     private UserTokenRepository userTokenRepository;
 
 
-    @Operation(summary = "Đăng ký tài khoản", description = "Đăng ký tài khoản mới cho người dùng. Sau khi đăng ký thành công, email xác thực sẽ được gửi đến địa chỉ email đã đăng ký.")
+    @Operation(summary = "Register account", description = "Register a new user account. A verification email will be sent to the registered email address upon successful registration.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đăng ký thành công",
+            @ApiResponse(responseCode = "200", description = "Registration successful",
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc email/username đã tồn tại")
+            @ApiResponse(responseCode = "400", description = "Invalid data or email/username already exists")
     })
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserRegisterRequest request) {
@@ -75,12 +75,12 @@ public class AuthController {
     }
 
 
-    @Operation(summary = "Đăng nhập", description = "Đăng nhập vào hệ thống bằng email/username và mật khẩu. Trả về JWT token nếu thành công.")
+    @Operation(summary = "Login", description = "Login with email/username and password. Returns a JWT token on success.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công",
+            @ApiResponse(responseCode = "200", description = "Login successful",
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Thông tin đăng nhập không chính xác"),
-            @ApiResponse(responseCode = "403", description = "Tài khoản chưa được xác thực email")
+            @ApiResponse(responseCode = "401", description = "Invalid login credentials"),
+            @ApiResponse(responseCode = "403", description = "Email not yet verified")
     })
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@RequestBody @Valid UserLoginRequest request) {
@@ -88,14 +88,14 @@ public class AuthController {
     }
 
 
-    @Operation(summary = "Xác thực email", description = "Xác thực email người dùng thông qua token được gửi qua email. Token có hiệu lực trong 24 giờ.")
+    @Operation(summary = "Verify email", description = "Verify user email via token sent by email. Token is valid for 24 hours.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xác thực thành công - Trả về trang verify_success"),
-            @ApiResponse(responseCode = "400", description = "Token không hợp lệ hoặc đã hết hạn - Trả về trang verify_failed")
+            @ApiResponse(responseCode = "200", description = "Verification successful - Returns verify_success page"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token - Returns verify_failed page")
     })
     @GetMapping("/verify")
     public String verifyUser(
-            @Parameter(description = "Token xác thực được gửi qua email")
+            @Parameter(description = "Verification token sent via email")
             @RequestParam("token") String token) {
         Optional<UserToken> tokenOpt = userTokenRepository.findByTokenAndUsedFalseAndType(token, UserTokenType.EMAIL_VERIFICATION);
         if (tokenOpt.isEmpty()) {
@@ -124,10 +124,10 @@ public class AuthController {
 
 
 
-    @Operation(summary = "Quên mật khẩu", description = "Gửi email chứa link đặt lại mật khẩu đến địa chỉ email đã đăng ký.")
+    @Operation(summary = "Forgot password", description = "Send a password reset link to the registered email address.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Email đặt lại mật khẩu đã được gửi"),
-            @ApiResponse(responseCode = "404", description = "Email không tồn tại trong hệ thống")
+            @ApiResponse(responseCode = "200", description = "Password reset email sent"),
+            @ApiResponse(responseCode = "404", description = "Email not found in the system")
     })
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
@@ -135,10 +135,10 @@ public class AuthController {
         return ResponseEntity.ok("RESET_LINK_SENT");
     }
 
-    @Operation(summary = "Đặt lại mật khẩu", description = "Đặt lại mật khẩu mới bằng token được gửi qua email.")
+    @Operation(summary = "Reset password", description = "Reset password using the token sent via email.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đặt lại mật khẩu thành công"),
-            @ApiResponse(responseCode = "400", description = "Token không hợp lệ hoặc đã hết hạn")
+            @ApiResponse(responseCode = "200", description = "Password reset successful"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token")
     })
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
@@ -146,14 +146,14 @@ public class AuthController {
         return ResponseEntity.ok("PASSWORD_RESET_SUCCESS");
     }
 
-    @Operation(summary = "Xác thực token đặt lại mật khẩu", description = "Kiểm tra token đặt lại mật khẩu có hợp lệ không. Token có hiệu lực trong 1 giờ.")
+    @Operation(summary = "Verify reset password token", description = "Validate the password reset token. Token is valid for 1 hour.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Token hợp lệ - Chuyển hướng đến trang đặt lại mật khẩu"),
-            @ApiResponse(responseCode = "400", description = "Token không hợp lệ hoặc đã hết hạn")
+            @ApiResponse(responseCode = "200", description = "Valid token - Redirects to reset password page"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token")
     })
     @GetMapping("/reset-password/verify")
     public String verifyResetPassword(
-            @Parameter(description = "Token đặt lại mật khẩu")
+            @Parameter(description = "Password reset token")
             @RequestParam("token") String token, Model model) {
         Optional<UserToken> tokenOpt = userTokenRepository
                 .findByTokenAndUsedFalseAndType(token, UserTokenType.PASSWORD_RESET);
@@ -171,10 +171,10 @@ public class AuthController {
     // Gửi lại email xác minh
     // Nếu người dùng đã xác minh email thì không cần gửi lại
     // nếu chưa xác minh thì gửi lại email xác minh l
-    @Operation(summary = "Gửi lại email xác thực", description = "Gửi lại email xác thực cho người dùng chưa xác minh email.")
+    @Operation(summary = "Resend verification email", description = "Resend the verification email for users who have not yet verified their email.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Email xác thực đã được gửi lại"),
-            @ApiResponse(responseCode = "400", description = "Email không tồn tại hoặc đã được xác thực")
+            @ApiResponse(responseCode = "200", description = "Verification email resent"),
+            @ApiResponse(responseCode = "400", description = "Email not found or already verified")
     })
     @PostMapping("/resend-verification")
     public ResponseEntity<?> resendVerification(@RequestBody Map<String, String> request) {

@@ -103,11 +103,11 @@ public class OpenAIService {
                     .retrieve()
                     .bodyToMono(String.class)
                     .map(this::extractContentFromResponse)
-                    .doOnError(error -> log.error("Lỗi khi gọi OpenAI API: {}", error.getMessage()))
+                    .doOnError(error -> log.error("Error calling OpenAI API: {}", error.getMessage()))
                     .onErrorResume(this::handleApiError);
 
         } catch (Exception e) {
-            log.error("Lỗi khi chuẩn bị request OpenAI: {}", e.getMessage());
+            log.error("Error preparing OpenAI request: {}", e.getMessage());
             return Mono.just("Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.");
         }
     }
@@ -126,11 +126,11 @@ public class OpenAIService {
                 return message.path("content").asText();
             }
 
-            log.warn("Không thể trích xuất content từ OpenAI response: {}", responseBody);
+            log.warn("Cannot extract content from OpenAI response: {}", responseBody);
             return "Xin lỗi, tôi không thể xử lý yêu cầu của bạn lúc này.";
 
         } catch (Exception e) {
-            log.error("Lỗi khi parse OpenAI response: {}", e.getMessage());
+            log.error("Error parsing OpenAI response: {}", e.getMessage());
             return "Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.";
         }
     }
@@ -145,7 +145,7 @@ public class OpenAIService {
 
             switch (statusCode) {
                 case 401:
-                    log.error("OpenAI API key không hợp lệ");
+                    log.error("OpenAI API key is invalid");
                     return Mono.just("Xin lỗi, hệ thống đang gặp sự cố xác thực. Vui lòng liên hệ admin.");
                 case 429:
                     log.error("OpenAI API rate limit exceeded");

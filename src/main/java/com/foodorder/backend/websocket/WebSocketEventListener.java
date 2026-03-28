@@ -28,7 +28,7 @@ public class WebSocketEventListener {
             String sessionId = headerAccessor.getSessionId();
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý WebSocket connect event: {}", e.getMessage(), e);
+            log.error("Error handling WebSocket connect event: {}", e.getMessage(), e);
         }
     }
 
@@ -45,7 +45,7 @@ public class WebSocketEventListener {
             staffWebSocketController.handleStaffDisconnect(sessionId);
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý WebSocket disconnect event: {}", e.getMessage(), e);
+            log.error("Error handling WebSocket disconnect event: {}", e.getMessage(), e);
         }
     }
 }

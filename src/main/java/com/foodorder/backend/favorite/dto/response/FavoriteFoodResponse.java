@@ -13,28 +13,28 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa thông tin món ăn yêu thích")
+@Schema(description = "Response containing favorite food information")
 public class FavoriteFoodResponse {
 
-    @Schema(description = "ID của món ăn", example = "1")
+    @Schema(description = "Food ID", example = "1")
     private Long foodId;
 
-    @Schema(description = "Tên món ăn", example = "Phở bò tái")
+    @Schema(description = "Food name", example = "Beef Pho")
     private String foodName;
 
-    @Schema(description = "URL hình ảnh món ăn", example = "https://example.com/pho.jpg")
+    @Schema(description = "Food image URL", example = "https://example.com/pho.jpg")
     private String foodImageUrl;
 
-    @Schema(description = "Slug của món ăn (dùng cho URL)", example = "pho-bo-tai")
+    @Schema(description = "Food slug (for URL)", example = "beef-pho")
     private String foodSlug;
 
-    @Schema(description = "ID của biến thể. Null nếu không có biến thể", example = "2")
+    @Schema(description = "Variant ID. Null if no variant", example = "2")
     private Long variantId;
 
-    @Schema(description = "Tên biến thể. Null nếu không có biến thể", example = "Size L")
+    @Schema(description = "Variant name. Null if no variant", example = "Size L")
     private String variantName;
 
-    @Schema(description = "Tổng giá (bao gồm cả phụ thu biến thể)", example = "60000")
+    @Schema(description = "Total price (including variant surcharge)", example = "60000")
     private BigDecimal totalPrice;
 
     public static FavoriteFoodResponse fromEntity(FavoriteFood favorite) {

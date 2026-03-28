@@ -413,7 +413,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentPageResponse getCommentsByUser(Long userId, Pageable pageable) {
         // Validate user exists
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("Không tìm thấy người dùng", "USER_NOT_FOUND");
+            throw new ResourceNotFoundException("User not found", "USER_NOT_FOUND");
         }
 
         Page<Comment> commentPage = commentRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
@@ -520,7 +520,7 @@ public class CommentServiceImpl implements CommentService {
                 .successCount(successCount)
                 .failCount(failCount)
                 .failedIds(failedIds)
-                .message(String.format("Đã cập nhật %d bình luận thành trạng thái %s", successCount, newStatus))
+                .message(String.format("Updated %d comment(s) to status %s", successCount, newStatus))
                 .build();
     }
 
@@ -552,7 +552,7 @@ public class CommentServiceImpl implements CommentService {
                 .successCount(successCount)
                 .failCount(failCount)
                 .failedIds(failedIds)
-                .message(String.format("Đã xóa vĩnh viễn %d bình luận", successCount))
+                .message(String.format("Permanently deleted %d comment(s)", successCount))
                 .build();
     }
 
@@ -565,7 +565,7 @@ public class CommentServiceImpl implements CommentService {
         switch (targetType) {
             case FOOD:
                 if (!foodRepository.existsById(targetId)) {
-                    throw new ResourceNotFoundException("Không tìm thấy món ăn", "FOOD_NOT_FOUND");
+                    throw new ResourceNotFoundException("Food not found", "FOOD_NOT_FOUND");
                 }
                 break;
             case BLOG:
@@ -577,7 +577,7 @@ public class CommentServiceImpl implements CommentService {
                 log.debug("Bỏ qua validate Movie (chưa có MovieRepository)");
                 break;
             default:
-                throw new BadRequestException("Loại đối tượng không được hỗ trợ", "UNSUPPORTED_TARGET_TYPE");
+                throw new BadRequestException("Unsupported target type", "UNSUPPORTED_TARGET_TYPE");
         }
     }
 

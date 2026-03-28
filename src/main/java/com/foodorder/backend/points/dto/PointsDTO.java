@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO cho thông tin điểm thưởng")
+@Schema(description = "DTO for reward points information")
 public class PointsDTO {
 
-    @Schema(description = "Số điểm", example = "100")
+    @Schema(description = "Number of points", example = "100")
     private int amount;
 }
 

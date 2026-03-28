@@ -37,7 +37,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequireSuperAdmin
 @Slf4j
-@Tag(name = "System - Super Admin", description = "API quản lý hệ thống dành cho Super Admin - Bảo vệ dữ liệu mẫu")
+@Tag(name = "System - Super Admin", description = "System management API for Super Admin - Protected data control")
 public class SuperAdminSystemController {
 
     private final FoodRepository foodRepository;
@@ -47,12 +47,12 @@ public class SuperAdminSystemController {
 
     // ==================== TOGGLE PROTECTED STATUS ====================
 
-    @Operation(summary = "Toggle bảo vệ món ăn",
-            description = "Bật/tắt trạng thái bảo vệ (isProtected) cho món ăn. Dữ liệu được bảo vệ sẽ không thể bị sửa/xóa bởi ADMIN.")
+    @Operation(summary = "Toggle food protection",
+            description = "Enable/disable the protected status (isProtected) for a food item. Protected data cannot be modified or deleted by ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Super Admin")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Food item not found"),
+            @ApiResponse(responseCode = "403", description = "Super Admin permission required")
     })
     @PatchMapping("/foods/{id}/protected")
     @Caching(evict = {
@@ -61,32 +61,32 @@ public class SuperAdminSystemController {
             @CacheEvict(value = CacheConfig.FOOD_DETAIL_CACHE, key = "#id")
     })
     public ResponseEntity<Map<String, Object>> toggleFoodProtected(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id,
+            @Parameter(description = "Food item ID") @PathVariable Long id,
             @RequestBody ProtectedStatusRequest request) {
 
         Food food = foodRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy món ăn", "FOOD_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("Food item not found", "FOOD_NOT_FOUND"));
 
         food.setIsProtected(request.getIsProtected());
         foodRepository.save(food);
 
-        log.info("Super Admin đã {} bảo vệ cho món ăn ID: {} ({})",
-                Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt", id, food.getName());
+        log.info("Super Admin {} protection for food ID: {} ({})",
+                Boolean.TRUE.equals(request.getIsProtected()) ? "enabled" : "disabled", id, food.getName());
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Đã " + (Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt") + " bảo vệ cho món ăn: " + food.getName(),
+                "message", (Boolean.TRUE.equals(request.getIsProtected()) ? "Protection enabled" : "Protection disabled") + " for food: " + food.getName(),
                 "id", id,
                 "isProtected", food.getIsProtected()
         ));
     }
 
-    @Operation(summary = "Toggle bảo vệ người dùng",
-            description = "Bật/tắt trạng thái bảo vệ (isProtected) cho người dùng. Dữ liệu được bảo vệ sẽ không thể bị sửa/xóa bởi ADMIN.")
+    @Operation(summary = "Toggle user protection",
+            description = "Enable/disable the protected status (isProtected) for a user. Protected data cannot be modified or deleted by ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Super Admin")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Super Admin permission required")
     })
     @PatchMapping("/users/{id}/protected")
     @Caching(evict = {
@@ -94,79 +94,79 @@ public class SuperAdminSystemController {
             @CacheEvict(value = CacheConfig.ADMIN_USER_DETAILS_CACHE, key = "#id")
     })
     public ResponseEntity<Map<String, Object>> toggleUserProtected(
-            @Parameter(description = "ID của người dùng") @PathVariable Long id,
+            @Parameter(description = "User ID") @PathVariable Long id,
             @RequestBody ProtectedStatusRequest request) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng", "USER_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", "USER_NOT_FOUND"));
 
         user.setProtected(request.getIsProtected());
         userRepository.save(user);
 
-        log.info("Super Admin đã {} bảo vệ cho user ID: {} ({})",
-                Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt", id, user.getUsername());
+        log.info("Super Admin {} protection for user ID: {} ({})",
+                Boolean.TRUE.equals(request.getIsProtected()) ? "enabled" : "disabled", id, user.getUsername());
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Đã " + (Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt") + " bảo vệ cho user: " + user.getUsername(),
+                "message", (Boolean.TRUE.equals(request.getIsProtected()) ? "Protection enabled" : "Protection disabled") + " for user: " + user.getUsername(),
                 "id", id,
                 "isProtected", user.isProtected()
         ));
     }
 
-    @Operation(summary = "Toggle bảo vệ bài viết",
-            description = "Bật/tắt trạng thái bảo vệ (isProtected) cho bài viết. Dữ liệu được bảo vệ sẽ không thể bị sửa/xóa bởi ADMIN.")
+    @Operation(summary = "Toggle blog protection",
+            description = "Enable/disable the protected status (isProtected) for a blog post. Protected data cannot be modified or deleted by ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy bài viết"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Super Admin")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Blog post not found"),
+            @ApiResponse(responseCode = "403", description = "Super Admin permission required")
     })
     @PatchMapping("/blogs/{id}/protected")
     public ResponseEntity<Map<String, Object>> toggleBlogProtected(
-            @Parameter(description = "ID của bài viết") @PathVariable Long id,
+            @Parameter(description = "Blog post ID") @PathVariable Long id,
             @RequestBody ProtectedStatusRequest request) {
 
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bài viết", "BLOG_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("Blog post not found", "BLOG_NOT_FOUND"));
 
         blog.setIsProtected(request.getIsProtected());
         blogRepository.save(blog);
 
-        log.info("Super Admin đã {} bảo vệ cho bài viết ID: {} ({})",
-                Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt", id, blog.getTitle());
+        log.info("Super Admin {} protection for blog ID: {} ({})",
+                Boolean.TRUE.equals(request.getIsProtected()) ? "enabled" : "disabled", id, blog.getTitle());
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Đã " + (Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt") + " bảo vệ cho bài viết: " + blog.getTitle(),
+                "message", (Boolean.TRUE.equals(request.getIsProtected()) ? "Protection enabled" : "Protection disabled") + " for blog: " + blog.getTitle(),
                 "id", id,
                 "isProtected", blog.getIsProtected()
         ));
     }
 
-    @Operation(summary = "Toggle bảo vệ danh mục blog",
-            description = "Bật/tắt trạng thái bảo vệ (isProtected) cho danh mục blog. Dữ liệu được bảo vệ sẽ không thể bị sửa/xóa bởi ADMIN.")
+    @Operation(summary = "Toggle blog category protection",
+            description = "Enable/disable the protected status (isProtected) for a blog category. Protected data cannot be modified or deleted by ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy danh mục"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Super Admin")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Blog category not found"),
+            @ApiResponse(responseCode = "403", description = "Super Admin permission required")
     })
     @PatchMapping("/blog-categories/{id}/protected")
     public ResponseEntity<Map<String, Object>> toggleBlogCategoryProtected(
-            @Parameter(description = "ID của danh mục blog") @PathVariable Long id,
+            @Parameter(description = "Blog category ID") @PathVariable Long id,
             @RequestBody ProtectedStatusRequest request) {
 
         BlogCategory category = blogCategoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục", "BLOG_CATEGORY_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("Blog category not found", "BLOG_CATEGORY_NOT_FOUND"));
 
         category.setIsProtected(request.getIsProtected());
         blogCategoryRepository.save(category);
 
-        log.info("Super Admin đã {} bảo vệ cho danh mục blog ID: {} ({})",
-                Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt", id, category.getName());
+        log.info("Super Admin {} protection for blog category ID: {} ({})",
+                Boolean.TRUE.equals(request.getIsProtected()) ? "enabled" : "disabled", id, category.getName());
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Đã " + (Boolean.TRUE.equals(request.getIsProtected()) ? "bật" : "tắt") + " bảo vệ cho danh mục: " + category.getName(),
+                "message", (Boolean.TRUE.equals(request.getIsProtected()) ? "Protection enabled" : "Protection disabled") + " for category: " + category.getName(),
                 "id", id,
                 "isProtected", category.getIsProtected()
         ));

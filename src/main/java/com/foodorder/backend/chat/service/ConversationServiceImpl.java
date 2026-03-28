@@ -30,12 +30,12 @@ public class ConversationServiceImpl implements ConversationService {
 
     @Override
     public Conversation getOrCreateConversationForUser(User user) {
-        log.info("Lấy hoặc tạo conversation cho user ID: {}", user.getId());
+        log.info("Getting or creating conversation for user ID: {}", user.getId());
 
         // Kiểm tra xem user đã có conversation chưa
         return conversationRepository.findByUser(user)
                 .orElseGet(() -> {
-                    log.info("Tạo conversation mới cho user ID: {}", user.getId());
+                    log.info("Creating new conversation for user ID: {}", user.getId());
                     Conversation newConversation = Conversation.createForUser(user);
                     return conversationRepository.save(newConversation);
                 });
@@ -46,7 +46,7 @@ public class ConversationServiceImpl implements ConversationService {
     public Conversation getConversationByUser(User user) {
         return conversationRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("CONVERSATION_NOT_FOUND",
-                    "Không tìm thấy cuộc trò chuyện của user"));
+                    "Conversation not found for this user"));
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ConversationServiceImpl implements ConversationService {
     public Conversation getConversationById(Long conversationId) {
         return conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new ResourceNotFoundException("CONVERSATION_NOT_FOUND",
-                    "Không tìm thấy cuộc trò chuyện"));
+                    "Conversation not found"));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public void addStaffNotes(Long conversationId, String notes, User staff) {
         if (notes == null || notes.trim().isEmpty()) {
-            throw new BadRequestException("EMPTY_NOTES", "Ghi chú không được để trống");
+            throw new BadRequestException("EMPTY_NOTES", "Notes must not be empty");
         }
 
         Conversation conversation = getConversationById(conversationId);
@@ -81,7 +81,7 @@ public class ConversationServiceImpl implements ConversationService {
         // Kiểm tra quyền staff
         String roleCode = staff.getRole().getCode();
         if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-            throw new BadRequestException("ACCESS_DENIED", "Chỉ staff mới có thể thêm ghi chú");
+            throw new BadRequestException("ACCESS_DENIED", "Only staff can add notes");
         }
 
         String noteWithStaff = String.format("[%s - %s]: %s",
@@ -140,18 +140,18 @@ public class ConversationServiceImpl implements ConversationService {
         // Kiểm tra quyền staff
         String roleCode = staff.getRole().getCode();
         if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-            throw new BadRequestException("ACCESS_DENIED", "Chỉ staff mới có thể vô hiệu hóa cuộc trò chuyện");
+            throw new BadRequestException("ACCESS_DENIED", "Only staff can deactivate conversations");
         }
 
         Conversation conversation = getConversationById(conversationId);
         conversation.deactivate();
 
         // Thêm ghi chú về việc vô hiệu hóa
-        String deactivateNote = String.format("Cuộc trò chuyện đã được vô hiệu hóa bởi %s", staff.getFullName());
+        String deactivateNote = String.format("Conversation deactivated by %s", staff.getFullName());
         conversation.addStaffNotes(deactivateNote);
 
         conversationRepository.save(conversation);
-        log.info("Staff {} đã vô hiệu hóa conversation ID: {}", staff.getId(), conversationId);
+        log.info("Staff {} deactivated conversation ID: {}", staff.getId(), conversationId);
     }
 
     @Override
@@ -159,18 +159,18 @@ public class ConversationServiceImpl implements ConversationService {
         // Kiểm tra quyền staff
         String roleCode = staff.getRole().getCode();
         if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-            throw new BadRequestException("ACCESS_DENIED", "Chỉ staff mới có thể kích hoạt cuộc trò chuyện");
+            throw new BadRequestException("ACCESS_DENIED", "Only staff can activate conversations");
         }
 
         Conversation conversation = getConversationById(conversationId);
         conversation.activate();
 
         // Thêm ghi chú về việc kích hoạt
-        String activateNote = String.format("Cuộc trò chuyện đã được kích hoạt lại bởi %s", staff.getFullName());
+        String activateNote = String.format("Conversation reactivated by %s", staff.getFullName());
         conversation.addStaffNotes(activateNote);
 
         conversationRepository.save(conversation);
-        log.info("Staff {} đã kích hoạt lại conversation ID: {}", staff.getId(), conversationId);
+        log.info("Staff {} reactivated conversation ID: {}", staff.getId(), conversationId);
     }
 
     @Override
@@ -186,11 +186,11 @@ public class ConversationServiceImpl implements ConversationService {
 
         for (Conversation conversation : inactiveConversations) {
             conversation.deactivate();
-            String archiveNote = String.format("Tự động archive do không hoạt động hơn %d ngày", daysInactive);
+            String archiveNote = String.format("Auto-archived due to %d days of inactivity", daysInactive);
             conversation.addStaffNotes(archiveNote);
         }
 
         conversationRepository.saveAll(inactiveConversations);
-        log.info("Đã archive {} conversation không hoạt động hơn {} ngày", inactiveConversations.size(), daysInactive);
+        log.info("Archived {} conversations inactive for more than {} days", inactiveConversations.size(), daysInactive);
     }
 }

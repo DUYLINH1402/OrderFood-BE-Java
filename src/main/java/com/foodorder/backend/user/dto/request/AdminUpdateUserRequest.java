@@ -13,43 +13,42 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để Admin cập nhật thông tin người dùng")
+@Schema(description = "Request body for Admin to update user information")
 public class AdminUpdateUserRequest {
 
-    @Schema(description = "Tên đăng nhập (3-50 ký tự)", example = "johndoe")
-    @Size(min = 3, max = 50, message = "Username phải từ 3-50 ký tự")
+    @Schema(description = "Username (3-50 characters)", example = "johndoe")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-    @Schema(description = "Email người dùng", example = "user@example.com")
-    @Email(message = "Email không hợp lệ")
+    @Schema(description = "User email address", example = "user@example.com")
+    @Email(message = "Invalid email address")
     private String email;
 
-    @Schema(description = "Mật khẩu mới (để trống nếu không thay đổi)", example = "NewPassword@123")
-    @Size(min = 6, max = 100, message = "Mật khẩu phải từ 6-100 ký tự")
+    @Schema(description = "New password (leave blank to keep current)", example = "NewPassword@123")
+    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
     private String password;
 
-    @Schema(description = "Họ tên đầy đủ", example = "Nguyễn Văn A")
-    @Size(max = 100, message = "Họ tên không được quá 100 ký tự")
+    @Schema(description = "Full name", example = "Nguyen Van A")
+    @Size(max = 100, message = "Full name must not exceed 100 characters")
     private String fullName;
 
-    @Schema(description = "Số điện thoại", example = "0901234567")
-    @Size(max = 20, message = "Số điện thoại không được quá 20 ký tự")
+    @Schema(description = "Phone number", example = "0901234567")
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
     private String phoneNumber;
 
-    @Schema(description = "Địa chỉ", example = "123 Nguyễn Huệ, Quận 1, TP.HCM")
-    @Size(max = 255, message = "Địa chỉ không được quá 255 ký tự")
+    @Schema(description = "Address", example = "123 Nguyen Hue, District 1, Ho Chi Minh City")
+    @Size(max = 255, message = "Address must not exceed 255 characters")
     private String address;
 
-    @Schema(description = "URL avatar", example = "https://example.com/avatar.jpg")
+    @Schema(description = "Avatar URL", example = "https://example.com/avatar.jpg")
     private String avatarUrl;
 
-    @Schema(description = "Mã vai trò", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
+    @Schema(description = "Role code", example = "ROLE_USER", allowableValues = {"ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"})
     private String roleCode;
 
-    @Schema(description = "Trạng thái hoạt động", example = "true")
+    @Schema(description = "Active status", example = "true")
     private Boolean isActive;
 
-    @Schema(description = "Đã xác thực email chưa", example = "true")
+    @Schema(description = "Email verified status", example = "true")
     private Boolean isVerified;
 }
-

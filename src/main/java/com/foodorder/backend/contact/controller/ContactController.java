@@ -26,7 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 
 @Slf4j
-@Tag(name = "Contact - Public", description = "API gửi tin nhắn liên hệ")
+@Tag(name = "Contact - Public", description = "Public API for contact messages")
 public class ContactController {
 
     private final ContactService contactService;
@@ -37,12 +37,12 @@ public class ContactController {
      * - Lưu tin nhắn vào DB ngay lập tức
      * - Gửi thông báo cho admin (async)
      */
-    @Operation(summary = "Gửi tin nhắn liên hệ",
-               description = "Khách hàng gửi tin nhắn liên hệ. Rate limit: 3 tin/phút/IP, 5 tin/giờ/email")
+    @Operation(summary = "Submit contact message",
+               description = "Submit a contact message. Rate limit: 3 messages/minute/IP, 5 messages/hour/email")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "202", description = "Tin nhắn đã được tiếp nhận và đang xử lý"),
-        @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-        @ApiResponse(responseCode = "429", description = "Gửi quá nhiều tin nhắn (rate limit)")
+        @ApiResponse(responseCode = "202", description = "Message received and processing"),
+        @ApiResponse(responseCode = "400", description = "Invalid data"),
+        @ApiResponse(responseCode = "429", description = "Too many messages (rate limit)")
     })
     @PostMapping
     public ResponseEntity<Map<String, Object>> submitContact(
@@ -60,7 +60,7 @@ public class ContactController {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of(
                         "success", true,
-                        "message", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.",
+                        "message", "Thank you for contacting us! We will respond as soon as possible.",
                         "contactId", response.getId()
                 ));
     }

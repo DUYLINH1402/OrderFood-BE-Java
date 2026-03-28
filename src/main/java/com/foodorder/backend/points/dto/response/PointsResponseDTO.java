@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa thông tin điểm thưởng khả dụng")
+@Schema(description = "Response containing available reward points information")
 public class PointsResponseDTO {
 
-    @Schema(description = "Số điểm khả dụng hiện tại", example = "500")
+    @Schema(description = "Current available points balance", example = "500")
     private int availablePoints;
 }

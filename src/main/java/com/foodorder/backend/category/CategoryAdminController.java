@@ -23,15 +23,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin/categories")
 @RequiredArgsConstructor
 @RequireAdmin
-@Tag(name = "Categories - Admin", description = "API quản trị danh mục món ăn")
+@Tag(name = "Categories - Admin", description = "Admin APIs for food category management")
 public class CategoryAdminController {
 
     private final CategoryService categoryService;
 
-    @Operation(summary = "Tạo danh mục mới", description = "Tạo một danh mục món ăn mới.")
+    @Operation(summary = "Create category", description = "Create a new food category.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "201", description = "Created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
@@ -39,26 +39,26 @@ public class CategoryAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Cập nhật danh mục", description = "Cập nhật thông tin một danh mục.")
+    @Operation(summary = "Update category", description = "Update a food category.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy danh mục")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Category not found")
     })
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
-            @Parameter(description = "ID của danh mục") @PathVariable Long id,
+            @Parameter(description = "Category ID") @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
-    @Operation(summary = "Xóa danh mục", description = "Xóa một danh mục.")
+    @Operation(summary = "Delete category", description = "Delete a food category.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy danh mục")
+            @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Category not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
-            @Parameter(description = "ID của danh mục") @PathVariable Long id) {
+            @Parameter(description = "Category ID") @PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }

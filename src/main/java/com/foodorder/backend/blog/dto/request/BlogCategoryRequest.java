@@ -15,14 +15,14 @@ import lombok.*;
 @Builder
 public class BlogCategoryRequest {
 
-    @NotBlank(message = "Tên danh mục không được để trống")
-    @Size(max = 100, message = "Tên danh mục không được vượt quá 100 ký tự")
+    @NotBlank(message = "CATEGORY_NAME_REQUIRED")
+    @Size(max = 100, message = "CATEGORY_NAME_MAX_LENGTH_100")
     private String name;
 
-    @Size(max = 150, message = "Slug không được vượt quá 150 ký tự")
+    @Size(max = 150, message = "SLUG_MAX_LENGTH_150")
     private String slug;
 
-    @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
+    @Size(max = 500, message = "DESCRIPTION_MAX_LENGTH_500")
     private String description;
 
     // Loại nội dung mà danh mục này thuộc về (mặc định NEWS_PROMOTIONS nếu không truyền)

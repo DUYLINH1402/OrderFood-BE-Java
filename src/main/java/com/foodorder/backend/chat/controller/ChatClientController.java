@@ -32,23 +32,23 @@ import java.util.Map;
 @RequestMapping("/api/v1/client/chat")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Chat - Client", description = "API chat dành cho người dùng đã đăng nhập")
+@Tag(name = "Chat - Client", description = "Chat APIs for authenticated users")
 public class ChatClientController {
 
     private final ChatService chatService;
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    @Operation(summary = "Lịch sử chat (User)", description = "Lấy lịch sử chat của user hiện tại.")
+    @Operation(summary = "Chat history (User)", description = "Retrieve chat history of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/history")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getChatHistory(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "20") int size,
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
             @Parameter(hidden = true) HttpServletRequest request) {
         try {
             User currentUser = getCurrentUser(request);
@@ -67,16 +67,16 @@ public class ChatClientController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy lịch sử chat: {}", e.getMessage());
+            log.error("Error fetching chat history: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "CHAT_HISTORY_ERROR",
-                "message", "Lỗi khi lấy lịch sử chat"
+                "message", "Failed to fetch chat history"
             ));
         }
     }
 
-    @Operation(summary = "Tin nhắn chưa đọc (User)", description = "Lấy danh sách tin nhắn chưa đọc của user hiện tại.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Unread messages (User)", description = "Retrieve unread messages for the current user.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/unread")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getUnreadMessages(
@@ -91,36 +91,36 @@ public class ChatClientController {
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy tin nhắn chưa đọc: {}", e.getMessage());
+            log.error("Error fetching unread messages: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "UNREAD_MESSAGES_ERROR",
-                "message", "Lỗi khi lấy tin nhắn chưa đọc"
+                "message", "Failed to fetch unread messages"
             ));
         }
     }
 
-    @Operation(summary = "Đánh dấu đã đọc (User)", description = "Đánh dấu một tin nhắn là đã đọc.")
+    @Operation(summary = "Mark as read (User)", description = "Mark a message as read.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @PutMapping("/mark-read/{messageId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> markMessageAsRead(
-            @Parameter(description = "ID tin nhắn") @PathVariable String messageId) {
+            @Parameter(description = "Message ID") @PathVariable String messageId) {
         try {
             chatService.markMessageAsRead(messageId);
 
             return ResponseEntity.ok(Map.of(
-                "message", "Đã đánh dấu tin nhắn là đã đọc",
+                "message", "Message marked as read",
                 "messageId", messageId
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi đánh dấu tin nhắn đã đọc: {}", e.getMessage());
+            log.error("Error marking message as read: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "MARK_READ_ERROR",
-                "message", "Lỗi khi đánh dấu tin nhắn đã đọc"
+                "message", "Failed to mark message as read"
             ));
         }
     }
@@ -133,7 +133,7 @@ public class ChatClientController {
             String username = jwtUtil.getUsernameFromToken(token);
             return userService.findByUsername(username);
         }
-        throw new RuntimeException("Không thể xác thực người dùng");
+        throw new RuntimeException("Unable to authenticate user");
     }
 }
 

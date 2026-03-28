@@ -16,11 +16,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để áp dụng mã giảm giá vào đơn hàng")
+@Schema(description = "Request body to apply coupon to order")
 public class ApplyCouponRequest {
 
     @Schema(
-        description = "Mã coupon cần áp dụng",
+        description = "Coupon code to apply",
         example = "SUMMER2025",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -28,7 +28,7 @@ public class ApplyCouponRequest {
     private String couponCode;
 
     @Schema(
-        description = "Tổng giá trị đơn hàng trước khi giảm giá",
+        description = "Total order amount before discount",
         example = "150000",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -36,9 +36,9 @@ public class ApplyCouponRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "Order amount must be greater than 0")
     private Double orderAmount;
 
-    @Schema(description = "ID của người dùng áp dụng coupon", example = "1")
+    @Schema(description = "User ID applying the coupon", example = "1")
     private Long userId;
 
-    @Schema(description = "Danh sách ID các món ăn trong đơn hàng", example = "[1, 2, 3]")
+    @Schema(description = "List of food IDs in the order", example = "[1, 2, 3]")
     private List<Long> foodIds;
 }

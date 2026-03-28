@@ -12,137 +12,137 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin chi tiết đơn hàng")
+@Schema(description = "Response containing order details")
 public class OrderResponse {
 
-    @Schema(description = "ID nội bộ của đơn hàng", example = "1")
+    @Schema(description = "Internal order ID", example = "1")
     private Long id;
 
-    @Schema(description = "Mã đơn hàng hiển thị cho khách", example = "ORD-20250120-001")
+    @Schema(description = "Order code displayed to customer", example = "ORD-20250120-001")
     private String orderCode;
 
-    @Schema(description = "ID của người đặt hàng", example = "1")
+    @Schema(description = "User ID who placed the order", example = "1")
     private Long userId;
 
-    @Schema(description = "Loại giao hàng", example = "DELIVERY")
+    @Schema(description = "Delivery type", example = "DELIVERY")
     private DeliveryType deliveryType;
 
-    @Schema(description = "Phương thức thanh toán", example = "COD")
+    @Schema(description = "Payment method", example = "COD")
     private String paymentMethod;
 
-    @Schema(description = "ID quận/huyện", example = "1")
+    @Schema(description = "District ID", example = "1")
     private Long districtId;
 
-    @Schema(description = "Tên quận/huyện", example = "Quận 1")
+    @Schema(description = "District name", example = "District 1")
     private String districtName;
 
-    @Schema(description = "ID phường/xã", example = "1")
+    @Schema(description = "Ward ID", example = "1")
     private Long wardId;
 
-    @Schema(description = "Tên phường/xã", example = "Phường Bến Nghé")
+    @Schema(description = "Ward name", example = "Ben Nghe Ward")
     private String wardName;
 
-    @Schema(description = "Địa chỉ giao hàng", example = "123 Nguyễn Huệ, Quận 1, TP.HCM")
+    @Schema(description = "Delivery address", example = "123 Nguyen Hue, District 1, HCMC")
     private String deliveryAddress;
 
-    @Schema(description = "Tên người nhận", example = "Nguyễn Văn A")
+    @Schema(description = "Receiver name", example = "John Doe")
     private String receiverName;
 
-    @Schema(description = "Số điện thoại người nhận", example = "0901234567")
+    @Schema(description = "Receiver phone", example = "0901234567")
     private String receiverPhone;
 
-    @Schema(description = "Email người nhận", example = "user@example.com")
+    @Schema(description = "Receiver email", example = "user@example.com")
     private String receiverEmail;
 
-    @Schema(description = "Trạng thái đơn hàng", example = "CONFIRMED", allowableValues = {"PENDING", "CONFIRMED", "PREPARING", "READY", "SHIPPING", "DELIVERED", "CANCELLED"})
+    @Schema(description = "Order status", example = "CONFIRMED", allowableValues = {"PENDING", "CONFIRMED", "PREPARING", "READY", "SHIPPING", "DELIVERED", "CANCELLED"})
     private String status;
 
-    @Schema(description = "Trạng thái thanh toán", example = "PAID", allowableValues = {"PENDING", "PAID", "FAILED", "REFUNDED"})
+    @Schema(description = "Payment status", example = "PAID", allowableValues = {"PENDING", "PAID", "FAILED", "REFUNDED"})
     private String paymentStatus;
 
-    // === TIỀN TỆ MỚI - RÕ RÀNG ===
-    @Schema(description = "Tổng tiền món ăn (không bao gồm phí ship, chưa trừ giảm giá)", example = "150000")
+    // === NEW CURRENCY - CLEAR ===
+    @Schema(description = "Subtotal amount for food items (excluding shipping, before discount)", example = "150000")
     private BigDecimal subtotalAmount;
 
-    @Schema(description = "Phí giao hàng", example = "15000")
+    @Schema(description = "Shipping fee", example = "15000")
     private BigDecimal shippingFee;
 
-    @Schema(description = "Tổng tiền sau khi cộng phí ship, trước khi áp dụng giảm giá", example = "165000")
+    @Schema(description = "Total amount after adding shipping fee, before applying discount", example = "165000")
     private BigDecimal totalBeforeDiscount;
 
-    @Schema(description = "Số tiền cuối cùng khách phải trả", example = "145000")
+    @Schema(description = "Final amount customer has to pay", example = "145000")
     private BigDecimal finalAmount;
 
-    // === GIẢM GIÁ ===
-    @Schema(description = "Số điểm đã sử dụng", example = "100")
+    // === DISCOUNT ===
+    @Schema(description = "Points used", example = "100")
     private Integer pointsUsed;
 
-    @Schema(description = "Số tiền giảm từ điểm thưởng", example = "10000")
+    @Schema(description = "Discount amount from reward points", example = "10000")
     private BigDecimal pointsDiscountAmount;
 
-    @Schema(description = "Mã coupon đã sử dụng", example = "SUMMER2025")
+    @Schema(description = "Coupon code used", example = "SUMMER2025")
     private String couponCode;
 
-    @Schema(description = "Số tiền giảm từ coupon", example = "10000")
+    @Schema(description = "Discount amount from coupon", example = "10000")
     private BigDecimal couponDiscountAmount;
 
-    // === DEPRECATED FIELDS - GIỮ LẠI ĐỂ TƯƠNG THÍCH ===
+    // === DEPRECATED FIELDS - KEPT FOR COMPATIBILITY ===
     @Deprecated
     @Schema(hidden = true)
     private Integer discountAmount;
 
-    @Schema(description = "Thời gian tạo đơn", example = "2025-01-20T10:30:00")
+    @Schema(description = "Order creation time", example = "2025-01-20T10:30:00")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Thời gian cập nhật gần nhất", example = "2025-01-20T10:35:00")
+    @Schema(description = "Last update time", example = "2025-01-20T10:35:00")
     private LocalDateTime updatedAt;
 
-    @Schema(description = "Thời gian thanh toán", example = "2025-01-20T10:32:00")
+    @Schema(description = "Payment time", example = "2025-01-20T10:32:00")
     private LocalDateTime paymentTime;
 
-    @Schema(description = "Mã giao dịch thanh toán", example = "TXN123456789")
+    @Schema(description = "Payment transaction ID", example = "TXN123456789")
     private String paymentTransactionId;
 
     // === MANAGEMENT FIELDS ===
-    @Schema(description = "Ghi chú của nhân viên cho khách", example = "Giao trước 12h")
+    @Schema(description = "Staff note for customer", example = "Deliver before 12pm")
     private String staffNote;
 
-    @Schema(description = "Ghi chú nội bộ (chỉ Staff/Admin thấy)", example = "Khách VIP")
+    @Schema(description = "Internal note (Staff/Admin only)", example = "VIP customer")
     private String internalNote;
 
-    @Schema(description = "Lý do hủy đơn (nếu có)", example = "Khách hàng yêu cầu hủy")
+    @Schema(description = "Cancellation reason (if any)", example = "Customer requested cancellation")
     private String cancelReason;
 
-    @Schema(description = "Thời gian hủy đơn", example = "2025-01-20T11:00:00")
+    @Schema(description = "Cancellation time", example = "2025-01-20T11:00:00")
     private LocalDateTime cancelledAt;
 
-    @Schema(description = "Danh sách các món ăn trong đơn hàng")
+    @Schema(description = "List of food items in order")
     private List<OrderItemResponse> items;
 
-    // Item response lồng trong này luôn cho gọn
+    // Item response nested within for convenience
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Thông tin một món ăn trong đơn hàng")
+    @Schema(description = "Information of one food item in order")
     public static class OrderItemResponse {
-        @Schema(description = "ID món ăn", example = "1")
+        @Schema(description = "Food ID", example = "1")
         private Long foodId;
 
-        @Schema(description = "Tên món ăn", example = "Phở bò tái")
+        @Schema(description = "Food name", example = "Beef Pho")
         private String foodName;
 
-        @Schema(description = "Slug của món ăn", example = "pho-bo-tai")
+        @Schema(description = "Food slug", example = "pho-bo-tai")
         private String foodSlug;
 
-        @Schema(description = "URL hình ảnh", example = "https://example.com/pho.jpg")
+        @Schema(description = "Image URL", example = "https://example.com/pho.jpg")
         private String imageUrl;
 
-        @Schema(description = "Số lượng", example = "2")
+        @Schema(description = "Quantity", example = "2")
         private Integer quantity;
 
-        @Schema(description = "Đơn giá", example = "55000")
+        @Schema(description = "Unit price", example = "55000")
         private BigDecimal price;
     }
 }

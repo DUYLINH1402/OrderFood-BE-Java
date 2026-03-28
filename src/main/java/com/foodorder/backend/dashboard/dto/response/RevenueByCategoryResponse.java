@@ -19,19 +19,19 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa cơ cấu doanh thu theo danh mục món ăn")
+@Schema(description = "Response containing revenue breakdown by food category")
 public class RevenueByCategoryResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Danh sách cơ cấu doanh thu (3 nhóm chính + 1 nhóm Khác)")
+    @Schema(description = "List of revenue breakdown (top 3 categories + 'Others')")
     private List<CategoryRevenue> categories;
 
-    @Schema(description = "Tổng doanh thu tất cả các nhóm (VND)", example = "15000000")
+    @Schema(description = "Total revenue of all categories (VND)", example = "15000000")
     private BigDecimal totalRevenue;
 
-    @Schema(description = "Khoảng thời gian thống kê (7, 30, 90 ngày)", example = "30")
+    @Schema(description = "Statistics period (7, 30, 90 days)", example = "30")
     private Integer periodDays;
 
     /**
@@ -41,33 +41,33 @@ public class RevenueByCategoryResponse implements Serializable {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Doanh thu theo danh mục")
+    @Schema(description = "Revenue by category")
     public static class CategoryRevenue implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        @Schema(description = "ID danh mục (null nếu là nhóm 'Khác')", example = "1")
+        @Schema(description = "Category ID (null if 'Others' group)", example = "1")
         private Long categoryId;
 
-        @Schema(description = "Tên danh mục", example = "Món chính")
+        @Schema(description = "Category name", example = "Main dishes")
         private String categoryName;
 
-        @Schema(description = "Slug danh mục", example = "mon-chinh")
+        @Schema(description = "Category slug", example = "main-dishes")
         private String categorySlug;
 
-        @Schema(description = "Doanh thu của danh mục (VND)", example = "5000000")
+        @Schema(description = "Category revenue (VND)", example = "5000000")
         private BigDecimal revenue;
 
-        @Schema(description = "Tỷ lệ % doanh thu so với tổng", example = "33.3")
+        @Schema(description = "Revenue percentage of total", example = "33.3")
         private Double percentage;
 
-        @Schema(description = "Số lượng đơn hàng có món thuộc danh mục này", example = "100")
+        @Schema(description = "Number of orders containing items from this category", example = "100")
         private Long orderCount;
 
-        @Schema(description = "Số lượng món đã bán thuộc danh mục này", example = "200")
+        @Schema(description = "Quantity sold from this category", example = "200")
         private Long quantitySold;
 
-        @Schema(description = "Màu sắc cho biểu đồ", example = "#FF6384")
+        @Schema(description = "Color for chart display", example = "#FF6384")
         private String color;
     }
 }

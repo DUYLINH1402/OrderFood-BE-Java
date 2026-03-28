@@ -15,37 +15,37 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin chi tiết nhà hàng")
+@Schema(description = "Response containing detailed restaurant information")
 public class RestaurantResponseDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID của nhà hàng", example = "1")
+    @Schema(description = "Restaurant ID", example = "1")
     private Long id;
 
-    @Schema(description = "Tên nhà hàng", example = "Nhà hàng ABC")
+    @Schema(description = "Restaurant name", example = "Dong Xanh Restaurant")
     private String name;
 
-    @Schema(description = "URL logo nhà hàng", example = "https://example.com/logo.png")
+    @Schema(description = "Restaurant logo URL", example = "https://example.com/logo.png")
     private String logoUrl;
 
-    @Schema(description = "Địa chỉ nhà hàng", example = "123 Nguyễn Văn Linh, Q7, TP.HCM")
+    @Schema(description = "Restaurant address", example = "123 Nguyen Van Linh, District 7, Ho Chi Minh City")
     private String address;
 
-    @Schema(description = "Số điện thoại liên hệ", example = "0901234567")
+    @Schema(description = "Contact phone number", example = "0901234567")
     private String phoneNumber;
 
-    @Schema(description = "URL video giới thiệu", example = "https://youtube.com/watch?v=xxx")
+    @Schema(description = "Introduction video URL", example = "https://youtube.com/watch?v=xxx")
     private String videoUrl;
 
-    @Schema(description = "Mô tả chi tiết về nhà hàng")
+    @Schema(description = "Detailed description of the restaurant")
     private String description;
 
-    @Schema(description = "Giờ mở cửa", example = "07:00 - 22:00")
+    @Schema(description = "Opening hours", example = "07:00 - 22:00")
     private String openingHours;
 
-    @Schema(description = "Danh sách URL hình ảnh gallery của nhà hàng")
+    @Schema(description = "List of restaurant gallery images")
     private List<GalleryItemDTO> galleries;
 
     /**
@@ -56,20 +56,19 @@ public class RestaurantResponseDTO implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Thông tin một hình ảnh trong gallery")
+    @Schema(description = "Information of a single gallery image")
     public static class GalleryItemDTO implements Serializable {
 
         @Serial
         private static final long serialVersionUID = 1L;
 
-        @Schema(description = "ID của ảnh gallery", example = "1")
+        @Schema(description = "Gallery image ID", example = "1")
         private Long id;
 
-        @Schema(description = "URL hình ảnh", example = "https://example.com/image1.jpg")
+        @Schema(description = "Image URL", example = "https://example.com/image1.jpg")
         private String imageUrl;
 
-        @Schema(description = "Thứ tự hiển thị", example = "1")
+        @Schema(description = "Display order", example = "1")
         private Integer displayOrder;
     }
 }
-

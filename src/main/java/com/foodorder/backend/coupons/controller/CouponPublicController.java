@@ -24,27 +24,27 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Coupons - Public", description = "API mã giảm giá công khai")
+@Tag(name = "Coupons - Public", description = "Public API for discount coupons")
 public class CouponPublicController {
 
     private final CouponService couponService;
 
-    @Operation(summary = "Danh sách coupon công khai", description = "Lấy danh sách mã giảm giá công khai đang hoạt động.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get active public coupons", description = "Get list of active public coupons.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/active")
     public ResponseEntity<List<CouponResponse>> getActivePublicCoupons() {
         List<CouponResponse> response = couponService.getActivePublicCoupons();
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Chi tiết coupon (Code)", description = "Lấy thông tin chi tiết mã giảm giá theo mã code.")
+    @Operation(summary = "Get coupon details (Code)", description = "Get coupon details by code.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy coupon")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Coupon not found")
     })
     @GetMapping("/code/{code}")
     public ResponseEntity<CouponResponse> getCouponByCode(
-            @Parameter(description = "Mã code của coupon") @PathVariable String code) {
+            @Parameter(description = "Coupon code") @PathVariable String code) {
         return couponService.getCouponByCode(code)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

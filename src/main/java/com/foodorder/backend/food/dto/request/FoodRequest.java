@@ -9,33 +9,33 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để tạo/cập nhật món ăn")
+@Schema(description = "Request body for creating/updating food item")
 public class FoodRequest {
 
-    @Schema(description = "Tên món ăn", example = "Phở bò tái", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Food name", example = "Beef Pho", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "Mô tả món ăn", example = "Phở bò tái với nước dùng đậm đà")
+    @Schema(description = "Food description", example = "Beef pho with rich broth")
     private String description;
 
-    @Schema(description = "Giá món ăn (VND)", example = "55000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Food price (VND)", example = "55000", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double price;
 
-    @Schema(description = "File hình ảnh món ăn", type = "string", format = "binary")
+    @Schema(description = "Food image file", type = "string", format = "binary")
     private MultipartFile imageUrl;
 
-    @Schema(description = "ID của danh mục chứa món ăn", example = "1")
+    @Schema(description = "Category ID containing this food", example = "1")
     private Long categoryId;
 
-    @Schema(description = "ID của món ăn cha (nếu có)", example = "2")
+    @Schema(description = "Parent food ID (if any)", example = "2")
     private Long parentId;
 
-    @Schema(description = "Đánh dấu món bán chạy", example = "true")
+    @Schema(description = "Mark as bestseller", example = "true")
     private Boolean isBestSeller;
 
-    @Schema(description = "Đánh dấu món mới", example = "true")
+    @Schema(description = "Mark as new item", example = "true")
     private Boolean isNew;
 
-    @Schema(description = "Đánh dấu món nổi bật", example = "false")
+    @Schema(description = "Mark as featured", example = "false")
     private Boolean isFeatured;
 }

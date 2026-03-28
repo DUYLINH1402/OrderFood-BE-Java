@@ -54,10 +54,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         // Tạo response lỗi chuẩn hóa
         ApiError apiError = ApiError.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
-                .message("Bạn cần đăng nhập để truy cập tài nguyên này")
+                .message("Authentication is required to access this resource")
                 .errorCode("AUTHENTICATION_REQUIRED")
                 .errors(null)
-                .details("Token không hợp lệ hoặc đã hết hạn")
+                .details("Token is invalid or has expired")
                 .build();
 
         // Set response header và content type

@@ -9,33 +9,33 @@ import jakarta.validation.constraints.Size;
  * DTO cho request gửi tin nhắn đến chatbot
  */
 @Data
-@Schema(description = "Request body để gửi tin nhắn đến chatbot AI")
+@Schema(description = "Request body for sending a message to the AI chatbot")
 public class ChatRequestDTO {
 
     @Schema(
-        description = "Nội dung tin nhắn gửi đến chatbot (tối đa 2000 ký tự)",
-        example = "Tôi muốn đặt món phở bò",
+        description = "Message content to send to chatbot (max 2000 characters)",
+        example = "I want to order pho bo",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Tin nhắn không được để trống")
-    @Size(max = 2000, message = "Tin nhắn không được vượt quá 2000 ký tự")
+    @NotBlank(message = "MESSAGE_REQUIRED")
+    @Size(max = 2000, message = "MESSAGE_MAX_LENGTH_2000")
     private String message;
 
     @Schema(
-        description = "Session ID để duy trì ngữ cảnh cuộc hội thoại",
+        description = "Session ID to maintain conversation context",
         example = "session_abc123"
     )
     private String sessionId;
 
     @Schema(
-        description = "ID người dùng (để null nếu là khách vãng lai)",
+        description = "User ID (null for guest users)",
         example = "1"
     )
     private Long userId;
 
     @Schema(
-        description = "Thông tin bổ sung về người dùng (vị trí, sở thích...)",
-        example = "Vị trí: Quận 1, Sở thích: Món Việt"
+        description = "Additional user context (location, preferences...)",
+        example = "Location: District 1, Preference: Vietnamese food"
     )
     private String userContext;
 }

@@ -20,26 +20,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/public/feedback-media")
 @RequiredArgsConstructor
-@Tag(name = "Feedback Media - Public", description = "API xem nội dung phản hồi - Công khai")
+@Tag(name = "Feedback Media - Public", description = "Public API for feedback content")
 public class FeedbackMediaPublicController {
 
     private final FeedbackMediaService service;
 
-    @Operation(summary = "Lấy tất cả feedback media", description = "Lấy danh sách tất cả nội dung phản hồi.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get all feedback media", description = "Get list of all feedback content.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public FeedbackMediaListResponse getAll() {
         return service.getAll();
     }
 
-    @Operation(summary = "Chi tiết feedback media", description = "Lấy thông tin chi tiết một nội dung phản hồi theo ID.")
+    @Operation(summary = "Get feedback media details", description = "Get detailed information of a feedback content by ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Not found")
     })
     @GetMapping("/{id}")
     public FeedbackMediaResponse getById(
-            @Parameter(description = "ID của feedback media") @PathVariable Long id) {
+            @Parameter(description = "Feedback media ID") @PathVariable Long id) {
         return service.getById(id);
     }
 }

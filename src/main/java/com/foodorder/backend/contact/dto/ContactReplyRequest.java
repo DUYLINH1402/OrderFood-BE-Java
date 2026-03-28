@@ -14,8 +14,8 @@ import lombok.*;
 @Builder
 public class ContactReplyRequest {
 
-    @NotBlank(message = "Nội dung phản hồi không được để trống")
-    @Size(min = 10, max = 5000, message = "Nội dung phản hồi phải từ 10 đến 5000 ký tự")
+    @NotBlank(message = "Reply content cannot be empty")
+    @Size(min = 10, max = 5000, message = "Reply content must be between 10 and 5000 characters")
     private String replyContent;
 
     /**

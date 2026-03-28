@@ -34,7 +34,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 
 @Slf4j
-@Tag(name = "Contact - Staff", description = "API quản lý tin nhắn liên hệ (Staff/Admin)")
+@Tag(name = "Contact - Staff", description = "Contact message management API (Staff/Admin)")
 @RequireStaff
 public class AdminContactController {
 
@@ -43,10 +43,10 @@ public class AdminContactController {
     /**
      * Lấy danh sách tất cả tin nhắn liên hệ (phân trang)
      */
-    @Operation(summary = "Lấy danh sách tin nhắn liên hệ", description = "Lấy tất cả tin nhắn liên hệ với phân trang")
+    @Operation(summary = "Get all contact messages", description = "Get all contact messages with pagination")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Thành công"),
-        @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+        @ApiResponse(responseCode = "200", description = "Success"),
+        @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
     public ResponseEntity<Page<ContactResponse>> getAllContacts(
@@ -57,7 +57,7 @@ public class AdminContactController {
     /**
      * Lấy danh sách tin nhắn theo trạng thái
      */
-    @Operation(summary = "Lấy tin nhắn theo trạng thái", description = "Lọc tin nhắn theo trạng thái: PENDING, READ, REPLIED, ARCHIVED")
+    @Operation(summary = "Get messages by status", description = "Filter messages by status: PENDING, READ, REPLIED, ARCHIVED")
     @GetMapping("/status/{status}")
     public ResponseEntity<Page<ContactResponse>> getContactsByStatus(
             @PathVariable ContactStatus status,
@@ -68,7 +68,7 @@ public class AdminContactController {
     /**
      * Lấy danh sách tin nhắn theo nhiều trạng thái
      */
-    @Operation(summary = "Lấy tin nhắn theo nhiều trạng thái", description = "Lọc tin nhắn theo danh sách trạng thái")
+    @Operation(summary = "Get messages by multiple statuses", description = "Filter messages by list of statuses")
     @GetMapping("/statuses")
     public ResponseEntity<Page<ContactResponse>> getContactsByStatuses(
             @RequestParam List<ContactStatus> statuses,
@@ -79,7 +79,7 @@ public class AdminContactController {
     /**
      * Tìm kiếm tin nhắn theo keyword
      */
-    @Operation(summary = "Tìm kiếm tin nhắn", description = "Tìm kiếm tin nhắn theo tên, email, nội dung hoặc chủ đề")
+    @Operation(summary = "Search messages", description = "Search messages by name, email, content or subject")
     @GetMapping("/search")
     public ResponseEntity<Page<ContactResponse>> searchContacts(
             @RequestParam String keyword,
@@ -90,10 +90,10 @@ public class AdminContactController {
     /**
      * Lấy chi tiết tin nhắn
      */
-    @Operation(summary = "Lấy chi tiết tin nhắn", description = "Xem chi tiết một tin nhắn liên hệ theo ID")
+    @Operation(summary = "Get message details", description = "View contact message details by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Thành công"),
-        @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+        @ApiResponse(responseCode = "200", description = "Success"),
+        @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<ContactResponse> getContactById(@PathVariable Long id) {
@@ -103,10 +103,10 @@ public class AdminContactController {
     /**
      * Cập nhật trạng thái tin nhắn
      */
-    @Operation(summary = "Cập nhật trạng thái tin nhắn", description = "Cập nhật trạng thái và ghi chú cho tin nhắn")
+    @Operation(summary = "Update message status", description = "Update status and note for message")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-        @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+        @ApiResponse(responseCode = "200", description = "Updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @PatchMapping("/{id}/status")
     public ResponseEntity<ContactResponse> updateContactStatus(
@@ -118,10 +118,10 @@ public class AdminContactController {
     /**
      * Phản hồi tin nhắn liên hệ
      */
-    @Operation(summary = "Phản hồi tin nhắn", description = "Phản hồi tin nhắn liên hệ và tùy chọn gửi email cho khách hàng")
+    @Operation(summary = "Reply to message", description = "Reply to contact message and optionally send email to customer")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Phản hồi thành công"),
-        @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+        @ApiResponse(responseCode = "200", description = "Replied successfully"),
+        @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @PostMapping("/{id}/reply")
     public ResponseEntity<ContactResponse> replyToContact(
@@ -135,11 +135,11 @@ public class AdminContactController {
     /**
      * Xóa tin nhắn (chỉ tin đã archived)
      */
-    @Operation(summary = "Xóa tin nhắn", description = "Xóa tin nhắn đã lưu trữ (chỉ Admin)")
+    @Operation(summary = "Delete message", description = "Delete archived message (Admin only)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Xóa thành công"),
-        @ApiResponse(responseCode = "400", description = "Tin nhắn chưa được lưu trữ"),
-        @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+        @ApiResponse(responseCode = "200", description = "Deleted successfully"),
+        @ApiResponse(responseCode = "400", description = "Message not archived"),
+        @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @DeleteMapping("/{id}")
     @RequireAdmin
@@ -147,14 +147,14 @@ public class AdminContactController {
         contactService.deleteContact(id);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Đã xóa tin nhắn thành công"
+                "message", "Message deleted successfully"
         ));
     }
 
     /**
      * Đếm số tin nhắn chưa đọc
      */
-    @Operation(summary = "Đếm tin nhắn chưa đọc", description = "Lấy số lượng tin nhắn đang chờ xử lý")
+    @Operation(summary = "Count unread messages", description = "Get number of pending messages")
     @GetMapping("/pending/count")
     public ResponseEntity<Map<String, Object>> countPendingMessages() {
         long count = contactService.countPendingMessages();
@@ -164,7 +164,7 @@ public class AdminContactController {
     /**
      * Lấy thống kê tin nhắn liên hệ
      */
-    @Operation(summary = "Thống kê tin nhắn", description = "Lấy thống kê tin nhắn theo trạng thái và theo ngày")
+    @Operation(summary = "Get message statistics", description = "Get statistics by status and date")
     @GetMapping("/statistics")
     public ResponseEntity<Map<String, Object>> getContactStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -175,7 +175,7 @@ public class AdminContactController {
     /**
      * Lấy danh sách tin nhắn mới nhất (cho Dashboard)
      */
-    @Operation(summary = "Tin nhắn mới nhất", description = "Lấy danh sách tin nhắn mới nhất cho Dashboard")
+    @Operation(summary = "Get recent messages", description = "Get latest messages for Dashboard")
     @GetMapping("/recent")
     public ResponseEntity<List<ContactResponse>> getRecentContacts(
             @RequestParam(defaultValue = "5") int limit) {

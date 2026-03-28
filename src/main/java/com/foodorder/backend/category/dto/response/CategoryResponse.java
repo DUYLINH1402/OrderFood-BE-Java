@@ -7,30 +7,30 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-@Schema(description = "Response chứa thông tin danh mục món ăn")
+@Schema(description = "Response containing food category details")
 public class CategoryResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID của danh mục", example = "1")
+    @Schema(description = "Category ID", example = "1")
     private Long id;
 
-    @Schema(description = "Tên danh mục", example = "Món chính")
+    @Schema(description = "Category name", example = "Main Dishes")
     private String name;
 
-    @Schema(description = "Mô tả danh mục", example = "Các món ăn chính trong thực đơn")
+    @Schema(description = "Category description", example = "Main course items on the menu")
     private String description;
 
-    @Schema(description = "ID của danh mục cha. Null nếu là danh mục gốc", example = "1")
+    @Schema(description = "Parent category ID. Null for root category", example = "1")
     private Long parentId;
 
-    @Schema(description = "Thứ tự hiển thị", example = "1")
+    @Schema(description = "Display order", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "Có danh mục con hay không", example = "true")
+    @Schema(description = "Whether category has children", example = "true")
     private boolean hasChildren;
 
-    @Schema(description = "Slug của danh mục (dùng cho URL)", example = "mon-chinh")
+    @Schema(description = "Category slug (for URL)", example = "main-dishes")
     private String slug;
 }

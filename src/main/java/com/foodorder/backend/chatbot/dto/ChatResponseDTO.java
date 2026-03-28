@@ -15,55 +15,55 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa phản hồi từ chatbot AI")
+@Schema(description = "Response containing AI chatbot reply")
 public class ChatResponseDTO {
 
-    @Schema(description = "Session ID của cuộc hội thoại", example = "session_abc123")
+    @Schema(description = "Conversation session ID", example = "session_abc123")
     private String sessionId;
 
-    @Schema(description = "Tin nhắn phản hồi từ bot", example = "Chào bạn! Tôi có thể giúp gì cho bạn?")
+    @Schema(description = "Bot response message", example = "Hello! How can I help you?")
     private String message;
 
-    @Schema(description = "Loại tin nhắn", example = "text", allowableValues = {"text", "suggestion", "product_recommendation"})
+    @Schema(description = "Message type", example = "text", allowableValues = {"text", "suggestion", "product_recommendation"})
     private String messageType;
 
-    @Schema(description = "Thời gian phản hồi", example = "2025-01-20T10:30:00")
+    @Schema(description = "Response timestamp", example = "2025-01-20T10:30:00")
     private LocalDateTime timestamp;
 
-    @Schema(description = "Thời gian xử lý phản hồi (ms)", example = "150")
+    @Schema(description = "Response processing time (ms)", example = "150")
     private Integer responseTime;
 
-    @Schema(description = "Danh sách gợi ý câu hỏi tiếp theo")
+    @Schema(description = "Suggested follow-up questions")
     private List<String> suggestions;
 
-    @Schema(description = "Danh sách các hành động nhanh")
+    @Schema(description = "Quick action buttons")
     private List<QuickActionDTO> quickActions;
 
-    @Schema(description = "Dữ liệu gợi ý sản phẩm")
+    @Schema(description = "Product recommendation data")
     private RecommendationDataDTO recommendationData;
 
-    @Schema(description = "Có phải từ knowledge base không", example = "true")
+    @Schema(description = "Whether response is from knowledge base", example = "true")
     private Boolean isFromKnowledgeBase;
 
-    @Schema(description = "Điểm tin cậy của câu trả lời (0-1)", example = "0.95")
+    @Schema(description = "Answer confidence score (0-1)", example = "0.95")
     private Double confidenceScore;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Hành động nhanh cho người dùng")
+    @Schema(description = "Quick action for the user")
     public static class QuickActionDTO {
-        @Schema(description = "Nhãn hiển thị", example = "Xem thực đơn")
+        @Schema(description = "Display label", example = "View Menu")
         private String label;
 
-        @Schema(description = "Loại hành động", example = "view_menu", allowableValues = {"view_menu", "place_order", "track_order", "contact_support"})
+        @Schema(description = "Action type", example = "view_menu", allowableValues = {"view_menu", "place_order", "track_order", "contact_support"})
         private String action;
 
-        @Schema(description = "URL liên kết (nếu có)", example = "/menu")
+        @Schema(description = "Link URL (if applicable)", example = "/menu")
         private String url;
 
-        @Schema(description = "Dữ liệu bổ sung cho hành động")
+        @Schema(description = "Additional action data")
         private Object data;
     }
 
@@ -71,39 +71,39 @@ public class ChatResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Dữ liệu gợi ý sản phẩm")
+    @Schema(description = "Product recommendation data")
     public static class RecommendationDataDTO {
-        @Schema(description = "Danh sách món ăn được gợi ý")
+        @Schema(description = "Recommended food items")
         private List<ProductRecommendationDTO> foods;
 
-        @Schema(description = "Lý do gợi ý", example = "Dựa trên sở thích của bạn")
+        @Schema(description = "Recommendation reason", example = "Based on your preferences")
         private String reason;
 
         @Data
         @Builder
         @NoArgsConstructor
         @AllArgsConstructor
-        @Schema(description = "Thông tin món ăn được gợi ý")
+        @Schema(description = "Recommended food item details")
         public static class ProductRecommendationDTO {
-            @Schema(description = "ID món ăn", example = "1")
+            @Schema(description = "Food item ID", example = "1")
             private Long id;
 
-            @Schema(description = "Tên món ăn", example = "Phở bò tái")
+            @Schema(description = "Food item name", example = "Pho Bo Tai")
             private String name;
 
-            @Schema(description = "Mô tả món ăn", example = "Phở bò tái chín với nước dùng đậm đà")
+            @Schema(description = "Food description", example = "Beef pho with rich broth")
             private String description;
 
-            @Schema(description = "Giá món ăn", example = "55000")
+            @Schema(description = "Food price", example = "55000")
             private Double price;
 
-            @Schema(description = "URL hình ảnh", example = "https://example.com/pho.jpg")
+            @Schema(description = "Image URL", example = "https://example.com/pho.jpg")
             private String imageUrl;
 
-            @Schema(description = "Danh mục món ăn", example = "Món chính")
+            @Schema(description = "Food category", example = "Main Dishes")
             private String category;
 
-            @Schema(description = "Đánh giá trung bình", example = "4.5")
+            @Schema(description = "Average rating", example = "4.5")
             private Double rating;
         }
     }

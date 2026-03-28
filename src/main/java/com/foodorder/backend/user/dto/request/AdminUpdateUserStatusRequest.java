@@ -5,25 +5,24 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 /**
- * DTO cho request thay đổi trạng thái user từ admin
+ * DTO for request to change user status by admin
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để Admin thay đổi trạng thái người dùng")
+@Schema(description = "Request body for Admin to update user account status")
 public class AdminUpdateUserStatusRequest {
 
     @Schema(
-        description = "Trạng thái hoạt động (true = active, false = locked)",
+        description = "Active status (true = active, false = locked)",
         example = "true",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotNull(message = "Trạng thái không được để trống")
+    @NotNull(message = "Status must not be null")
     private Boolean isActive;
 
-    @Schema(description = "Lý do khóa tài khoản (tùy chọn, chỉ khi isActive = false)", example = "Vi phạm quy định của hệ thống")
+    @Schema(description = "Reason for locking (optional, only when isActive = false)", example = "Account violated platform policy")
     private String reason;
 }
-

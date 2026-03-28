@@ -41,7 +41,7 @@ import java.util.Map;
 @Validated
 @Slf4j
 @RequireAdmin
-@Tag(name = "Coupons - Admin", description = "API quản lý mã giảm giá dành cho Admin")
+@Tag(name = "Coupons - Admin", description = "Admin API for coupon management")
 public class CouponAdminController {
 
     private final CouponService couponService;
@@ -53,11 +53,11 @@ public class CouponAdminController {
      * Tạo mới coupon
      * POST /api/admin/coupons
      */
-    @Operation(summary = "Tạo mới coupon", description = "Tạo mã giảm giá mới.")
+    @Operation(summary = "Create coupon", description = "Create a new discount coupon.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Admin")
+            @ApiResponse(responseCode = "200", description = "Created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "403", description = "Admin access required")
     })
     @PostMapping
     public ResponseEntity<CouponResponse> createCoupon(@RequestBody @Valid CouponRequest request) {
@@ -69,14 +69,14 @@ public class CouponAdminController {
      * Cập nhật coupon
      * PUT /api/admin/coupons/{id}
      */
-    @Operation(summary = "Cập nhật coupon", description = "Cập nhật thông tin mã giảm giá.")
+    @Operation(summary = "Update coupon", description = "Update coupon information.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy coupon")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Coupon not found")
     })
     @PutMapping("/{id}")
     public ResponseEntity<CouponResponse> updateCoupon(
-            @Parameter(description = "ID của coupon") @PathVariable Long id,
+            @Parameter(description = "Coupon ID") @PathVariable Long id,
             @RequestBody @Valid CouponRequest request) {
         CouponResponse response = couponService.updateCoupon(id, request);
         return ResponseEntity.ok(response);
@@ -86,14 +86,14 @@ public class CouponAdminController {
      * Xóa coupon (soft delete)
      * DELETE /api/admin/coupons/{id}
      */
-    @Operation(summary = "Xóa coupon", description = "Xóa mã giảm giá (soft delete).")
+    @Operation(summary = "Delete coupon", description = "Delete coupon (soft delete).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy coupon")
+            @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Coupon not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCoupon(
-            @Parameter(description = "ID của coupon") @PathVariable Long id) {
+            @Parameter(description = "Coupon ID") @PathVariable Long id) {
         couponService.deleteCoupon(id);
         return ResponseEntity.noContent().build();
     }
@@ -102,14 +102,14 @@ public class CouponAdminController {
      * Lấy chi tiết coupon theo ID
      * GET /api/admin/coupons/{id}
      */
-    @Operation(summary = "Chi tiết coupon (ID)", description = "Lấy thông tin chi tiết mã giảm giá theo ID.")
+    @Operation(summary = "Get coupon details (ID)", description = "Get coupon details by ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy coupon")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Coupon not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<CouponResponse> getCouponById(
-            @Parameter(description = "ID của coupon") @PathVariable Long id) {
+            @Parameter(description = "Coupon ID") @PathVariable Long id) {
         return couponService.getCouponById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -119,14 +119,14 @@ public class CouponAdminController {
      * Lấy danh sách tất cả coupon với phân trang
      * GET /api/admin/coupons
      */
-    @Operation(summary = "Danh sách tất cả coupon", description = "Lấy danh sách tất cả mã giảm giá với phân trang.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get all coupons", description = "Get all coupons with pagination.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<CouponResponse>> getAllCoupons(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Trường sắp xếp") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Hướng sắp xếp") @RequestParam(defaultValue = "desc") String sortDir) {
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Items per page") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction") @RequestParam(defaultValue = "desc") String sortDir) {
 
         Pageable pageable = PageRequest.of(page, size,
                 sortDir.equalsIgnoreCase("desc")
@@ -141,11 +141,11 @@ public class CouponAdminController {
      * Lấy danh sách coupon theo trạng thái
      * GET /api/admin/coupons/status/{status}
      */
-    @Operation(summary = "Danh sách coupon theo trạng thái", description = "Lấy danh sách mã giảm giá theo trạng thái.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get coupons by status", description = "Get coupons by status.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<CouponResponse>> getCouponsByStatus(
-            @Parameter(description = "Trạng thái coupon") @PathVariable CouponStatus status) {
+            @Parameter(description = "Coupon status") @PathVariable CouponStatus status) {
         List<CouponResponse> response = couponService.getCouponsByStatus(status);
         return ResponseEntity.ok(response);
     }
@@ -156,7 +156,7 @@ public class CouponAdminController {
      * Kích hoạt coupon
      * PUT /api/admin/coupons/{id}/activate
      */
-    @Operation(summary = "Kích hoạt coupon", description = "Kích hoạt mã giảm giá.")
+    @Operation(summary = "Activate coupon", description = "Activate a coupon.")
     @PutMapping("/{id}/activate")
     public ResponseEntity<Void> activateCoupon(@PathVariable Long id) {
         couponService.activateCoupon(id);
@@ -167,7 +167,7 @@ public class CouponAdminController {
      * Vô hiệu hóa coupon
      * PUT /api/admin/coupons/{id}/deactivate
      */
-    @Operation(summary = "Vô hiệu hóa coupon", description = "Vô hiệu hóa mã giảm giá.")
+    @Operation(summary = "Deactivate coupon", description = "Deactivate a coupon.")
     @PutMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateCoupon(@PathVariable Long id) {
         couponService.deactivateCoupon(id);
@@ -178,7 +178,7 @@ public class CouponAdminController {
      * Cập nhật trạng thái coupon hết hạn (manual trigger)
      * PUT /api/admin/coupons/update-expired
      */
-    @Operation(summary = "Cập nhật coupon hết hạn", description = "Cập nhật trạng thái các coupon đã hết hạn.")
+    @Operation(summary = "Update expired coupons", description = "Update status of expired coupons.")
     @PutMapping("/update-expired")
     public ResponseEntity<Void> updateExpiredCoupons() {
         couponService.updateExpiredCoupons();
@@ -189,7 +189,7 @@ public class CouponAdminController {
      * Cập nhật trạng thái coupon hết lượt sử dụng (manual trigger)
      * PUT /api/admin/coupons/update-used-out
      */
-    @Operation(summary = "Cập nhật coupon hết lượt", description = "Cập nhật trạng thái các coupon đã hết lượt sử dụng.")
+    @Operation(summary = "Update used-out coupons", description = "Update status of coupons that have reached usage limit.")
     @PutMapping("/update-used-out")
     public ResponseEntity<Void> updateUsedOutCoupons() {
         couponService.updateUsedOutCoupons();
@@ -202,7 +202,7 @@ public class CouponAdminController {
      * Lấy thống kê tổng quan về coupon
      * GET /api/admin/coupons/statistics
      */
-    @Operation(summary = "Thống kê tổng quan coupon", description = "Lấy thống kê tổng quan về tất cả coupon.")
+    @Operation(summary = "Get coupon statistics", description = "Get overall statistics for all coupons.")
     @GetMapping("/statistics")
     public ResponseEntity<CouponStatisticsResponse> getOverallStatistics() {
         CouponStatisticsResponse statistics = couponStatisticsService.getOverallStatistics();
@@ -213,7 +213,7 @@ public class CouponAdminController {
      * Thống kê coupon theo trạng thái (đếm số lượng)
      * GET /api/admin/coupons/statistics/by-status
      */
-    @Operation(summary = "Thống kê theo trạng thái", description = "Đếm số lượng coupon theo từng trạng thái.")
+    @Operation(summary = "Get statistics by status", description = "Count coupons by each status.")
     @GetMapping("/statistics/by-status")
     public ResponseEntity<Map<CouponStatus, Long>> getCouponStatisticsByStatus() {
         Map<CouponStatus, Long> stats = couponService.getCouponStatistics();
@@ -224,7 +224,7 @@ public class CouponAdminController {
      * Top coupon được sử dụng nhiều nhất
      * GET /api/admin/coupons/most-used?limit=10
      */
-    @Operation(summary = "Top coupon sử dụng nhiều", description = "Lấy danh sách coupon được sử dụng nhiều nhất.")
+    @Operation(summary = "Get most used coupons", description = "Get list of most frequently used coupons.")
     @GetMapping("/most-used")
     public ResponseEntity<List<CouponResponse>> getMostUsedCoupons(
             @RequestParam(defaultValue = "10") @Min(1) int limit) {
@@ -236,7 +236,7 @@ public class CouponAdminController {
      * Danh sách coupon sắp hết hạn
      * GET /api/admin/coupons/expiring-soon?days=7
      */
-    @Operation(summary = "Coupon sắp hết hạn", description = "Lấy danh sách coupon sắp hết hạn trong N ngày.")
+    @Operation(summary = "Get expiring coupons", description = "Get list of coupons expiring within N days.")
     @GetMapping("/expiring-soon")
     public ResponseEntity<List<CouponResponse>> getExpiringSoonCoupons(
             @RequestParam(defaultValue = "7") @Min(1) int days) {
@@ -250,7 +250,7 @@ public class CouponAdminController {
      * Phân tích việc sử dụng coupon trong khoảng thời gian
      * GET /api/admin/coupons/analytics?startDate=...&endDate=...
      */
-    @Operation(summary = "Phân tích sử dụng coupon", description = "Phân tích chi tiết việc sử dụng coupon trong khoảng thời gian.")
+    @Operation(summary = "Get usage analytics", description = "Analyze coupon usage within date range.")
     @GetMapping("/analytics")
     public ResponseEntity<CouponUsageAnalyticsResponse> getUsageAnalytics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -263,7 +263,7 @@ public class CouponAdminController {
      * Lấy xu hướng sử dụng coupon theo ngày
      * GET /api/admin/coupons/trend?startDate=...&endDate=...
      */
-    @Operation(summary = "Xu hướng sử dụng coupon", description = "Lấy xu hướng sử dụng coupon theo từng ngày.")
+    @Operation(summary = "Get usage trend", description = "Get daily coupon usage trend.")
     @GetMapping("/trend")
     public ResponseEntity<List<CouponUsageAnalyticsResponse.DailyUsageData>> getUsageTrend(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -278,7 +278,7 @@ public class CouponAdminController {
      * Lấy hiệu suất của một coupon cụ thể
      * GET /api/admin/coupons/{couponId}/performance
      */
-    @Operation(summary = "Hiệu suất coupon", description = "Lấy thông tin hiệu suất chi tiết của một coupon.")
+    @Operation(summary = "Get coupon performance", description = "Get detailed performance info for a specific coupon.")
     @GetMapping("/{couponId}/performance")
     public ResponseEntity<CouponPerformanceResponse> getCouponPerformance(@PathVariable Long couponId) {
         CouponPerformanceResponse performance = couponStatisticsService.getCouponPerformance(couponId);
@@ -290,7 +290,7 @@ public class CouponAdminController {
      * GET /api/admin/coupons/top?criteria=USAGE&limit=10
      * @param criteria: USAGE (số lần dùng) hoặc DISCOUNT (tổng tiền giảm)
      */
-    @Operation(summary = "Top coupon hiệu quả", description = "Lấy top coupon hiệu quả nhất theo tiêu chí.")
+    @Operation(summary = "Get top performing coupons", description = "Get top performing coupons by criteria.")
     @GetMapping("/top")
     public ResponseEntity<List<CouponUsageAnalyticsResponse.TopCouponData>> getTopCoupons(
             @RequestParam(defaultValue = "USAGE") String criteria,
@@ -305,7 +305,7 @@ public class CouponAdminController {
      * Lấy thống kê sử dụng coupon của một user
      * GET /api/admin/coupons/users/{userId}
      */
-    @Operation(summary = "Thống kê coupon của user", description = "Lấy thống kê chi tiết việc sử dụng coupon của một user.")
+    @Operation(summary = "Get user coupon usage", description = "Get detailed coupon usage statistics for a specific user.")
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserCouponUsageResponse> getUserCouponUsage(@PathVariable Long userId) {
         UserCouponUsageResponse userUsage = couponStatisticsService.getUserCouponUsage(userId);
@@ -316,7 +316,7 @@ public class CouponAdminController {
      * Lấy top user sử dụng coupon nhiều nhất
      * GET /api/admin/coupons/users/top?limit=10
      */
-    @Operation(summary = "Top user sử dụng coupon", description = "Lấy danh sách user sử dụng coupon nhiều nhất.")
+    @Operation(summary = "Get top users by coupon usage", description = "Get list of users who use coupons most frequently.")
     @GetMapping("/users/top")
     public ResponseEntity<List<UserCouponUsageResponse>> getTopUsersByCouponUsage(
             @RequestParam(defaultValue = "10") int limit) {
@@ -330,7 +330,7 @@ public class CouponAdminController {
      * Lọc danh sách coupon với nhiều tiêu chí
      * GET /api/admin/coupons/filter?status=ACTIVE&type=PUBLIC&keyword=...
      */
-    @Operation(summary = "Lọc coupon", description = "Lọc danh sách coupon theo nhiều tiêu chí.")
+    @Operation(summary = "Filter coupons", description = "Filter coupons by multiple criteria.")
     @GetMapping("/filter")
     public ResponseEntity<Page<CouponPerformanceResponse>> filterCoupons(
             @RequestParam(required = false) CouponStatus status,
@@ -347,7 +347,7 @@ public class CouponAdminController {
      * Dashboard tổng quan coupon
      * GET /api/admin/coupons/dashboard
      */
-    @Operation(summary = "Dashboard coupon", description = "Lấy dashboard tổng hợp cho quản lý coupon.")
+    @Operation(summary = "Get coupon dashboard", description = "Get comprehensive dashboard for coupon management.")
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getCouponDashboard() {
         log.info("Admin requested coupon dashboard");
@@ -388,7 +388,7 @@ public class CouponAdminController {
      * Báo cáo chi tiết theo khoảng thời gian
      * GET /api/admin/coupons/detailed-report?startDate=2024-01-01&endDate=2024-01-31
      */
-    @Operation(summary = "Báo cáo chi tiết", description = "Lấy báo cáo chi tiết coupon theo khoảng thời gian.")
+    @Operation(summary = "Get detailed report", description = "Get detailed coupon report for date range.")
     @GetMapping("/detailed-report")
     public ResponseEntity<Map<String, Object>> getDetailedReport(
             @RequestParam String startDate,
@@ -414,7 +414,7 @@ public class CouponAdminController {
      * Xác nhận sử dụng coupon (được gọi từ Order Service)
      * POST /api/admin/coupons/confirm-usage
      */
-    @Operation(summary = "Xác nhận sử dụng coupon", description = "API nội bộ để xác nhận việc sử dụng coupon từ Order Service.")
+    @Operation(summary = "Confirm coupon usage", description = "Internal API to confirm coupon usage from Order Service.")
     @PostMapping("/confirm-usage")
     public ResponseEntity<Void> confirmCouponUsage(
             @RequestParam String couponCode,
@@ -429,7 +429,7 @@ public class CouponAdminController {
      * Hủy sử dụng coupon (khi đơn hàng bị hủy)
      * DELETE /api/admin/coupons/usage/{usageId}
      */
-    @Operation(summary = "Hủy sử dụng coupon", description = "Hủy việc sử dụng coupon khi đơn hàng bị hủy.")
+    @Operation(summary = "Cancel coupon usage", description = "Cancel coupon usage when order is cancelled.")
     @DeleteMapping("/usage/{usageId}")
     public ResponseEntity<Void> cancelCouponUsage(@PathVariable Long usageId) {
         couponService.cancelCouponUsage(usageId);

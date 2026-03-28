@@ -43,9 +43,9 @@ public class OpenApiConfig {
                 // Thông tin API
                 .info(new Info()
                         .title("Food Order API")
-                        .description("RESTful API cho hệ thống đặt món ăn trực tuyến. " +
-                                "Hỗ trợ các chức năng: xác thực người dùng, quản lý thực đơn, " +
-                                "giỏ hàng, đơn hàng, thanh toán, điểm thưởng và nhiều hơn nữa.")
+                        .description("RESTful API for the online food ordering system. " +
+                                "Supports features: user authentication, menu management, " +
+                                "cart, orders, payments, reward points and more.")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Food Order Support")
@@ -71,8 +71,8 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("Nhập JWT token để xác thực. " +
-                                                "Token được lấy từ API /api/v1/public/auth/login")));
+                                        .description("Enter JWT token for authentication. " +
+                                                "Token can be obtained from /api/v1/public/auth/login")));
     }
 
     /**

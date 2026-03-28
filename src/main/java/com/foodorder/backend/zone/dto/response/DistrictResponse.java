@@ -14,19 +14,19 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa thông tin quận/huyện")
+@Schema(description = "Response containing district information")
 public class DistrictResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID của quận/huyện", example = "1")
+    @Schema(description = "District ID", example = "1")
     private Long id;
 
-    @Schema(description = "Tên quận/huyện", example = "Quận 1")
+    @Schema(description = "District name", example = "District 1")
     private String name;
 
-    @Schema(description = "Phí giao hàng cho quận/huyện này (VND)", example = "15000")
+    @Schema(description = "Delivery fee for this district (VND)", example = "15000")
     private BigDecimal deliveryFee;
 
     public static DistrictResponse fromEntity(District district) {

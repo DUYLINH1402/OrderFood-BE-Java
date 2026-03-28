@@ -35,19 +35,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequireStaff
 @Slf4j
-@Tag(name = "Chat - Staff", description = "API chat dành cho nhân viên")
+@Tag(name = "Chat - Staff", description = "Chat APIs for staff members")
 public class ChatStaffController {
 
     private final ChatService chatService;
     private final ConversationService conversationService;
     private final UserService userService;
 
-    @Operation(summary = "Tất cả tin nhắn (Staff)", description = "Lấy tất cả tin nhắn từ user gửi cho staff.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "All messages (Staff)", description = "Retrieve all messages from users to staff.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/all-messages")
     public ResponseEntity<?> getAllUserToStaffMessages(
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<ChatMessageResponse> messages = chatService.getAllUserToStaffMessages(pageable);
@@ -63,30 +63,30 @@ public class ChatStaffController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy tin nhắn cho staff: {}", e.getMessage());
+            log.error("Error fetching messages for staff: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "STAFF_MESSAGES_ERROR",
-                "message", "Lỗi khi lấy tin nhắn"
+                "message", "Failed to fetch messages"
             ));
         }
     }
 
-    @Operation(summary = "Tin nhắn của user (Staff)", description = "Lấy tin nhắn từ một user cụ thể.")
+    @Operation(summary = "User messages (Staff)", description = "Retrieve messages from a specific user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy user")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/user/{userId}/messages")
     public ResponseEntity<?> getUserMessages(
-            @Parameter(description = "ID của user") @PathVariable Long userId,
-            @Parameter(description = "Số trang") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "User ID") @PathVariable Long userId,
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
         try {
             User user = userService.findById(userId);
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "errorCode", "USER_NOT_FOUND",
-                    "message", "Không tìm thấy người dùng"
+                    "message", "User not found"
                 ));
             }
 
@@ -129,28 +129,28 @@ public class ChatStaffController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy tin nhắn của user {}: {}", userId, e.getMessage());
+            log.error("Error fetching messages of user {}: {}", userId, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "USER_MESSAGES_ERROR",
-                "message", "Lỗi khi lấy tin nhắn của người dùng"
+                "message", "Failed to fetch user messages"
             ));
         }
     }
 
-    @Operation(summary = "Trạng thái đọc tin nhắn (Staff)", description = "Kiểm tra số tin nhắn chưa đọc từ một user cụ thể.")
+    @Operation(summary = "Message read status (Staff)", description = "Check unread message count from a specific user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy user")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/user/{userId}/read-status")
     public ResponseEntity<?> getUserMessageReadStatus(
-            @Parameter(description = "ID của user") @PathVariable Long userId) {
+            @Parameter(description = "User ID") @PathVariable Long userId) {
         try {
             User user = userService.findById(userId);
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "errorCode", "USER_NOT_FOUND",
-                    "message", "Không tìm thấy người dùng"
+                    "message", "User not found"
                 ));
             }
 
@@ -167,16 +167,16 @@ public class ChatStaffController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy số tin nhắn chưa đọc của user {}: {}", userId, e.getMessage());
+            log.error("Error fetching unread count for user {}: {}", userId, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "UNREAD_COUNT_ERROR",
-                "message", "Lỗi khi lấy số tin nhắn chưa đọc"
+                "message", "Failed to fetch unread message count"
             ));
         }
     }
 
-    @Operation(summary = "Số tin nhắn chưa đọc (Staff)", description = "Lấy tổng số tin nhắn chưa đọc từ tất cả user.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Total unread count (Staff)", description = "Get total unread message count from all users.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/unread-count")
     public ResponseEntity<?> getUnreadCount() {
         try {
@@ -187,16 +187,16 @@ public class ChatStaffController {
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy số tin nhắn chưa đọc: {}", e.getMessage());
+            log.error("Error fetching unread count: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "UNREAD_COUNT_ERROR",
-                "message", "Lỗi khi lấy số tin nhắn chưa đọc"
+                "message", "Failed to fetch unread message count"
             ));
         }
     }
 
-    @Operation(summary = "Danh sách user đã chat (Staff)", description = "Lấy danh sách tất cả user đã chat với staff.")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Users who chatted (Staff)", description = "Retrieve all users who have chatted with staff.")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/users")
     public ResponseEntity<?> getUsersChatWithStaff() {
         try {
@@ -224,35 +224,35 @@ public class ChatStaffController {
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi lấy danh sách user đã chat: {}", e.getMessage());
+            log.error("Error fetching chat user list: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "USERS_CHAT_ERROR",
-                "message", "Lỗi khi lấy danh sách user đã chat"
+                "message", "Failed to fetch chat user list"
             ));
         }
     }
 
-    @Operation(summary = "Đánh dấu đã đọc (Staff)", description = "Đánh dấu một tin nhắn là đã đọc.")
+    @Operation(summary = "Mark as read (Staff)", description = "Mark a message as read.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy tin nhắn")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Message not found")
     })
     @PutMapping("/mark-read/{messageId}")
     public ResponseEntity<?> markMessageAsRead(
-            @Parameter(description = "ID tin nhắn") @PathVariable String messageId) {
+            @Parameter(description = "Message ID") @PathVariable String messageId) {
         try {
             chatService.markMessageAsRead(messageId);
 
             return ResponseEntity.ok(Map.of(
-                "message", "Đã đánh dấu tin nhắn là đã đọc",
+                "message", "Message marked as read",
                 "messageId", messageId
             ));
 
         } catch (Exception e) {
-            log.error("Lỗi khi đánh dấu tin nhắn đã đọc: {}", e.getMessage());
+            log.error("Error marking message as read: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
                 "errorCode", "MARK_READ_ERROR",
-                "message", "Lỗi khi đánh dấu tin nhắn đã đọc"
+                "message", "Failed to mark message as read"
             ));
         }
     }

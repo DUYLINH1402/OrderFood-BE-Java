@@ -39,19 +39,19 @@ public class FoodResponse implements Serializable {
     @Schema(description = "ID danh mục", example = "1")
     private Long categoryId;
 
-    @Schema(description = "ID món ăn cha (nếu có)", example = "2")
+    @Schema(description = "Parent food ID (if any)", example = "2")
     private Long parentId;
 
-    @Schema(description = "Đánh dấu món bán chạy", example = "true")
+    @Schema(description = "Mark as bestseller", example = "true")
     private Boolean isBestSeller;
 
-    @Schema(description = "Đánh dấu món mới", example = "true")
+    @Schema(description = "Mark as new item", example = "true")
     private Boolean isNew;
 
-    @Schema(description = "Đánh dấu món nổi bật", example = "false")
+    @Schema(description = "Mark as featured", example = "false")
     private Boolean isFeatured;
 
-    @Schema(description = "Trạng thái món ăn", example = "AVAILABLE", allowableValues = {"AVAILABLE", "UNAVAILABLE"})
+    @Schema(description = "Food status", example = "AVAILABLE", allowableValues = {"AVAILABLE", "UNAVAILABLE"})
     private String status;
 
     @Schema(description = "Tổng số lượng đã bán", example = "150")

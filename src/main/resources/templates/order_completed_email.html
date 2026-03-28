@@ -157,14 +157,9 @@
     </p>
 
     <p style="font-size: 16px; color: #333; text-align: center;">
-        Đơn hàng <b>#<span th:text="${orderCode}"></span></b> của bạn đã được
+        Đơn hàng <b>#<span th:text="${orderCode}"></span></b> đã được
         <span class="status-badge">✔ GIAO THÀNH CÔNG</span>
     </p>
-
-    <p style="font-size: 15px; color: #555; text-align: center;">
-        Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của Đồng Xanh Food!
-    </p>
-
     <!-- Chi tiết đơn hàng -->
     <h3 style="color: #1e293b; margin-top: 30px;">Chi tiết đơn hàng</h3>
 
@@ -206,11 +201,14 @@
         <p style="margin: 4px 0; font-size: 15px;">
             <b>Tổng tiền hàng:</b> <span th:text="${subtotalFormatted}"></span>
         </p>
-        <p th:if="${shippingFee != null && shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
+        <p th:if="${shippingFee != null and shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
             <b>Phí giao hàng:</b> <span th:text="${shippingFeeFormatted}"></span>
         </p>
-        <p th:if="${discountAmount != null && discountAmount > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
-            <b>Giảm giá:</b> -<span th:text="${discountAmountFormatted}"></span>
+        <p th:if="${pointsUsed != null and pointsUsed > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
+            <b>Điểm đã dùng:</b> <span th:text="${pointsUsed}"></span> điểm (-<span th:text="${pointsDiscountFormatted}"></span>)
+        </p>
+        <p th:if="${couponDiscount != null and couponDiscount > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
+            <b>Giảm giá<span th:if="${couponCode != null and !couponCode.isEmpty()}"> (<span th:text="${couponCode}"></span>)</span>:</b> -<span th:text="${couponDiscountFormatted}"></span>
         </p>
         <hr style="border: none; border-top: 1px solid #bbf7d0; margin: 8px 0;" />
         <p style="margin: 4px 0; font-size: 17px; font-weight: bold; color: #16a34a;">

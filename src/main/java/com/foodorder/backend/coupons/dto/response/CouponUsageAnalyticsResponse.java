@@ -14,42 +14,42 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa phân tích chi tiết về việc sử dụng mã giảm giá")
+@Schema(description = "Response containing detailed coupon usage analytics")
 public class CouponUsageAnalyticsResponse {
 
     // === THÔNG TIN THỜI GIAN ===
-    @Schema(description = "Thời gian bắt đầu phân tích", example = "2025-01-01T00:00:00")
+    @Schema(description = "Analysis start date", example = "2025-01-01T00:00:00")
     private LocalDateTime startDate;
 
-    @Schema(description = "Thời gian kết thúc phân tích", example = "2025-01-31T23:59:59")
+    @Schema(description = "Analysis end date", example = "2025-01-31T23:59:59")
     private LocalDateTime endDate;
 
     // === THỐNG KÊ TRONG KHOẢNG THỜI GIAN ===
-    @Schema(description = "Số lần sử dụng trong khoảng thời gian", example = "500")
+    @Schema(description = "Number of times used in period", example = "500")
     private Long usageCount;
 
-    @Schema(description = "Tổng tiền giảm (VND)", example = "5000000")
+    @Schema(description = "Total discount amount (VND)", example = "5000000")
     private Double totalDiscountAmount;
 
-    @Schema(description = "Trung bình tiền giảm mỗi lần (VND)", example = "10000")
+    @Schema(description = "Average discount per usage (VND)", example = "10000")
     private Double averageDiscountPerUsage;
 
-    @Schema(description = "Số user đã sử dụng", example = "200")
+    @Schema(description = "Number of unique users", example = "200")
     private Long uniqueUsersCount;
 
     // === XU HƯỚNG THEO NGÀY ===
-    @Schema(description = "Dữ liệu sử dụng theo ngày")
+    @Schema(description = "Daily usage data")
     private List<DailyUsageData> dailyUsageData;
 
     // === TOP COUPON ===
-    @Schema(description = "Top coupon theo lượt sử dụng")
+    @Schema(description = "Top coupons by usage count")
     private List<TopCouponData> topCouponsByUsage;
 
-    @Schema(description = "Top coupon theo tổng tiền giảm")
+    @Schema(description = "Top coupons by total discount")
     private List<TopCouponData> topCouponsByDiscount;
 
     // === PHÂN TÍCH THEO LOẠI ===
-    @Schema(description = "Phân tích sử dụng theo loại coupon")
+    @Schema(description = "Usage analysis by coupon type")
     private Map<String, UsageByTypeData> usageByType;
 
     @Getter
@@ -57,15 +57,15 @@ public class CouponUsageAnalyticsResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Dữ liệu sử dụng coupon theo ngày")
+    @Schema(description = "Daily coupon usage data")
     public static class DailyUsageData {
-        @Schema(description = "Ngày", example = "2025-01-15")
+        @Schema(description = "Date", example = "2025-01-15")
         private String date;
 
-        @Schema(description = "Số lượt sử dụng", example = "50")
+        @Schema(description = "Number of times used", example = "50")
         private Long usageCount;
 
-        @Schema(description = "Tổng tiền giảm (VND)", example = "500000")
+        @Schema(description = "Total discount amount (VND)", example = "500000")
         private Double discountAmount;
     }
 
@@ -74,27 +74,27 @@ public class CouponUsageAnalyticsResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    @Schema(description = "Thông tin top coupon")
+    @Schema(description = "Top coupon information")
     public static class TopCouponData {
-        @Schema(description = "ID coupon", example = "1")
+        @Schema(description = "Coupon ID", example = "1")
         private Long couponId;
 
-        @Schema(description = "Mã coupon", example = "SUMMER2025")
+        @Schema(description = "Coupon code", example = "SUMMER2025")
         private String couponCode;
 
-        @Schema(description = "Tiêu đề", example = "Khuyến mãi mùa hè")
+        @Schema(description = "Title", example = "Summer Promotion")
         private String title;
 
-        @Schema(description = "Số lượt sử dụng", example = "100")
+        @Schema(description = "Number of times used", example = "100")
         private Long usageCount;
 
-        @Schema(description = "Tổng tiền giảm (VND)", example = "1000000")
+        @Schema(description = "Total discount amount (VND)", example = "1000000")
         private Double totalDiscountAmount;
 
-        @Schema(description = "Loại giảm giá", example = "PERCENT")
+        @Schema(description = "Discount type", example = "PERCENT")
         private String discountType;
 
-        @Schema(description = "Giá trị giảm", example = "20")
+        @Schema(description = "Discount value", example = "20")
         private Double discountValue;
     }
 

@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để cập nhật ghi chú nội bộ của đơn hàng")
+@Schema(description = "Request body for updating internal note of order")
 public class UpdateInternalNoteRequest {
 
     @Schema(
-        description = "Ghi chú nội bộ (chỉ Admin/Staff thấy, dùng cho đối soát, lưu ý về dòng tiền hoặc khách hàng)",
-        example = "Khách hàng VIP, cần ưu tiên giao hàng"
+        description = "Internal note (Admin/Staff only, for reconciliation, notes about payments or customers)",
+        example = "VIP customer, prioritize delivery"
     )
-    @Size(max = 2000, message = "Ghi chú nội bộ không được vượt quá 2000 ký tự")
+    @Size(max = 2000, message = "Internal note cannot exceed 2000 characters")
     private String internalNote;
 }
 

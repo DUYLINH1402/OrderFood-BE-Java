@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
                 .type(PointType.EARN)
                 .amount(10000)
                 .orderId(null)
-                .description("Tặng điểm khi đăng ký")
+                .description("Welcome bonus points for registration")
                 .createdAt(LocalDateTime.now())
                 .build();
         pointHistoryRepository.save(pointHistory);
@@ -110,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             String name = user.getFullName() != null ? user.getFullName() : user.getUsername();
             String html = thymeleafTemplateService.buildVerificationEmail(name, token);
-            brevoEmailService.sendEmail(user.getEmail(), "Xác nhận tài khoản Dong Xanh", html);
+            brevoEmailService.sendEmail(user.getEmail(), "Dong Xanh - Account Verification", html);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -206,7 +206,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             String name = user.getFullName() != null ? user.getFullName() : user.getUsername();
             String html = thymeleafTemplateService.buildVerificationEmail(name, token);
-            brevoEmailService.sendEmail(user.getEmail(), "Xác nhận lại tài khoản Dong Xanh", html);
+            brevoEmailService.sendEmail(user.getEmail(), "Dong Xanh - Resend Account Verification", html);
         } catch (Exception e) {
             e.printStackTrace();
         }

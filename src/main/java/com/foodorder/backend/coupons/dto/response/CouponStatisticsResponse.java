@@ -2,7 +2,6 @@ package com.foodorder.backend.coupons.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import java.util.List;
 import java.util.Map;
 
 /**

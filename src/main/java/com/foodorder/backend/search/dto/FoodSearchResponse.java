@@ -15,25 +15,24 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa kết quả tìm kiếm món ăn từ Algolia")
+@Schema(description = "Response containing food search results from Algolia")
 public class FoodSearchResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Danh sách món ăn tìm được")
+    @Schema(description = "List of food items found")
     private List<FoodSearchDTO> results;
 
-    @Schema(description = "Từ khóa tìm kiếm", example = "phở bò")
+    @Schema(description = "Search keyword", example = "pho bo")
     private String query;
 
-    @Schema(description = "Tổng số kết quả", example = "15")
+    @Schema(description = "Total number of results", example = "15")
     private int totalResults;
 
-    @Schema(description = "Số trang hiện tại (bắt đầu từ 0)", example = "0")
+    @Schema(description = "Current page number (starting from 0)", example = "0")
     private int page;
 
-    @Schema(description = "Số kết quả mỗi trang", example = "10")
+    @Schema(description = "Number of results per page", example = "10")
     private int hitsPerPage;
 }
-

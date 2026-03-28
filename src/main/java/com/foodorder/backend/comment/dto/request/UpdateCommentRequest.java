@@ -13,12 +13,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request cập nhật bình luận")
+@Schema(description = "Request to update a comment")
 public class UpdateCommentRequest {
 
-    @NotBlank(message = "Nội dung bình luận không được để trống")
-    @Size(min = 1, max = 2000, message = "Nội dung bình luận từ 1-2000 ký tự")
-    @Schema(description = "Nội dung bình luận mới", example = "Món này ngon lắm, sẽ quay lại!")
+    @NotBlank(message = "COMMENT_CONTENT_REQUIRED")
+    @Size(min = 1, max = 2000, message = "COMMENT_CONTENT_LENGTH_1_2000")
+    @Schema(description = "New comment content", example = "This dish is delicious, will come back!")
     private String content;
 }
-

@@ -8,11 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Request body để đặt lại mật khẩu mới")
+@Schema(description = "Request body for setting a new password")
 public class ResetPasswordRequest {
 
     @Schema(
-        description = "Token xác thực được gửi qua email",
+        description = "Verification token sent via email",
         example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -20,7 +20,7 @@ public class ResetPasswordRequest {
     private String token;
 
     @Schema(
-        description = "Mật khẩu mới (tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt)",
+        description = "New password (minimum 8 characters, including uppercase, lowercase, number and special character)",
         example = "NewPassword@123",
         requiredMode = Schema.RequiredMode.REQUIRED
     )

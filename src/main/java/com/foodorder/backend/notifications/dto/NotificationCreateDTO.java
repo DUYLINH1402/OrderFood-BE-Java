@@ -15,56 +15,56 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request body để tạo thông báo mới")
+@Schema(description = "Request body for creating new notification")
 public class NotificationCreateDTO {
 
-    @Schema(description = "ID của user nhận thông báo (null nếu gửi cho staff)", example = "1")
+    @Schema(description = "User ID to receive notification (null if sending to staff)", example = "1")
     private Long userId;
 
-    @Schema(description = "ID đơn hàng liên quan", example = "100")
+    @Schema(description = "Related order ID", example = "100")
     private Long orderId;
 
     @Schema(
-        description = "Mã đơn hàng",
+        description = "Order code",
         example = "ORD-20250120-001",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Mã đơn hàng không được để trống")
+    @NotBlank(message = "Order code cannot be empty")
     private String orderCode;
 
     @Schema(
-        description = "Tiêu đề thông báo",
-        example = "Đơn hàng đã được xác nhận",
+        description = "Notification title",
+        example = "Order confirmed",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Tiêu đề không được để trống")
+    @NotBlank(message = "Title cannot be empty")
     private String title;
 
     @Schema(
-        description = "Nội dung thông báo",
-        example = "Đơn hàng ORD-20250120-001 của bạn đã được xác nhận và đang được chuẩn bị",
+        description = "Notification content",
+        example = "Your order ORD-20250120-001 has been confirmed and is being prepared",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Nội dung thông báo không được để trống")
+    @NotBlank(message = "Notification content cannot be empty")
     private String message;
 
     @Schema(
-        description = "Loại thông báo",
+        description = "Notification type",
         example = "ORDER_CONFIRMED",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotBlank(message = "Loại thông báo không được để trống")
+    @NotBlank(message = "Notification type cannot be empty")
     private String type;
 
-    @Schema(description = "Loại người nhận", example = "USER", allowableValues = {"USER", "STAFF"})
+    @Schema(description = "Recipient type", example = "USER", allowableValues = {"USER", "STAFF"})
     @Builder.Default
     private Notification.RecipientType recipientType = Notification.RecipientType.USER;
 
     @Schema(
-        description = "ID của người nhận",
+        description = "Recipient ID",
         example = "1",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    @NotNull(message = "ID người nhận không được để trống")
+    @NotNull(message = "Recipient ID cannot be empty")
     private Long recipientId;
 }

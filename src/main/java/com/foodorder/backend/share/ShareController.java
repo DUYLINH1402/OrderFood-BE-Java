@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/public/shares")
 @RequiredArgsConstructor
-@Tag(name = "Share - Public", description = "API quản lý lượt chia sẻ - Công khai")
+@Tag(name = "Share - Public", description = "Share tracking API - Public access")
 public class ShareController {
 
     private final ShareService shareService;
@@ -32,7 +32,7 @@ public class ShareController {
      * Không bắt buộc đăng nhập (cho phép khách vãng lai share)
      */
     @PostMapping
-    @Operation(summary = "Ghi nhận lượt share", description = "Ghi nhận lượt chia sẻ lên mạng xã hội")
+    @Operation(summary = "Record a share", description = "Record a social media share action")
     public ResponseEntity<ShareResponse> recordShare(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ShareRequest request
@@ -46,7 +46,7 @@ public class ShareController {
      * Lấy số lượt share của một đối tượng
      */
     @GetMapping("/{targetType}/{targetId}/count")
-    @Operation(summary = "Lấy số lượt share", description = "Lấy tổng số lượt share của một đối tượng")
+    @Operation(summary = "Get share count", description = "Get the total number of shares for a target object")
     public ResponseEntity<Long> getShareCount(
             @PathVariable String targetType,
             @PathVariable Long targetId

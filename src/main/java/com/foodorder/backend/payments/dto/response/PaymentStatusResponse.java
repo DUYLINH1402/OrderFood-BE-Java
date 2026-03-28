@@ -5,21 +5,21 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Schema(description = "Response chứa trạng thái thanh toán của đơn hàng")
+@Schema(description = "Response containing order payment status")
 public class PaymentStatusResponse {
 
-    @Schema(description = "ID của đơn hàng", example = "100")
+    @Schema(description = "Order ID", example = "100")
     private Long orderId;
 
-    @Schema(description = "Trạng thái thanh toán", example = "PAID", allowableValues = {"PENDING", "PAID", "FAILED", "REFUNDED"})
+    @Schema(description = "Payment status", example = "PAID", allowableValues = {"PENDING", "PAID", "FAILED", "REFUNDED"})
     private String paymentStatus;
 
-    @Schema(description = "Trạng thái đơn hàng", example = "CONFIRMED")
+    @Schema(description = "Order status", example = "CONFIRMED")
     private String orderStatus;
 
-    @Schema(description = "Mã giao dịch thanh toán", example = "TXN123456789")
+    @Schema(description = "Payment transaction ID", example = "TXN123456789")
     private String paymentTransactionId;
 
-    @Schema(description = "Thời gian thanh toán", example = "2025-01-20T10:32:00")
+    @Schema(description = "Payment time", example = "2025-01-20T10:32:00")
     private LocalDateTime paymentTime;
 }

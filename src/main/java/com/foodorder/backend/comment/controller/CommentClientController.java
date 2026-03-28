@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/client/comments")
 @RequiredArgsConstructor
-@Tag(name = "Comments - Client", description = "API bình luận dành cho người dùng đã đăng nhập")
+@Tag(name = "Comments - Client", description = "Comment APIs for authenticated users")
 public class CommentClientController {
 
     private final CommentService commentService;
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Tạo bình luận mới", description = "Tạo bình luận cho món ăn, bài viết... Có thể là reply nếu có parentId")
+    @Operation(summary = "Create comment", description = "Create a comment on food, blog, etc. Can be a reply if parentId is provided")
     public ResponseEntity<CommentResponse> createComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateCommentRequest request) {
@@ -43,7 +43,7 @@ public class CommentClientController {
 
     @PutMapping("/{commentId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Cập nhật bình luận", description = "Chỉ có thể cập nhật bình luận của chính mình")
+    @Operation(summary = "Update comment", description = "Only the comment owner can update their comment")
     public ResponseEntity<CommentResponse> updateComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long commentId,
@@ -55,7 +55,7 @@ public class CommentClientController {
 
     @DeleteMapping("/{commentId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Xóa bình luận", description = "Xóa bình luận của chính mình (soft delete)")
+    @Operation(summary = "Delete comment", description = "Delete own comment (soft delete)")
     public ResponseEntity<Void> deleteComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long commentId) {
@@ -66,7 +66,7 @@ public class CommentClientController {
 
     @GetMapping("/my-comments")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Lấy bình luận của tôi", description = "Lấy danh sách bình luận của user hiện tại")
+    @Operation(summary = "Get my comments", description = "Retrieve comments posted by the current user")
     public ResponseEntity<CommentPageResponse> getMyComments(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
@@ -77,4 +77,3 @@ public class CommentClientController {
         return ResponseEntity.ok(response);
     }
 }
-

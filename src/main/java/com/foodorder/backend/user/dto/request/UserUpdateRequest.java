@@ -4,18 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(description = "Request body để người dùng cập nhật thông tin cá nhân")
+@Schema(description = "Request body for user to update their personal information")
 public class UserUpdateRequest {
 
-    @Schema(description = "Họ tên đầy đủ", example = "Nguyễn Văn A")
+    @Schema(description = "Full name", example = "Nguyen Van A")
     private String fullName;
 
-    @Schema(description = "Số điện thoại", example = "0901234567")
+    @Schema(description = "Phone number", example = "0901234567")
     private String phoneNumber;
 
-    @Schema(description = "URL avatar", example = "https://example.com/avatar.jpg")
+    @Schema(description = "Avatar URL", example = "https://example.com/avatar.jpg")
     private String avatarUrl;
 
-    @Schema(description = "Địa chỉ", example = "123 Nguyễn Huệ, Quận 1, TP.HCM")
+    @Schema(description = "Address", example = "123 Nguyen Hue, District 1, Ho Chi Minh City")
     private String address;
 }

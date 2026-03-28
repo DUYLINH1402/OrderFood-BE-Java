@@ -8,19 +8,19 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response trả về kết quả like/unlike")
+@Schema(description = "Response for like/unlike result")
 public class LikeResponse {
 
-    @Schema(description = "Trạng thái like hiện tại (true = đã like, false = chưa like)", example = "true")
+    @Schema(description = "Current like status (true = liked, false = not liked)", example = "true")
     private boolean liked;
 
-    @Schema(description = "Tổng số lượt like của đối tượng", example = "150")
+    @Schema(description = "Total like count of target", example = "150")
     private long totalLikes;
 
-    @Schema(description = "Loại đối tượng", example = "FOOD")
+    @Schema(description = "Target type", example = "FOOD")
     private String targetType;
 
-    @Schema(description = "ID của đối tượng", example = "1")
+    @Schema(description = "Target ID", example = "1")
     private Long targetId;
 }
 

@@ -41,31 +41,31 @@ public class StaffWebSocketController {
             String token = extractTokenFromPayload(payload);
 
             if (token == null || token.trim().isEmpty()) {
-                sendErrorToStaff("TOKEN_REQUIRED", "Vui lòng cung cấp token xác thực", headerAccessor.getSessionId());
+                sendErrorToStaff("TOKEN_REQUIRED", "Authentication token is required", headerAccessor.getSessionId());
                 return;
             }
 
             if (!jwtUtil.validateToken(token)) {
-                sendErrorToStaff("INVALID_TOKEN", "Token không hợp lệ", headerAccessor.getSessionId());
+                sendErrorToStaff("INVALID_TOKEN", "Invalid token", headerAccessor.getSessionId());
                 return;
             }
 
             String username = jwtUtil.getUsernameFromToken(token);
             if (username == null || username.trim().isEmpty()) {
-                sendErrorToStaff("INVALID_TOKEN", "Không thể lấy thông tin người dùng từ token", headerAccessor.getSessionId());
+                sendErrorToStaff("INVALID_TOKEN", "Unable to retrieve user information from token", headerAccessor.getSessionId());
                 return;
             }
 
             User staff = userService.findByUsername(username);
 
             if (staff == null) {
-                sendErrorToStaff("USER_NOT_FOUND", "Không tìm thấy thông tin người dùng", headerAccessor.getSessionId());
+                sendErrorToStaff("USER_NOT_FOUND", "User not found", headerAccessor.getSessionId());
                 return;
             }
 
             String roleCode = staff.getRole().getCode();
             if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-                sendErrorToStaff("ACCESS_DENIED", "Bạn không có quyền truy cập chức năng này", headerAccessor.getSessionId());
+                sendErrorToStaff("ACCESS_DENIED", "You do not have permission to access this feature", headerAccessor.getSessionId());
                 return;
             }
 
@@ -80,7 +80,7 @@ public class StaffWebSocketController {
 
             Map<String, Object> welcomeMessage = new HashMap<>();
             welcomeMessage.put("type", "STAFF_ORDER_WELCOME");
-            welcomeMessage.put("message", "Xin chào " + staff.getFullName() + "! Bạn đã kết nối thành công và sẵn sàng nhận thông báo đơn hàng.");
+            welcomeMessage.put("message", "Welcome " + staff.getFullName() + "! You are connected and ready to receive order notifications.");
             welcomeMessage.put("staffId", staffId);
             welcomeMessage.put("staffName", staff.getFullName());
             welcomeMessage.put("role", roleCode);
@@ -89,8 +89,8 @@ public class StaffWebSocketController {
             messagingTemplate.convertAndSend("/topic/staff-orders", welcomeMessage);
 
         } catch (Exception e) {
-            log.error("Lỗi khi đăng ký staff order updates: {}", e.getMessage());
-            sendErrorToStaff("REGISTRATION_ERROR", "Lỗi khi đăng ký", headerAccessor.getSessionId());
+            log.error("Error registering staff order updates: {}", e.getMessage());
+            sendErrorToStaff("REGISTRATION_ERROR", "Registration failed", headerAccessor.getSessionId());
         }
     }
 
@@ -117,10 +117,10 @@ public class StaffWebSocketController {
             orderUpdate.put("timestamp", LocalDateTime.now().toString());
 
             messagingTemplate.convertAndSend("/topic/staff-orders", orderUpdate);
-            log.info("Đã gửi thông báo order update tới tất cả staff: Order {}", orderCode);
+            log.info("Order update notification sent to all staff: Order {}", orderCode);
 
         } catch (Exception e) {
-            log.error("Lỗi khi gửi order update tới staff: {}", e.getMessage());
+            log.error("Error sending order update to staff: {}", e.getMessage());
         }
     }
 
@@ -139,10 +139,10 @@ public class StaffWebSocketController {
             newOrderNotification.put("timestamp", LocalDateTime.now().toString());
 
             messagingTemplate.convertAndSend("/topic/staff-orders", newOrderNotification);
-            log.info("Đã gửi thông báo đơn hàng mới tới staff: Order {}", orderCode);
+            log.info("New order notification sent to all staff: Order {}", orderCode);
 
         } catch (Exception e) {
-            log.error("Lỗi khi gửi thông báo đơn hàng mới: {}", e.getMessage());
+            log.error("Error sending new order notification: {}", e.getMessage());
         }
     }
 
@@ -161,7 +161,7 @@ public class StaffWebSocketController {
                 messagingTemplate.convertAndSend("/topic/staff-orders", offlineMessage);
             }
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý staff disconnect: {}", e.getMessage());
+            log.error("Error handling staff disconnect: {}", e.getMessage());
         }
     }
 
@@ -230,7 +230,7 @@ public class StaffWebSocketController {
                 return payload.toString().trim();
             }
         } catch (Exception e) {
-            log.error("Lỗi khi extract token từ payload: {}", e.getMessage());
+            log.error("Error extracting token from payload: {}", e.getMessage());
             return null;
         }
     }
@@ -248,7 +248,7 @@ public class StaffWebSocketController {
 
             messagingTemplate.convertAndSend("/topic/staff-errors", error);
         } catch (Exception e) {
-            log.error("Lỗi khi gửi error message: {}", e.getMessage());
+            log.error("Error sending error message to staff: {}", e.getMessage());
         }
     }
 }

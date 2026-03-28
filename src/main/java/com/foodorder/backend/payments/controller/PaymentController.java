@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/v1/public/payments")
-@Tag(name = "Payments - Public", description = "API xử lý thanh toán - ZaloPay, Momo, COD")
+@Tag(name = "Payments - Public", description = "Payment processing API - ZaloPay, Momo, COD")
 public class PaymentController {
 
     @Autowired
@@ -55,10 +55,10 @@ public class PaymentController {
     @Autowired
     private UserRepository userRepository;
 
-    @Operation(summary = "Tạo thanh toán", description = "Tạo yêu cầu thanh toán cho đơn hàng. Hỗ trợ ZaloPay, ATM, VISA, Momo và COD.")
+    @Operation(summary = "Create payment", description = "Create payment request for order. Supports ZaloPay, ATM, VISA, Momo and COD.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo thanh toán thành công - Trả về URL thanh toán"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc phương thức thanh toán không được hỗ trợ")
+            @ApiResponse(responseCode = "200", description = "Payment created successfully - Returns payment URL"),
+            @ApiResponse(responseCode = "400", description = "Invalid data or payment method not supported")
     })
     @PostMapping
     public PaymentResponse createPayment(@RequestBody PaymentRequest request) {
@@ -139,10 +139,10 @@ public class PaymentController {
             CouponApplyResult result = couponService.validateCouponForOrder(couponRequest);
 
             if (!Boolean.TRUE.equals(result.getSuccess())) {
-                throw new IllegalArgumentException("Coupon không còn hợp lệ tại thời điểm thanh toán: " + result.getMessage());
+                throw new IllegalArgumentException("Coupon is no longer valid at payment time: " + result.getMessage());
             }
 
-            // Kiểm tra số tiền giảm giá có khớp không (cho phép sai số nhỏ)
+            // Check if discount amount matches (allow small deviation)
             if (order.getCouponDiscountAmount() != null && result.getDiscountAmount() != null) {
                 double expectedDiscount = result.getDiscountAmount();
                 double actualDiscount = order.getCouponDiscountAmount().doubleValue();
@@ -156,7 +156,7 @@ public class PaymentController {
             System.out.println("Coupon consistency check passed: " + order.getCouponCode());
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("Lỗi kiểm tra coupon: " + e.getMessage());
+            throw new IllegalArgumentException("Error checking coupon: " + e.getMessage());
         }
     }
 
@@ -165,12 +165,12 @@ public class PaymentController {
      */
     private void validatePointsForPayment(Order order) {
         if (order.getUserId() == null) {
-            throw new IllegalArgumentException("Guest user không thể sử dụng điểm thưởng");
+            throw new IllegalArgumentException("Guest user cannot use reward points");
         }
         try {
             // Lấy username từ userId
             String username = userRepository.findById(order.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user với id: " + order.getUserId()))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + order.getUserId()))
                 .getUsername();
             // Lấy số điểm hiện tại của user
             PointsResponseDTO pointsDTO = pointsService.getCurrentPointsByUsername(username);
@@ -178,15 +178,15 @@ public class PaymentController {
             // Tính số điểm cần dùng (giả sử 1 điểm = 1000 VND)
             int pointsNeeded = order.getDiscountAmount() / 1000;
             if (currentPoints < pointsNeeded) {
-                throw new IllegalArgumentException("Không đủ điểm thưởng. Cần " + pointsNeeded + " điểm, hiện có " + currentPoints + " điểm");
+                throw new IllegalArgumentException("Insufficient reward points. Need " + pointsNeeded + " points, have " + currentPoints + " points");
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Lỗi kiểm tra điểm thưởng: " + e.getMessage());
+            throw new IllegalArgumentException("Error checking reward points: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "ZaloPay Callback", description = "Endpoint nhận callback từ ZaloPay khi thanh toán hoàn thành. Không gọi trực tiếp.")
-    @ApiResponse(responseCode = "200", description = "Xử lý callback thành công")
+    @Operation(summary = "ZaloPay Callback", description = "Endpoint to receive callback from ZaloPay when payment is completed. Do not call directly.")
+    @ApiResponse(responseCode = "200", description = "Callback processed successfully")
     @PostMapping("/zalopay/callback-flexible")
     public Map<String, Object> handleZaloPayCallbackFlexible(@RequestBody Map<String, Object> payload) {
          System.out.println("=== Received ZaloPay Callback ===");
@@ -233,22 +233,22 @@ public class PaymentController {
         return result;
     }
 
-    @Operation(summary = "Kiểm tra trạng thái thanh toán", description = "Kiểm tra trạng thái thanh toán ZaloPay theo app_trans_id. Nếu ZaloPay đã xác nhận thành công nhưng callback chưa tới, API sẽ tự động xử lý cập nhật đơn hàng.")
+    @Operation(summary = "Check payment status", description = "Check ZaloPay payment status by app_trans_id. If ZaloPay confirmed success but callback not received yet, API will automatically update order.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "400", description = "Lỗi kiểm tra trạng thái")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Error checking status")
     })
     @GetMapping("/zalopay/check-status/{appTransId}")
     public ResponseEntity<PaymentStatusResponse> checkPaymentStatus(
-            @Parameter(description = "App Trans ID của giao dịch") @PathVariable String appTransId) {
+            @Parameter(description = "App Trans ID of transaction") @PathVariable String appTransId) {
         PaymentStatusResponse response = zaloPayService.queryPaymentStatus(appTransId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Cập nhật trạng thái thanh toán", description = "Frontend gọi endpoint này để cập nhật trạng thái thanh toán (thất bại/thành công).")
+    @Operation(summary = "Update payment status", description = "Frontend calls this endpoint to update payment status (failed/success).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
             @ApiResponse(responseCode = "500", description = "Lỗi server")
     })
     @PostMapping("/update-status")

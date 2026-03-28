@@ -10,31 +10,31 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
-@Schema(description = "Response chứa thông tin chi tiết một món trong giỏ hàng")
+@Schema(description = "Response containing cart item details")
 public class CartResponse {
 
-    @Schema(description = "ID của món ăn", example = "1")
+    @Schema(description = "Food item ID", example = "1")
     private Long foodId;
 
-    @Schema(description = "Tên món ăn", example = "Phở bò tái")
+    @Schema(description = "Food item name", example = "Pho Bo Tai")
     private String foodName;
 
-    @Schema(description = "URL hình ảnh món ăn", example = "https://example.com/images/pho.jpg")
+    @Schema(description = "Food image URL", example = "https://example.com/images/pho.jpg")
     private String imageUrl;
 
-    @Schema(description = "Giá của món ăn (đã bao gồm biến thể nếu có)", example = "55000")
+    @Schema(description = "Food price (including variant if applicable)", example = "55000")
     private BigDecimal price;
 
-    @Schema(description = "ID của biến thể món ăn. Null nếu không có biến thể", example = "2")
+    @Schema(description = "Variant ID. Null if no variant", example = "2")
     private Long variantId;
 
-    @Schema(description = "Tên biến thể (size, topping...). Null nếu không có biến thể", example = "Size L")
+    @Schema(description = "Variant name (size, topping...). Null if no variant", example = "Size L")
     private String variantName;
 
-    @Schema(description = "Số lượng món trong giỏ hàng", example = "2")
+    @Schema(description = "Quantity in cart", example = "2")
     private int quantity;
 
-    @Schema(description = "Slug của món ăn (dùng cho URL)", example = "pho-bo-tai")
+    @Schema(description = "Food slug (for URL)", example = "pho-bo-tai")
     private String slug;
 
 }

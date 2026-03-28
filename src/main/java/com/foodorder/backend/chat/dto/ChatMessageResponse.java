@@ -14,44 +14,44 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin tin nhắn chat")
+@Schema(description = "Response containing chat message details")
 public class ChatMessageResponse {
 
-    @Schema(description = "ID của tin nhắn", example = "msg_123456")
+    @Schema(description = "Message ID", example = "msg_123456")
     private String messageId;
 
-    @Schema(description = "Nội dung tin nhắn", example = "Xin chào, tôi cần hỗ trợ")
+    @Schema(description = "Message content", example = "Hello, I need support")
     private String content;
 
-    @Schema(description = "ID của người gửi", example = "1")
+    @Schema(description = "Sender ID", example = "1")
     private Long senderId;
 
-    @Schema(description = "Tên người gửi", example = "Nguyễn Văn A")
+    @Schema(description = "Sender name", example = "John Doe")
     private String senderName;
 
-    @Schema(description = "Email người gửi", example = "user@example.com")
+    @Schema(description = "Sender email", example = "user@example.com")
     private String senderEmail;
 
-    @Schema(description = "URL avatar người gửi", example = "https://example.com/avatar.jpg")
+    @Schema(description = "Sender avatar URL", example = "https://example.com/avatar.jpg")
     private String senderAvatar;
 
-    @Schema(description = "ID của người nhận", example = "2")
+    @Schema(description = "Receiver ID", example = "2")
     private Long receiverId;
 
-    @Schema(description = "Tên người nhận", example = "Staff 01")
+    @Schema(description = "Receiver name", example = "Staff 01")
     private String receiverName;
 
-    @Schema(description = "Loại tin nhắn", example = "USER_TO_STAFF", allowableValues = {"USER_TO_STAFF", "STAFF_TO_USER", "SYSTEM"})
+    @Schema(description = "Message type", example = "USER_TO_STAFF", allowableValues = {"USER_TO_STAFF", "STAFF_TO_USER", "SYSTEM"})
     private String messageType;
 
-    @Schema(description = "Trạng thái tin nhắn", example = "SENT", allowableValues = {"SENT", "DELIVERED", "READ"})
+    @Schema(description = "Message status", example = "SENT", allowableValues = {"SENT", "DELIVERED", "READ"})
     private String status;
 
-    @Schema(description = "Thời gian gửi tin nhắn", example = "2025-01-20 10:30:00")
+    @Schema(description = "Sent timestamp", example = "2025-01-20 10:30:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime sentAt;
 
-    @Schema(description = "Thời gian đọc tin nhắn", example = "2025-01-20 10:31:00")
+    @Schema(description = "Read timestamp", example = "2025-01-20 10:31:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime readAt;
 
@@ -59,25 +59,25 @@ public class ChatMessageResponse {
     /**
      * ID của tin nhắn gốc mà tin nhắn này đang phản hồi
      */
-    @Schema(description = "ID của tin nhắn gốc mà tin nhắn này đang phản hồi", example = "msg_123455")
+    @Schema(description = "Original message ID that this message replies to", example = "msg_123455")
     private String replyToMessageId;
 
     /**
      * Nội dung tin nhắn gốc
      */
-    @Schema(description = "Nội dung tin nhắn gốc được trích dẫn", example = "Tôi muốn hỏi về đơn hàng...")
+    @Schema(description = "Quoted original message content", example = "I want to ask about my order...")
     private String replyToText;
 
     /**
      * Tên người gửi tin nhắn gốc
      */
-    @Schema(description = "Tên người gửi tin nhắn gốc", example = "Nguyễn Văn A")
+    @Schema(description = "Original message sender name", example = "John Doe")
     private String replyToSenderName;
 
     /**
      * Thời gian gửi tin nhắn gốc
      */
-    @Schema(description = "Thời gian gửi tin nhắn gốc", example = "2025-01-20 10:25:00")
+    @Schema(description = "Original message sent timestamp", example = "2025-01-20 10:25:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime replyToTimestamp;
 

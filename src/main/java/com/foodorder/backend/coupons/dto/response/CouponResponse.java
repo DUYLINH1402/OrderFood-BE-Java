@@ -76,17 +76,17 @@ public class CouponResponse implements Serializable {
     @Schema(description = "Thời gian tạo", example = "2025-01-15T10:30:00")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Thời gian cập nhật gần nhất", example = "2025-01-20T15:45:00")
+    @Schema(description = "Last update timestamp", example = "2025-01-20T15:45:00")
     private LocalDateTime updatedAt;
 
     // === DANH SÁCH ÁP DỤNG ===
-    @Schema(description = "Danh sách tên danh mục được áp dụng", example = "[\"Món chính\", \"Đồ uống\"]")
+    @Schema(description = "List of applicable category names", example = "[\"Main dishes\", \"Beverages\"]")
     private List<String> applicableCategoryNames;
 
-    @Schema(description = "Danh sách tên món ăn được áp dụng", example = "[\"Phở bò\", \"Bún chả\"]")
+    @Schema(description = "List of applicable food names", example = "[\"Beef Pho\", \"Bun Cha\"]")
     private List<String> applicableFoodNames;
 
-    @Schema(description = "Số lượng user được áp dụng (với PRIVATE coupon)", example = "10")
+    @Schema(description = "Number of applicable users (for PRIVATE coupons)", example = "10")
     private Integer applicableUserCount;
 
     // === TRẠNG THÁI COMPUTED ===

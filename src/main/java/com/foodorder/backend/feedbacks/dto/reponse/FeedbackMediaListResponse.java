@@ -16,21 +16,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa danh sách feedback media")
+@Schema(description = "Response containing list of feedback media")
 public class FeedbackMediaListResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "Danh sách feedback media")
-    private List<FeedbackMediaResponse> items;
+    @Schema(description = "List of feedback media")
+    private List<FeedbackMediaResponse> feedbacks;
 
-    @Schema(description = "Tổng số lượng feedback media", example = "10")
-    private int total;
+    @Schema(description = "Total number of feedback media", example = "10")
+    private Integer total;
 
     public static FeedbackMediaListResponse of(List<FeedbackMediaResponse> items) {
         return FeedbackMediaListResponse.builder()
-                .items(items)
+                .feedbacks(items)
                 .total(items.size())
                 .build();
     }

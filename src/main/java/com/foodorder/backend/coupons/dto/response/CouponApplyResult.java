@@ -11,36 +11,36 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa kết quả áp dụng mã giảm giá")
+@Schema(description = "Response containing coupon application result")
 public class CouponApplyResult {
 
-    @Schema(description = "Kết quả áp dụng coupon thành công hay không", example = "true")
+    @Schema(description = "Whether coupon was applied successfully", example = "true")
     private Boolean success;
 
-    @Schema(description = "Thông báo kết quả", example = "Coupon applied successfully")
+    @Schema(description = "Result message", example = "Coupon applied successfully")
     private String message;
 
-    @Schema(description = "Mã coupon đã áp dụng", example = "SUMMER2025")
+    @Schema(description = "Applied coupon code", example = "SUMMER2025")
     private String couponCode;
 
     // Thông tin tính toán
-    @Schema(description = "Giá trị đơn hàng gốc", example = "150000")
+    @Schema(description = "Original order amount", example = "150000")
     private Double originalAmount;
 
-    @Schema(description = "Số tiền được giảm", example = "30000")
+    @Schema(description = "Discount amount", example = "30000")
     private Double discountAmount;
 
-    @Schema(description = "Số tiền phải thanh toán sau khi giảm", example = "120000")
+    @Schema(description = "Final amount to pay after discount", example = "120000")
     private Double finalAmount;
 
-    @Schema(description = "Số tiền tiết kiệm được", example = "30000")
+    @Schema(description = "Amount saved", example = "30000")
     private Double savedAmount;
 
     // Thông tin coupon
-    @Schema(description = "Tiêu đề coupon", example = "Khuyến mãi mùa hè")
+    @Schema(description = "Coupon title", example = "Summer promotion")
     private String couponTitle;
 
-    @Schema(description = "Mô tả chi tiết mức giảm", example = "Giảm 20%")
+    @Schema(description = "Discount description", example = "20% off")
     private String discountDescription;
 
     public static CouponApplyResult success(String couponCode, String couponTitle,

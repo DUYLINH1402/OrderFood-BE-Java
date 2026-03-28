@@ -23,41 +23,41 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin/feedback-media")
 @RequiredArgsConstructor
 @RequireAdmin
-@Tag(name = "Feedback Media - Admin", description = "API quản lý nội dung phản hồi - Yêu cầu quyền Admin")
+@Tag(name = "Feedback Media - Admin", description = "Feedback content management API - Requires Admin access")
 public class FeedbackMediaAdminController {
 
     private final FeedbackMediaService service;
 
-    @Operation(summary = "Tạo feedback media", description = "Tạo mới nội dung phản hồi.")
+    @Operation(summary = "Create feedback media", description = "Create new feedback content.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Admin")
+            @ApiResponse(responseCode = "200", description = "Created successfully"),
+            @ApiResponse(responseCode = "403", description = "Admin access required")
     })
     @PostMapping
     public FeedbackMediaResponse create(@Valid @RequestBody FeedbackMediaRequest req) {
         return service.create(req);
     }
 
-    @Operation(summary = "Cập nhật feedback media", description = "Cập nhật nội dung phản hồi.")
+    @Operation(summary = "Update feedback media", description = "Update feedback content.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Not found")
     })
     @PutMapping("/{id}")
     public FeedbackMediaResponse update(
-            @Parameter(description = "ID của feedback media") @PathVariable Long id,
+            @Parameter(description = "Feedback media ID") @PathVariable Long id,
             @Valid @RequestBody FeedbackMediaRequest req) {
         return service.update(id, req);
     }
 
-    @Operation(summary = "Xóa feedback media", description = "Xóa nội dung phản hồi.")
+    @Operation(summary = "Delete feedback media", description = "Delete feedback content.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy")
+            @ApiResponse(responseCode = "200", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Not found")
     })
     @DeleteMapping("/{id}")
     public void delete(
-            @Parameter(description = "ID của feedback media") @PathVariable Long id) {
+            @Parameter(description = "Feedback media ID") @PathVariable Long id) {
         service.delete(id);
     }
 }

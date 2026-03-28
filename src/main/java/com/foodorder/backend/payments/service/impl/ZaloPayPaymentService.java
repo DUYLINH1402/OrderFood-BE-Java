@@ -584,12 +584,54 @@ public class ZaloPayPaymentService extends BasePaymentService implements Payment
         context.setVariable("receiverName", order.getReceiverName() != null ? order.getReceiverName() : "");
         context.setVariable("receiverPhone", order.getReceiverPhone() != null ? order.getReceiverPhone() : "");
         context.setVariable("receiverEmail", order.getReceiverEmail() != null ? order.getReceiverEmail() : "");
-        context.setVariable("deliveryAddress", order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "");
+        context.setVariable("deliveryAddress", buildFullAddress(order));
         context.setVariable("deliveryType", order.getDeliveryType() != null ? order.getDeliveryType().getDescription() : "");
         context.setVariable("paymentMethod", order.getPaymentMethod() != null ? order.getPaymentMethod().getDescription() : "");
 
         String htmlContent = templateEngine.process("order_success_email.html", context);
         brevoEmailService.sendEmail(user.getEmail(), subject, htmlContent);
+    }
+
+    /**
+     * Ghép địa chỉ đầy đủ từ deliveryAddress + ward + district
+     * Ví dụ: "123 Nguyễn Văn A, Phường Bến Nghé, Quận 1"
+     */
+    private String buildFullAddress(Order order) {
+        StringBuilder fullAddress = new StringBuilder();
+
+        if (order.getDeliveryAddress() != null && !order.getDeliveryAddress().isEmpty()) {
+            fullAddress.append(order.getDeliveryAddress());
+        }
+
+        // Truy vấn Ward name từ ward_id
+        if (order.getWardId() != null) {
+            try {
+                wardRepository.findById(order.getWardId()).ifPresent(ward -> {
+                    if (ward.getName() != null && !ward.getName().isEmpty()) {
+                        if (fullAddress.length() > 0) fullAddress.append(", ");
+                        fullAddress.append(ward.getName());
+                    }
+                });
+            } catch (Exception e) {
+                logger.warn("Không thể truy vấn ward_id={}: {}", order.getWardId(), e.getMessage());
+            }
+        }
+
+        // Truy vấn District name từ district_id
+        if (order.getDistrictId() != null) {
+            try {
+                districtRepository.findById(order.getDistrictId()).ifPresent(district -> {
+                    if (district.getName() != null && !district.getName().isEmpty()) {
+                        if (fullAddress.length() > 0) fullAddress.append(", ");
+                        fullAddress.append(district.getName());
+                    }
+                });
+            } catch (Exception e) {
+                logger.warn("Không thể truy vấn district_id={}: {}", order.getDistrictId(), e.getMessage());
+            }
+        }
+
+        return fullAddress.toString();
     }
 
     /**

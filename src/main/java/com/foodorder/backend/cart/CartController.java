@@ -22,16 +22,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/client/cart")
 @RequiredArgsConstructor
-@Tag(name = "Cart", description = "API quản lý giỏ hàng - Yêu cầu đăng nhập")
+@Tag(name = "Cart", description = "APIs for cart management - Requires authentication")
 public class CartController {
 
     private final CartService cartService;
 
-    @Operation(summary = "Thêm món vào giỏ", description = "Thêm một món ăn vào giỏ hàng của người dùng đã đăng nhập.")
+    @Operation(summary = "Add item to cart", description = "Add a food item to the authenticated user's cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thêm thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Added successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "404", description = "Food item not found")
     })
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody CartRequest request,
@@ -43,10 +43,10 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Cập nhật số lượng", description = "Cập nhật số lượng của một món trong giỏ hàng.")
+    @Operation(summary = "Update quantity", description = "Update the quantity of an item in the cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @PostMapping("/update")
     public ResponseEntity<?> updateQuantity(@RequestBody CartRequest request,
@@ -58,15 +58,15 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Xóa món khỏi giỏ", description = "Xóa một món ăn khỏi giỏ hàng.")
+    @Operation(summary = "Remove item from cart", description = "Remove a food item from the cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Removed successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @DeleteMapping("/remove")
     public ResponseEntity<?> removeFromCart(
-            @Parameter(description = "ID của món ăn") @RequestParam Long foodId,
-            @Parameter(description = "ID của biến thể (nếu có)") @RequestParam(required = false) Long variantId,
+            @Parameter(description = "Food item ID") @RequestParam Long foodId,
+            @Parameter(description = "Variant ID (optional)") @RequestParam(required = false) Long variantId,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user) {
         if (user == null) {
             return ResponseEntity.status(401).body("User not authenticated");
@@ -75,10 +75,10 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Lấy giỏ hàng", description = "Lấy danh sách tất cả các món trong giỏ hàng của người dùng.")
+    @Operation(summary = "Get cart", description = "Retrieve all items in the user's cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping
     public ResponseEntity<List<CartResponse>> getUserCart(
@@ -89,10 +89,10 @@ public class CartController {
         return ResponseEntity.ok(cartService.getUserCart(user.getId()));
     }
 
-    @Operation(summary = "Xóa toàn bộ giỏ hàng", description = "Xóa tất cả các món trong giỏ hàng.")
+    @Operation(summary = "Clear cart", description = "Remove all items from the cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Cleared successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @DeleteMapping("/clear")
     public ResponseEntity<?> clearCart(
@@ -104,10 +104,10 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Đồng bộ giỏ hàng", description = "Đồng bộ giỏ hàng từ client lên server (dùng khi đăng nhập).")
+    @Operation(summary = "Sync cart", description = "Sync cart items from client to server (used on login).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đồng bộ thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @ApiResponse(responseCode = "200", description = "Synced successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @PostMapping("/sync")
     public ResponseEntity<?> syncCart(@RequestBody List<CartRequest> cartItems,

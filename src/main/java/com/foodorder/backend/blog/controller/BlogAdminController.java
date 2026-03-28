@@ -38,7 +38,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RequireAdmin
-@Tag(name = "Blogs - Admin", description = "API quản trị bài viết/tin tức")
+@Tag(name = "Blogs - Admin", description = "Admin APIs for blog post management")
 public class BlogAdminController {
 
     private final BlogService blogService;
@@ -46,22 +46,22 @@ public class BlogAdminController {
 
     // ==================== BLOG APIs ====================
 
-    @Operation(summary = "Lấy danh sách bài viết (Admin)",
-            description = "Lấy danh sách bài viết với bộ lọc, hỗ trợ phân trang")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog posts (Admin)",
+            description = "Retrieve blog posts with filters and pagination")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<BlogListResponse>> getBlogs(
-            @Parameter(description = "Tiêu đề bài viết")
+            @Parameter(description = "Blog post title")
             @RequestParam(required = false) String title,
-            @Parameter(description = "Trạng thái bài viết")
+            @Parameter(description = "Blog post status")
             @RequestParam(required = false) BlogStatus status,
-            @Parameter(description = "Loại nội dung (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)")
+            @Parameter(description = "Content type (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)")
             @RequestParam(required = false) BlogType blogType,
-            @Parameter(description = "ID danh mục")
+            @Parameter(description = "Category ID")
             @RequestParam(required = false) Long categoryId,
-            @Parameter(description = "ID tác giả")
+            @Parameter(description = "Author ID")
             @RequestParam(required = false) Long authorId,
-            @Parameter(description = "Thông tin phân trang")
+            @Parameter(description = "Pagination info")
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         BlogFilterRequest filterRequest = BlogFilterRequest.builder()
@@ -75,22 +75,22 @@ public class BlogAdminController {
         return ResponseEntity.ok(blogService.getBlogsWithFilter(filterRequest, pageable));
     }
 
-    @Operation(summary = "Lấy chi tiết bài viết theo ID (Admin)",
-            description = "Lấy nội dung đầy đủ của bài viết bao gồm cả bản nháp")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get blog post by ID (Admin)",
+            description = "Retrieve full blog post content including drafts")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/{id}")
     public ResponseEntity<BlogResponse> getBlogById(
-            @Parameter(description = "ID của bài viết", required = true)
+            @Parameter(description = "Blog post ID", required = true)
             @PathVariable Long id) {
         return ResponseEntity.ok(blogService.getBlogById(id));
     }
 
-    @Operation(summary = "Tạo bài viết mới",
-            description = "Tạo bài viết mới với trạng thái DRAFT hoặc PUBLISHED")
-    @ApiResponse(responseCode = "201", description = "Tạo thành công")
+    @Operation(summary = "Create blog post",
+            description = "Create a new blog post with DRAFT or PUBLISHED status")
+    @ApiResponse(responseCode = "201", description = "Created successfully")
     @PostMapping
     public ResponseEntity<BlogResponse> createBlog(
-            @Parameter(description = "Thông tin bài viết", required = true)
+            @Parameter(description = "Blog post details", required = true)
             @Valid @RequestBody BlogRequest request,
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -98,100 +98,100 @@ public class BlogAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Cập nhật bài viết",
-            description = "Cập nhật nội dung bài viết theo ID")
-    @ApiResponse(responseCode = "200", description = "Cập nhật thành công")
+    @Operation(summary = "Update blog post",
+            description = "Update blog post content by ID")
+    @ApiResponse(responseCode = "200", description = "Updated successfully")
     @PutMapping("/{id}")
     public ResponseEntity<BlogResponse> updateBlog(
-            @Parameter(description = "ID của bài viết", required = true)
+            @Parameter(description = "Blog post ID", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Thông tin cập nhật", required = true)
+            @Parameter(description = "Updated details", required = true)
             @Valid @RequestBody BlogRequest request) {
         return ResponseEntity.ok(blogService.updateBlog(id, request));
     }
 
-    @Operation(summary = "Xóa bài viết",
-            description = "Xóa vĩnh viễn bài viết theo ID")
-    @ApiResponse(responseCode = "204", description = "Xóa thành công")
+    @Operation(summary = "Delete blog post",
+            description = "Permanently delete a blog post by ID")
+    @ApiResponse(responseCode = "204", description = "Deleted successfully")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBlog(
-            @Parameter(description = "ID của bài viết", required = true)
+            @Parameter(description = "Blog post ID", required = true)
             @PathVariable Long id) {
         blogService.deleteBlog(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Cập nhật trạng thái bài viết",
-            description = "Thay đổi trạng thái: DRAFT, PUBLISHED, ARCHIVED")
-    @ApiResponse(responseCode = "200", description = "Cập nhật thành công")
+    @Operation(summary = "Update blog post status",
+            description = "Change status: DRAFT, PUBLISHED, ARCHIVED")
+    @ApiResponse(responseCode = "200", description = "Updated successfully")
     @PatchMapping("/{id}/status")
     public ResponseEntity<BlogResponse> updateBlogStatus(
-            @Parameter(description = "ID của bài viết", required = true)
+            @Parameter(description = "Blog post ID", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Trạng thái mới: DRAFT, PUBLISHED, ARCHIVED", required = true)
+            @Parameter(description = "New status: DRAFT, PUBLISHED, ARCHIVED", required = true)
             @RequestParam String status) {
         return ResponseEntity.ok(blogService.updateBlogStatus(id, status));
     }
 
     // ==================== CATEGORY APIs ====================
 
-    @Operation(summary = "Lấy tất cả danh mục (Admin)",
-            description = "Lấy danh sách tất cả danh mục bao gồm cả không hoạt động")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get all categories (Admin)",
+            description = "Retrieve all categories including inactive ones")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories")
     public ResponseEntity<List<BlogCategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(blogCategoryService.getAllCategories());
     }
 
-    @Operation(summary = "Lấy tất cả danh mục theo loại nội dung",
-            description = "Lấy danh sách danh mục theo loại: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get all categories by content type",
+            description = "Retrieve categories by type: NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories/type/{blogType}")
     public ResponseEntity<List<BlogCategoryResponse>> getAllCategoriesByType(
-            @Parameter(description = "Loại nội dung (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
+            @Parameter(description = "Content type (NEWS_PROMOTIONS, MEDIA_PRESS, CATERING_SERVICES)", required = true)
             @PathVariable BlogType blogType) {
         return ResponseEntity.ok(blogCategoryService.getAllCategoriesByType(blogType));
     }
 
-    @Operation(summary = "Lấy chi tiết danh mục theo ID",
-            description = "Lấy thông tin danh mục bao gồm số lượng bài viết")
-    @ApiResponse(responseCode = "200", description = "Thành công")
+    @Operation(summary = "Get category by ID",
+            description = "Retrieve category details including post count")
+    @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping("/categories/{id}")
     public ResponseEntity<BlogCategoryResponse> getCategoryById(
-            @Parameter(description = "ID của danh mục", required = true)
+            @Parameter(description = "Category ID", required = true)
             @PathVariable Long id) {
         return ResponseEntity.ok(blogCategoryService.getCategoryById(id));
     }
 
-    @Operation(summary = "Tạo danh mục mới",
-            description = "Tạo danh mục tin tức mới")
-    @ApiResponse(responseCode = "201", description = "Tạo thành công")
+    @Operation(summary = "Create category",
+            description = "Create a new blog category")
+    @ApiResponse(responseCode = "201", description = "Created successfully")
     @PostMapping("/categories")
     public ResponseEntity<BlogCategoryResponse> createCategory(
-            @Parameter(description = "Thông tin danh mục", required = true)
+            @Parameter(description = "Category details", required = true)
             @Valid @RequestBody BlogCategoryRequest request) {
         BlogCategoryResponse response = blogCategoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Cập nhật danh mục",
-            description = "Cập nhật thông tin danh mục theo ID")
-    @ApiResponse(responseCode = "200", description = "Cập nhật thành công")
+    @Operation(summary = "Update category",
+            description = "Update category details by ID")
+    @ApiResponse(responseCode = "200", description = "Updated successfully")
     @PutMapping("/categories/{id}")
     public ResponseEntity<BlogCategoryResponse> updateCategory(
-            @Parameter(description = "ID của danh mục", required = true)
+            @Parameter(description = "Category ID", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Thông tin cập nhật", required = true)
+            @Parameter(description = "Updated details", required = true)
             @Valid @RequestBody BlogCategoryRequest request) {
         return ResponseEntity.ok(blogCategoryService.updateCategory(id, request));
     }
 
-    @Operation(summary = "Xóa danh mục",
-            description = "Xóa danh mục (chỉ khi không có bài viết nào)")
-    @ApiResponse(responseCode = "204", description = "Xóa thành công")
+    @Operation(summary = "Delete category",
+            description = "Delete a category (only when no posts belong to it)")
+    @ApiResponse(responseCode = "204", description = "Deleted successfully")
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategory(
-            @Parameter(description = "ID của danh mục", required = true)
+            @Parameter(description = "Category ID", required = true)
             @PathVariable Long id) {
         blogCategoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();

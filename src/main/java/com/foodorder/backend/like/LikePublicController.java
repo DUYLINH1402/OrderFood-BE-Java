@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/public/likes")
 @RequiredArgsConstructor
-@Tag(name = "Like - Public", description = "API xem thông tin lượt thích - Công khai")
+@Tag(name = "Like - Public", description = "Like information API - Public")
 public class LikePublicController {
 
     private final LikeService likeService;
 
     @GetMapping("/{targetType}/{targetId}")
-    @Operation(summary = "Lấy thông tin like", description = "Lấy số lượt like và trạng thái đã like của user (nếu đã đăng nhập)")
+    @Operation(summary = "Get like info", description = "Get like count and user's like status (if authenticated)")
     public ResponseEntity<LikeResponse> getLikeInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String targetType,

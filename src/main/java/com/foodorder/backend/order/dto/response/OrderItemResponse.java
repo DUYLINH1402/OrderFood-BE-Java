@@ -10,27 +10,27 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response chứa thông tin một món ăn trong đơn hàng")
+@Schema(description = "Response containing information about an item in the order")
 public class OrderItemResponse {
 
-    @Schema(description = "ID của món ăn", example = "1")
+    @Schema(description = "Food item ID", example = "1")
     private Long foodId;
 
-    @Schema(description = "Tên món ăn", example = "Phở bò tái")
+    @Schema(description = "Food item name", example = "Pho bo tai")
     private String foodName;
 
-    @Schema(description = "Slug của món ăn (dùng cho URL)", example = "pho-bo-tai")
+    @Schema(description = "Food item slug (used for URL)", example = "pho-bo-tai")
     private String foodSlug;
 
-    @Schema(description = "Số lượng", example = "2")
+    @Schema(description = "Quantity", example = "2")
     private Integer quantity;
 
-    @Schema(description = "Đơn giá (VND)", example = "50000")
+    @Schema(description = "Unit price (VND)", example = "50000")
     private BigDecimal price;
 
-    @Schema(description = "Đơn giá đã format", example = "55.000đ")
+    @Schema(description = "Formatted unit price", example = "55.000đ")
     private String priceFormatted;
 
-    @Schema(description = "Thành tiền đã format", example = "110.000đ")
+    @Schema(description = "Formatted total price", example = "110.000đ")
     private String totalFormatted;
 }

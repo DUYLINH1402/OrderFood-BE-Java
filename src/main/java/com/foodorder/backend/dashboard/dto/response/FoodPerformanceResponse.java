@@ -64,28 +64,28 @@ public class FoodPerformanceResponse implements Serializable {
         @Schema(description = "URL ảnh đại diện", example = "https://example.com/pho.jpg")
         private String imageUrl;
 
-        @Schema(description = "Tên danh mục", example = "Món chính")
+        @Schema(description = "Category name", example = "Main dishes")
         private String categoryName;
 
-        @Schema(description = "Số đơn hàng có món này", example = "100")
+        @Schema(description = "Number of orders containing this food", example = "100")
         private Long orderCount;
 
-        @Schema(description = "Số lượng đã bán", example = "150")
+        @Schema(description = "Quantity sold", example = "150")
         private Long quantitySold;
 
-        @Schema(description = "Doanh thu từ món này (VND)", example = "8250000")
+        @Schema(description = "Revenue from this food (VND)", example = "8250000")
         private BigDecimal revenue;
 
-        @Schema(description = "Điểm đánh giá trung bình (0-5)", example = "4.5")
+        @Schema(description = "Average rating (0-5)", example = "4.5")
         private Double averageRating;
 
-        @Schema(description = "Số lượng đánh giá", example = "50")
+        @Schema(description = "Number of reviews", example = "50")
         private Long reviewCount;
 
-        @Schema(description = "Xu hướng so với kỳ trước", example = "UP", allowableValues = {"UP", "DOWN", "STABLE", "NEW"})
+        @Schema(description = "Trend compared to previous period", example = "UP", allowableValues = {"UP", "DOWN", "STABLE", "NEW"})
         private TrendType trend;
 
-        @Schema(description = "Tỷ lệ thay đổi doanh thu so với kỳ trước (%)", example = "15.5")
+        @Schema(description = "Revenue change percentage compared to previous period (%)", example = "15.5")
         private Double trendPercentage;
     }
 

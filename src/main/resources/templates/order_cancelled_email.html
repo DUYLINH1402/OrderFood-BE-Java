@@ -201,11 +201,14 @@
         <p style="margin: 4px 0; font-size: 15px;">
             <b>Tổng tiền hàng:</b> <span th:text="${subtotalFormatted}"></span>
         </p>
-        <p th:if="${shippingFee != null && shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
+        <p th:if="${shippingFee != null and shippingFee > 0}" style="margin: 4px 0; font-size: 15px;">
             <b>Phí giao hàng:</b> <span th:text="${shippingFeeFormatted}"></span>
         </p>
-        <p th:if="${discountAmount != null && discountAmount > 0}" style="margin: 4px 0; font-size: 15px;">
-            <b>Giảm giá:</b> -<span th:text="${discountAmountFormatted}"></span>
+        <p th:if="${pointsUsed != null and pointsUsed > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
+            <b>Điểm đã dùng:</b> <span th:text="${pointsUsed}"></span> điểm (-<span th:text="${pointsDiscountFormatted}"></span>)
+        </p>
+        <p th:if="${couponDiscount != null and couponDiscount > 0}" style="margin: 4px 0; font-size: 15px; color: #dc2626;">
+            <b>Giảm giá<span th:if="${couponCode != null and !couponCode.isEmpty()}"> (<span th:text="${couponCode}"></span>)</span>:</b> -<span th:text="${couponDiscountFormatted}"></span>
         </p>
         <hr style="border: none; border-top: 1px solid #fecaca; margin: 8px 0;" />
         <p style="margin: 4px 0; font-size: 17px; font-weight: bold; color: #dc2626; text-decoration: line-through;">
@@ -246,7 +249,7 @@
 
     <!-- Footer -->
     <p style="font-size: 13px; color: #999; text-align: center; margin-top: 30px;">
-        Đây là email thông báo tự động từ hệ thống Đồng Xanh Food.<br />
+        Đây là email thông báo tự động từ Đồng Xanh Food.<br />
         Vui lòng không trả lời email này.<br />
         Nếu có thắc mắc, vui lòng liên hệ bộ phận CSKH của chúng tôi.
     </p>

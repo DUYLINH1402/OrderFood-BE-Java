@@ -35,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1/superadmin/foods")
 @RequiredArgsConstructor
 @RequireSuperAdmin
-@Tag(name = "Foods - Super Admin", description = "API quản lý món ăn dành cho Super Admin - Bao gồm dữ liệu được bảo vệ")
+@Tag(name = "Foods - Super Admin", description = "Food management API for Super Admin - Including protected data")
 public class SuperAdminFoodController {
 
     private final FoodService foodService;
@@ -43,20 +43,20 @@ public class SuperAdminFoodController {
 
     // ==================== QUẢN LÝ MÓN ĂN ====================
 
-    @Operation(summary = "Quản lý món ăn (Super Admin)",
-            description = "Lấy danh sách tất cả món ăn, bao gồm cả dữ liệu được bảo vệ. Hỗ trợ lọc theo tên, trạng thái, danh mục.")
+    @Operation(summary = "Manage foods (Super Admin)",
+            description = "Get a list of all food items, including protected data. Supports filtering by name, status, and category.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa đăng nhập"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền Super Admin")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Super Admin permission required")
     })
     @GetMapping("/management")
     public ResponseEntity<Page<FoodResponse>> getFoodsForManagement(
-            @Parameter(description = "Tên món ăn (tìm kiếm)") @RequestParam(required = false) String name,
-            @Parameter(description = "Trạng thái (AVAILABLE/UNAVAILABLE)") @RequestParam(required = false) String status,
-            @Parameter(description = "ID danh mục") @RequestParam(required = false) Long categoryId,
-            @Parameter(description = "Trạng thái hoạt động") @RequestParam(required = false) Boolean isActive,
-            @Parameter(description = "Thông tin phân trang") @PageableDefault(size = 20) Pageable pageable) {
+            @Parameter(description = "Food name (search keyword)") @RequestParam(required = false) String name,
+            @Parameter(description = "Status (AVAILABLE/UNAVAILABLE)") @RequestParam(required = false) String status,
+            @Parameter(description = "Category ID") @RequestParam(required = false) Long categoryId,
+            @Parameter(description = "Active status") @RequestParam(required = false) Boolean isActive,
+            @Parameter(description = "Pagination info") @PageableDefault(size = 20) Pageable pageable) {
 
         FoodFilterRequest filterRequest = FoodFilterRequest.builder()
                 .name(name)
@@ -68,23 +68,23 @@ public class SuperAdminFoodController {
         return ResponseEntity.ok(foodService.getFoodsWithFilter(filterRequest, pageable));
     }
 
-    @Operation(summary = "Chi tiết món ăn (Super Admin)",
-            description = "Lấy chi tiết món ăn theo ID, bao gồm cả món được bảo vệ.")
+    @Operation(summary = "Food details (Super Admin)",
+            description = "Get food item details by ID, including protected items.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Food item not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<FoodResponse> getFoodById(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id) {
+            @Parameter(description = "Food item ID") @PathVariable Long id) {
         return ResponseEntity.ok(foodService.getFoodById(id));
     }
 
-    @Operation(summary = "Tạo món ăn mới (Super Admin)",
-            description = "Tạo món ăn mới với thông tin và hình ảnh.")
+    @Operation(summary = "Create food item (Super Admin)",
+            description = "Create a new food item with information and images.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tạo thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "201", description = "Created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @CacheEvict(value = CacheConfig.ADMIN_FOODS_CACHE, allEntries = true)
@@ -93,11 +93,11 @@ public class SuperAdminFoodController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Cập nhật món ăn (Super Admin)",
-            description = "Cập nhật thông tin món ăn theo ID, bao gồm cả món được bảo vệ.")
+    @Operation(summary = "Update food item (Super Admin)",
+            description = "Update food item information by ID, including protected items.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Food item not found")
     })
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Caching(evict = {
@@ -105,17 +105,17 @@ public class SuperAdminFoodController {
             @CacheEvict(value = CacheConfig.ADMIN_FOOD_DETAILS_CACHE, key = "#id")
     })
     public ResponseEntity<FoodResponse> updateFood(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id,
+            @Parameter(description = "Food item ID") @PathVariable Long id,
             @ModelAttribute FoodRequest foodRequest) {
         FoodResponse response = foodService.updateFood(id, foodRequest);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Xóa món ăn (Super Admin)",
-            description = "Xóa món ăn theo ID, bao gồm cả món được bảo vệ.")
+    @Operation(summary = "Delete food item (Super Admin)",
+            description = "Delete a food item by ID, including protected items.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Xóa thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "204", description = "Deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Food item not found")
     })
     @DeleteMapping("/{id}")
     @Caching(evict = {
@@ -123,16 +123,16 @@ public class SuperAdminFoodController {
             @CacheEvict(value = CacheConfig.ADMIN_FOOD_DETAILS_CACHE, key = "#id")
     })
     public ResponseEntity<Void> deleteFood(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id) {
+            @Parameter(description = "Food item ID") @PathVariable Long id) {
         foodService.deleteFood(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Cập nhật trạng thái món ăn (Super Admin)",
-            description = "Cập nhật trạng thái món ăn, bao gồm cả món được bảo vệ.")
+    @Operation(summary = "Update food status (Super Admin)",
+            description = "Update a food item's status, including protected items.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Food item not found")
     })
     @PatchMapping("/{id}/status")
     @Caching(evict = {
@@ -140,21 +140,21 @@ public class SuperAdminFoodController {
             @CacheEvict(value = CacheConfig.ADMIN_FOOD_DETAILS_CACHE, key = "#id")
     })
     public ResponseEntity<FoodResponse> updateFoodStatus(
-            @Parameter(description = "ID của món ăn") @PathVariable Long id,
+            @Parameter(description = "Food item ID") @PathVariable Long id,
             @RequestBody FoodStatusUpdateRequest request) {
         FoodResponse response = foodService.updateFoodStatus(id, request);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Upload ảnh món ăn (Super Admin)",
-            description = "Upload ảnh món ăn lên S3 và trả về URL.")
+    @Operation(summary = "Upload food image (Super Admin)",
+            description = "Upload a food image to S3 and return the URL.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Upload thành công"),
-            @ApiResponse(responseCode = "500", description = "Lỗi upload")
+            @ApiResponse(responseCode = "200", description = "Uploaded successfully"),
+            @ApiResponse(responseCode = "500", description = "Upload failed")
     })
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(
-            @Parameter(description = "File ảnh cần upload") @RequestParam("file") MultipartFile file) {
+            @Parameter(description = "Image file to upload") @RequestParam("file") MultipartFile file) {
         try {
             String imageUrl = s3Service.uploadFile(file);
             return ResponseEntity.ok(imageUrl);
@@ -164,4 +164,3 @@ public class SuperAdminFoodController {
         }
     }
 }
-

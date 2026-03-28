@@ -10,16 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Response wrapper chuẩn cho API")
+@Schema(description = "Standard API response wrapper")
 public class ApiResponse<T> {
 
-    @Schema(description = "Trạng thái thành công hay thất bại", example = "true")
+    @Schema(description = "Success or failure status", example = "true")
     private boolean success;
 
-    @Schema(description = "Thông báo kết quả", example = "Thao tác thành công")
+    @Schema(description = "Result message", example = "Operation successful")
     private String message;
 
-    @Schema(description = "Dữ liệu trả về (có thể null)")
+    @Schema(description = "Response data (can be null)")
     private Object data;
 
     public static ApiResponse success(String message) {

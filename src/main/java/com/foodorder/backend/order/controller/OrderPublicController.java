@@ -26,18 +26,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/public/orders")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Orders - Public", description = "API tạo đơn hàng - Công khai")
+@Tag(name = "Orders - Public", description = "Public order creation API")
 public class OrderPublicController {
 
     private final OrderService orderService;
     private final PaymentController paymentController;
 
-    @Operation(summary = "Tạo đơn hàng và thanh toán",
-            description = "Tạo đơn hàng mới và khởi tạo link thanh toán dựa trên phương thức được chọn.")
+    @Operation(summary = "Create order and payment",
+            description = "Create a new order and initiate payment link based on selected payment method.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo đơn hàng thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy món ăn")
+            @ApiResponse(responseCode = "200", description = "Order created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Food not found")
     })
     @PostMapping
     public ResponseEntity<PaymentResponse> createOrderAndPay(@RequestBody OrderRequest orderRequest) {

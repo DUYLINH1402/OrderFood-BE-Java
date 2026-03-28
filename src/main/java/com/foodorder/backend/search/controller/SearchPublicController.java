@@ -25,32 +25,32 @@ import java.util.List;
 @RequestMapping("/api/v1/public/search")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Search - Public", description = "API tìm kiếm món ăn qua Algolia - Công khai")
+@Tag(name = "Search - Public", description = "Food search API via Algolia - Public access")
 public class SearchPublicController {
 
     private final AlgoliaSearchService algoliaSearchService;
 
     @GetMapping
     @Operation(
-            summary = "Tìm kiếm món ăn",
-            description = "Tìm kiếm món ăn theo từ khóa sử dụng Algolia full-text search. " +
-                    "Hỗ trợ tìm kiếm theo tên và mô tả món ăn."
+            summary = "Search for food",
+            description = "Search for food items by keyword using Algolia full-text search. " +
+                    "Supports searching by food name and description."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tìm kiếm thành công"),
-            @ApiResponse(responseCode = "400", description = "Tham số không hợp lệ")
+            @ApiResponse(responseCode = "200", description = "Search successful"),
+            @ApiResponse(responseCode = "400", description = "Invalid parameters")
     })
     public ResponseEntity<FoodSearchResponse> search(
-            @Parameter(description = "Từ khóa tìm kiếm", required = true, example = "phở bò")
+            @Parameter(description = "Search keyword", required = true, example = "pho bo")
             @RequestParam String query,
 
-            @Parameter(description = "Số trang (bắt đầu từ 0)", example = "0")
+            @Parameter(description = "Page number (starting from 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
 
-            @Parameter(description = "Số kết quả mỗi trang", example = "10")
+            @Parameter(description = "Number of results per page", example = "10")
             @RequestParam(defaultValue = "10") int hitsPerPage
     ) {
-        log.info("Tìm kiếm món ăn với query: '{}', page: {}, hitsPerPage: {}", query, page, hitsPerPage);
+        log.info("Searching for food with query: '{}', page: {}, hitsPerPage: {}", query, page, hitsPerPage);
 
         List<FoodSearchDTO> results = algoliaSearchService.search(query, page, hitsPerPage);
 

@@ -13,11 +13,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Request thay đổi trạng thái bình luận (dành cho Admin)")
+@Schema(description = "Request to update comment status (Admin only)")
 public class UpdateCommentStatusRequest {
 
-    @NotNull(message = "Trạng thái mới là bắt buộc")
-    @Schema(description = "Trạng thái mới của bình luận", example = "HIDDEN", allowableValues = {"ACTIVE", "HIDDEN", "DELETED"})
+    @NotNull(message = "STATUS_REQUIRED")
+    @Schema(description = "New comment status", example = "HIDDEN", allowableValues = {"ACTIVE", "HIDDEN", "DELETED"})
     private CommentStatus status;
 }
-

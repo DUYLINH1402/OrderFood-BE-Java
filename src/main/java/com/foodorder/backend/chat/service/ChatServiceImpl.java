@@ -58,12 +58,12 @@ public class ChatServiceImpl implements ChatService {
         // Tìm tin nhắn gốc để lấy thông tin conversation
         ChatMessage originalMessage = findMessageById(replyToMessageId);
         if (originalMessage == null) {
-            throw new ResourceNotFoundException("ORIGINAL_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn gốc để phản hồi");
+            throw new ResourceNotFoundException("ORIGINAL_MESSAGE_NOT_FOUND", "Original message not found for reply");
         }
 
         // Kiểm tra tin nhắn gốc phải là từ staff gửi cho user
         if (originalMessage.getMessageType() != ChatMessage.MessageType.STAFF_TO_USER) {
-            throw new BadRequestException("INVALID_REPLY_TARGET", "Chỉ có thể phản hồi tin nhắn của nhân viên hỗ trợ");
+            throw new BadRequestException("INVALID_REPLY_TARGET", "Can only reply to staff messages");
         }
 
         // Lấy hoặc tạo conversation cho user
@@ -140,12 +140,12 @@ public class ChatServiceImpl implements ChatService {
         // Tìm tin nhắn gốc để lấy thông tin user và conversation
         ChatMessage originalMessage = findMessageById(replyToMessageId);
         if (originalMessage == null) {
-            throw new ResourceNotFoundException("ORIGINAL_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn gốc để phản hồi");
+            throw new ResourceNotFoundException("ORIGINAL_MESSAGE_NOT_FOUND", "Original message not found for reply");
         }
 
         // Kiểm tra tin nhắn gốc phải là từ user gửi cho staff
         if (originalMessage.getMessageType() != ChatMessage.MessageType.USER_TO_STAFF) {
-            throw new BadRequestException("INVALID_REPLY_TARGET", "Chỉ có thể phản hồi tin nhắn của khách hàng");
+            throw new BadRequestException("INVALID_REPLY_TARGET", "Can only reply to customer messages");
         }
 
         User originalSender = originalMessage.getSender();
@@ -184,7 +184,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void markMessageAsRead(String messageId) {
         ChatMessage message = chatMessageRepository.findByMessageId(messageId)
-                .orElseThrow(() -> new ResourceNotFoundException("CHAT_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn"));
+                .orElseThrow(() -> new ResourceNotFoundException("CHAT_MESSAGE_NOT_FOUND", "Chat message not found"));
 
         message.markAsRead();
         chatMessageRepository.save(message);
@@ -258,7 +258,7 @@ public class ChatServiceImpl implements ChatService {
 
         // Kiểm tra quyền xóa - chỉ sender mới được xóa tin nhắn của mình
         if (!message.getSender().getId().equals(user.getId())) {
-            throw new BadRequestException("ACCESS_DENIED", "Bạn chỉ có thể xóa tin nhắn của chính mình");
+            throw new BadRequestException("ACCESS_DENIED", "You can only delete your own messages");
         }
 
         message.deleteByUser();
@@ -271,7 +271,7 @@ public class ChatServiceImpl implements ChatService {
         // Kiểm tra quyền staff
         String roleCode = staff.getRole().getCode();
         if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-            throw new BadRequestException("ACCESS_DENIED", "Chỉ staff mới có thể xóa tin nhắn");
+            throw new BadRequestException("ACCESS_DENIED", "Only staff can delete messages");
         }
 
         ChatMessage message = findByMessageId(messageId);
@@ -286,7 +286,7 @@ public class ChatServiceImpl implements ChatService {
 
         // Kiểm tra quyền khôi phục
         if (!message.getSender().getId().equals(user.getId())) {
-            throw new BadRequestException("ACCESS_DENIED", "Bạn chỉ có thể khôi phục tin nhắn của chính mình");
+            throw new BadRequestException("ACCESS_DENIED", "You can only restore your own messages");
         }
 
         message.restoreByUser();
@@ -299,7 +299,7 @@ public class ChatServiceImpl implements ChatService {
         // Kiểm tra quyền staff
         String roleCode = staff.getRole().getCode();
         if (!"ROLE_STAFF".equals(roleCode) && !"ROLE_ADMIN".equals(roleCode)) {
-            throw new BadRequestException("ACCESS_DENIED", "Chỉ staff mới có thể khôi phục tin nhắn");
+            throw new BadRequestException("ACCESS_DENIED", "Only staff can restore messages");
         }
 
         ChatMessage message = findByMessageId(messageId);
@@ -408,7 +408,7 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = true)
     public ChatMessage findByMessageId(String messageId) {
         return chatMessageRepository.findByMessageId(messageId)
-                .orElseThrow(() -> new ResourceNotFoundException("CHAT_MESSAGE_NOT_FOUND", "Không tìm thấy tin nhắn"));
+                .orElseThrow(() -> new ResourceNotFoundException("CHAT_MESSAGE_NOT_FOUND", "Chat message not found"));
     }
 
     // ========== ADMIN & REPORTING ==========
@@ -448,19 +448,19 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void validateChatMessageRequest(ChatMessageRequest request) {
         if (request == null) {
-            throw new BadRequestException("INVALID_REQUEST", "Yêu cầu không hợp lệ");
+            throw new BadRequestException("INVALID_REQUEST", "Invalid request");
         }
 
         if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
-            throw new BadRequestException("MESSAGE_REQUIRED", "Nội dung tin nhắn không được để trống");
+            throw new BadRequestException("MESSAGE_REQUIRED", "Message content is required");
         }
 
         if (request.getMessage().length() > 1000) {
-            throw new BadRequestException("MESSAGE_TOO_LONG", "Tin nhắn không được vượt quá 1000 ký tự");
+            throw new BadRequestException("MESSAGE_TOO_LONG", "Message must not exceed 1000 characters");
         }
 
         if (request.getToken() == null || request.getToken().trim().isEmpty()) {
-            throw new BadRequestException("TOKEN_REQUIRED", "Token xác thực không được để trống");
+            throw new BadRequestException("TOKEN_REQUIRED", "Authentication token is required");
         }
     }
 }

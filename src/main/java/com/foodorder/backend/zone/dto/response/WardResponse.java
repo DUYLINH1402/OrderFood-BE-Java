@@ -11,18 +11,18 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response chứa thông tin phường/xã")
+@Schema(description = "Response containing ward information")
 public class WardResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID của phường/xã", example = "1")
+    @Schema(description = "Ward ID", example = "1")
     private Long id;
 
-    @Schema(description = "Tên phường/xã", example = "Phường Bến Nghé")
+    @Schema(description = "Ward name", example = "Ben Nghe Ward")
     private String name;
 
-    @Schema(description = "ID của quận/huyện chứa phường/xã này", example = "1")
+    @Schema(description = "ID of the district this ward belongs to", example = "1")
     private Long districtId;
 }

@@ -32,24 +32,24 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1/client/orders")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Orders - Client", description = "API quản lý đơn hàng - Yêu cầu đăng nhập")
+@Tag(name = "Orders - Client", description = "Order management API - Requires authentication")
 public class OrderClientController {
 
     private final OrderService orderService;
 
-    @Operation(summary = "Lấy danh sách đơn hàng", description = "Lấy danh sách đơn hàng của người dùng hiện tại với phân trang và lọc theo trạng thái.")
+    @Operation(summary = "Get order list", description = "Get current user's orders with pagination and status filter.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping
     public ResponseEntity<PageResponse<OrderResponse>> getOrders(
-            @Parameter(description = "Trạng thái đơn hàng (all, pending, confirmed, ...)") @RequestParam(defaultValue = "all") String status,
-            @Parameter(description = "Số trang (bắt đầu từ 0)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Số lượng mỗi trang") @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Trường sắp xếp") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Hướng sắp xếp (asc/desc)") @RequestParam(defaultValue = "desc") String sortDir,
-            @Parameter(description = "ID người dùng (dùng để test)") @RequestParam(required = false) Long userId,
+            @Parameter(description = "Order status (all, pending, confirmed, ...)") @RequestParam(defaultValue = "all") String status,
+            @Parameter(description = "Page number (starts from 0)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Items per page") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "desc") String sortDir,
+            @Parameter(description = "User ID (for testing)") @RequestParam(required = false) Long userId,
             @Parameter(hidden = true) HttpServletRequest request) {
 
         Long actualUserId = userId != null ? userId : getUserIdFromToken(request);
@@ -62,14 +62,14 @@ public class OrderClientController {
         return ResponseEntity.ok(orders);
     }
 
-    @Operation(summary = "Chi tiết đơn hàng", description = "Lấy thông tin chi tiết của một đơn hàng theo mã đơn.")
+    @Operation(summary = "Get order details", description = "Get detailed information of an order by order code.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy đơn hàng")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
     })
     @GetMapping("/{orderCode}")
     public ResponseEntity<OrderResponse> getOrderDetail(
-            @Parameter(description = "Mã đơn hàng") @PathVariable String orderCode,
+            @Parameter(description = "Order code") @PathVariable String orderCode,
             @Parameter(hidden = true) HttpServletRequest request) {
 
         Long userId = getUserIdFromToken(request);
@@ -78,46 +78,46 @@ public class OrderClientController {
         return ResponseEntity.ok(order);
     }
 
-    @Operation(summary = "Cập nhật trạng thái đơn hàng", description = "Cập nhật trạng thái của một đơn hàng.")
+    @Operation(summary = "Update order status", description = "Update order status.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy đơn hàng"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Trạng thái không hợp lệ")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Updated successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid status")
     })
     @PutMapping("/{orderCode}/status")
     public ResponseEntity<ApiResponse> updateOrderStatus(
-            @Parameter(description = "Mã đơn hàng") @PathVariable String orderCode,
+            @Parameter(description = "Order code") @PathVariable String orderCode,
             @RequestBody UpdateOrderStatusRequest request,
             @Parameter(hidden = true) HttpServletRequest httpRequest) {
 
         Long userId = getUserIdFromToken(httpRequest);
         orderService.updateOrderStatus(orderCode, userId, request);
 
-        return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái thành công"));
+        return ResponseEntity.ok(ApiResponse.success("Order status updated successfully"));
     }
 
-    @Operation(summary = "Hủy đơn hàng", description = "Hủy một đơn hàng với lý do cụ thể.")
+    @Operation(summary = "Cancel order", description = "Cancel an order with specific reason.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Hủy thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy đơn hàng"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Không thể hủy đơn hàng")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cancelled successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Cannot cancel order")
     })
     @PutMapping("/{orderCode}/cancel")
     public ResponseEntity<ApiResponse> cancelOrder(
-            @Parameter(description = "Mã đơn hàng") @PathVariable String orderCode,
+            @Parameter(description = "Order code") @PathVariable String orderCode,
             @RequestBody CancelOrderRequest request,
             @Parameter(hidden = true) HttpServletRequest httpRequest) {
 
         Long userId = getUserIdFromToken(httpRequest);
         orderService.cancelOrder(orderCode, userId, request.getCancelReason());
 
-        return ResponseEntity.ok(ApiResponse.success("Hủy đơn hàng thành công"));
+        return ResponseEntity.ok(ApiResponse.success("Order cancelled successfully"));
     }
 
-    @Operation(summary = "Thống kê đơn hàng", description = "Lấy thống kê đơn hàng của người dùng hiện tại.")
+    @Operation(summary = "Order statistics", description = "Get order statistics for current user.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping("/statistics")
     public ResponseEntity<OrderStatisticsResponse> getOrderStatistics(

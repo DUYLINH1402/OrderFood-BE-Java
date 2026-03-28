@@ -21,20 +21,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/public/wards")
 @RequiredArgsConstructor
-@Tag(name = "Wards - Public", description = "API quản lý phường/xã - Công khai")
+@Tag(name = "Wards - Public", description = "Ward management API - Public access")
 public class WardController {
 
     private final WardService wardService;
 
-    @Operation(summary = "Lấy danh sách phường/xã theo quận/huyện",
-               description = "Lấy danh sách tất cả phường/xã thuộc một quận/huyện cụ thể.")
+    @Operation(summary = "Get wards by district",
+               description = "Get a list of all wards belonging to a specific district.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy quận/huyện")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "District not found")
     })
     @GetMapping("/by-district/{districtId}")
     public ResponseEntity<List<WardResponse>> getWardsByDistrict(
-            @Parameter(description = "ID của quận/huyện", required = true, example = "1")
+            @Parameter(description = "District ID", required = true, example = "1")
             @PathVariable Long districtId) {
         List<WardResponse> wards = wardService.getWardsByDistrict(districtId);
         return ResponseEntity.ok(wards);

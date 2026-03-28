@@ -105,13 +105,13 @@ public class OAuth2UserServiceImpl implements OAuth2UserService {
         // Thêm provider mới nếu chưa có
         if (!currentProvider.contains(authProvider)) {
             user.setAuthProvider(currentProvider + "," + authProvider);
-            log.info("User {} đã liên kết thêm provider: {}", user.getEmail(), authProvider);
+            log.info("User {} linked additional provider: {}", user.getEmail(), authProvider);
         }
 
         // Cập nhật thời gian đăng nhập
         user.setLastLogin(LocalDateTime.now());
 
-        log.info("User đăng nhập qua {} OAuth2: {} (providers: {})",
+        log.info("User logged in via {} OAuth2: {} (providers: {})",
                 authProvider, user.getEmail(), user.getAuthProvider());
         return userRepository.save(user);
     }
@@ -133,7 +133,7 @@ public class OAuth2UserServiceImpl implements OAuth2UserService {
 
         // Lấy role USER từ database
         Role customerRole = roleRepository.findByCode("ROLE_USER")
-                .orElseThrow(() -> new BadRequestException("Role mặc định không tồn tại", "ROLE_NOT_FOUND"));
+                .orElseThrow(() -> new BadRequestException("Default role not found", "ROLE_NOT_FOUND"));
 
         // Tạo mật khẩu random (user không cần dùng vì đăng nhập qua OAuth2)
         String randomPassword = UUID.randomUUID().toString();
@@ -164,8 +164,8 @@ public class OAuth2UserServiceImpl implements OAuth2UserService {
 
         // Lưu log vào point_history
         String description = "GOOGLE".equals(authProvider)
-                ? "Tặng điểm khi đăng ký qua Google"
-                : "Tặng điểm khi đăng ký qua Facebook";
+                ? "Welcome bonus points for Google registration"
+                : "Welcome bonus points for Facebook registration";
 
         PointHistory pointHistory = PointHistory.builder()
                 .userId(newUser.getId())

@@ -9,11 +9,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Request body để đăng ký tài khoản mới")
+@Schema(description = "Request body for user registration")
 public class UserRegisterRequest {
 
     @Schema(
-        description = "Tên đăng nhập của người dùng (không được trùng với tài khoản khác)",
+        description = "Username (must be unique)",
         example = "johndoe",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -21,7 +21,7 @@ public class UserRegisterRequest {
     private String username;
 
     @Schema(
-        description = "Email của người dùng (dùng để xác thực và nhận thông báo)",
+        description = "User email (used for verification and notifications)",
         example = "user@example.com",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
@@ -30,7 +30,7 @@ public class UserRegisterRequest {
     private String email;
 
     @Schema(
-        description = "Mật khẩu (tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt)",
+        description = "Password (minimum 8 characters, including uppercase, lowercase, number and special character)",
         example = "Password@123",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
